@@ -129,8 +129,10 @@ public class MainController implements Controller<TabPane> {
         LoginController loginController = uiService.loadFxml("login.fxml");
 
         Stage loginDialog = new Stage();
+        loginDialog.setOnCloseRequest(event -> System.exit(0));
+        loginDialog.setTitle("FAF Moderator Client");
         loginDialog.setScene(new Scene(loginController.getRoot()));
-        loginDialog.initStyle(StageStyle.UNDECORATED);
+        loginDialog.initStyle(StageStyle.UTILITY);
         loginDialog.showAndWait();
 
         refreshLadderPool();
