@@ -1,5 +1,7 @@
 package com.faforever.moderatorclient.api;
 
+import com.faforever.moderatorclient.api.dto.LegacyAccessLevel;
+import com.faforever.moderatorclient.api.dto.Player;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +9,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
 import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.stereotype.Service;
@@ -65,8 +68,8 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public void authorize(String username, String password) {
-        log.debug("Starting OAuth2 login with user = '{}', password=[hidden]");
+    private void authorize(String username, String password) {
+        log.debug("Configuring OAuth2 login with user = '{}', password=[hidden]");
         ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
         details.setClientId(apiClientId);
         details.setClientSecret(apiClientSecret);
@@ -78,6 +81,19 @@ public class FafApiCommunicationService {
         restOperations = restTemplateBuilder.configure(new OAuth2RestTemplate(details));
 
         authorizedLatch.countDown();
+    }
+
+    /**
+     * @return LegacyAccessLevel of the user if login was successful, else null
+     */
+    public LegacyAccessLevel login(String username, String password) {
+        authorize(username, password);
+        try {
+            Player player = getOne("/me?include=lobbyGroup", Player.class);
+            return player.getLobbyGroup().getAccessLevel();
+        } catch (OAuth2AccessDeniedException e) {
+            return null;
+        }
     }
 
     @SneakyThrows

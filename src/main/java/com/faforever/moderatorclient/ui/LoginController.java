@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.dto.LegacyAccessLevel;
 import javafx.fxml.FXML;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
@@ -8,7 +9,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +18,7 @@ public class LoginController implements Controller<Pane> {
     public DialogPane root;
     public TextField usernameField;
     public PasswordField passwordField;
-    public Label loginFailedLabel;
+    public Label errorMessageLabel;
 
     public LoginController(FafApiCommunicationService fafApiCommunicationService) {
         this.fafApiCommunicationService = fafApiCommunicationService;
@@ -31,19 +31,21 @@ public class LoginController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        loginFailedLabel.setVisible(false);
+        errorMessageLabel.setVisible(false);
     }
 
     public void onLoginClicked() {
-        fafApiCommunicationService.authorize(usernameField.getText(), passwordField.getText());
-        try {
-            fafApiCommunicationService.getOne("/me", Object.class);
-            // TODO: Check that the user is actually a moderator
-        } catch (OAuth2AccessDeniedException e) {
-            loginFailedLabel.setVisible(true);
-            return;
+        LegacyAccessLevel accessLevel = fafApiCommunicationService.login(usernameField.getText(), passwordField.getText());
+
+        if (accessLevel == null) {
+            errorMessageLabel.setText("Login failed. Please check your credentials.");
+            errorMessageLabel.setVisible(true);
+        } else if (accessLevel == LegacyAccessLevel.ROLE_USER) {
+            errorMessageLabel.setText("You do not have moderator permissions.");
+            errorMessageLabel.setVisible(true);
+        } else {
+            root.getScene().getWindow().hide();
         }
-        root.getScene().getWindow().hide();
     }
 
     public void onQuitClicked() {

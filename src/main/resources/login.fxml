@@ -50,7 +50,7 @@
                         <Font name="System Bold" size="15.0"/>
                     </font>
                 </Label>
-                <Label fx:id="loginFailedLabel" text="Login failed. Please check your credentials." textFill="RED"
+                <Label fx:id="errorMessageLabel" text="Login failed. Please check your credentials." textFill="RED"
                        GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
                     <font>
                         <Font name="System Italic" size="13.0"/>
