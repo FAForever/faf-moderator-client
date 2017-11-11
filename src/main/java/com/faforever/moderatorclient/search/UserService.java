@@ -1,0 +1,62 @@
+package com.faforever.moderatorclient.search;
+
+import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.dto.NameRecord;
+import com.faforever.moderatorclient.api.dto.Player;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+public class UserService {
+    private final FafApiCommunicationService fafApi;
+
+    public UserService(FafApiCommunicationService fafApi) {
+        this.fafApi = fafApi;
+    }
+
+    private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
+        log.debug("Searching for user by attribute '{}' with pattern: {}", attribute, pattern);
+        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Player.class);
+
+        routeBuilder.filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
+
+        List<Player> result = fafApi.getAll(routeBuilder);
+        log.trace("found {} users", result.size());
+        return result;
+    }
+
+    public List<Player> findUserByName(@NotNull String pattern) {
+        return findUsersByAttribute("login", pattern);
+    }
+
+    public List<Player> findUserByEmail(String pattern) {
+        return findUsersByAttribute("email", pattern);
+    }
+
+    public List<Player> findUserBySteamId(String pattern) {
+        return findUsersByAttribute("steamId", pattern);
+    }
+
+    public Collection<Player> findUsersByPreviousName(String pattern) {
+        log.debug("Searching for user by previous name with pattern: {}", pattern);
+        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(NameRecord.class)
+                .addInclude("player");
+
+        routeBuilder.filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
+
+        List<NameRecord> result = fafApi.getAll(routeBuilder);
+        log.trace("found {} name records", result.size());
+        return result.stream()
+                .map(NameRecord::getPlayer)
+                .collect(Collectors.toSet());
+    }
+
+
+}

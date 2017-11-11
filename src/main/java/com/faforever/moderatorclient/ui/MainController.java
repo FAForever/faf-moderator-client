@@ -1,10 +1,13 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.Map;
+import com.faforever.moderatorclient.api.dto.Player;
 import com.faforever.moderatorclient.search.MapService;
+import com.faforever.moderatorclient.search.UserService;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,14 +19,30 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 @Component
 @Slf4j
 public class MainController implements Controller<TabPane> {
     private final UiService uiService;
+    private final UserService userService;
     private final MapService mapService;
     public TabPane root;
+
+    // Tab "User Management"
+    public RadioButton currentNameRadioButton;
+    public RadioButton previousNamesRadioButton;
+    public RadioButton emailRadioButton;
+    public RadioButton steamIdRadioButton;
+    public TextField userSearchTextField;
+    public TableView<Player> userSearchTableView;
+    public TableView nameHistoryTableView;
+    public TableView bansTableView;
+    public TableView recentGamesTableView;
+
+    // Tab "Ladder Map Pool"
     public TreeTableView<MapTableItemAdapter> ladderPoolView;
     public TreeTableView<MapTableItemAdapter> mapVaultView;
     public CheckBox filterByMapNameCheckBox;
@@ -33,8 +52,9 @@ public class MainController implements Controller<TabPane> {
     public Button removeFromPoolButton;
     public Button addToPoolButton;
 
-    public MainController(UiService uiService, MapService mapSearchService) {
+    public MainController(UiService uiService, UserService userService, MapService mapSearchService) {
         this.uiService = uiService;
+        this.userService = userService;
         this.mapService = mapSearchService;
     }
 
@@ -103,6 +123,11 @@ public class MainController implements Controller<TabPane> {
 
     @FXML
     public void initialize() {
+        initUserManagementTab();
+        initLadderMapPoolTab();
+    }
+
+    private void initLadderMapPoolTab() {
         buildMapTreeView(ladderPoolView);
         bindMapTreeViewToImageView(ladderPoolView, ladderPoolImageView);
 
@@ -123,6 +148,52 @@ public class MainController implements Controller<TabPane> {
                 addToPoolButton.setDisable(!newValue.getValue().isMapVersion());
             }
         });
+    }
+
+    private void initUserManagementTab() {
+        TableColumn<Player, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        userSearchTableView.getColumns().add(idColumn);
+
+        TableColumn<Player, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("login"));
+        nameColumn.setMinWidth(150);
+        userSearchTableView.getColumns().add(nameColumn);
+
+        TableColumn<Player, String> emailColumn = new TableColumn<>("Email");
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        emailColumn.setMinWidth(250);
+        userSearchTableView.getColumns().add(emailColumn);
+
+        TableColumn<Player, String> steamIdColumn = new TableColumn<>("Steam ID");
+        steamIdColumn.setCellValueFactory(new PropertyValueFactory<>("steamId"));
+        steamIdColumn.setMinWidth(100);
+        userSearchTableView.getColumns().add(steamIdColumn);
+    }
+
+    public void onUserSearch() {
+        userSearchTableView.getItems().clear();
+
+        Collection<Player> usersFound = Collections.emptyList();
+        String searchPattern = userSearchTextField.getText();
+        if (currentNameRadioButton.isSelected()) {
+            usersFound = userService.findUserByName(searchPattern);
+        }
+
+        if (previousNamesRadioButton.isSelected()) {
+            usersFound = userService.findUsersByPreviousName(searchPattern);
+        }
+
+        if (emailRadioButton.isSelected()) {
+            usersFound = userService.findUserByEmail(searchPattern);
+        }
+
+        if (steamIdRadioButton.isSelected()) {
+            usersFound = userService.findUserBySteamId(searchPattern);
+        }
+
+        userSearchTableView.getItems().addAll(usersFound);
     }
 
     public void display() {

@@ -9,6 +9,127 @@
          maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.111"
          fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
+        <Tab text="User Management">
+            <content>
+                <VBox>
+                    <children>
+                        <HBox>
+                            <children>
+                                <VBox>
+                                    <children>
+                                        <RadioButton fx:id="currentNameRadioButton" mnemonicParsing="false"
+                                                     selected="true" text="search by current name">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                            <toggleGroup>
+                                                <ToggleGroup fx:id="userSearch"/>
+                                            </toggleGroup>
+                                        </RadioButton>
+                                        <RadioButton fx:id="previousNamesRadioButton" mnemonicParsing="false"
+                                                     text="search by previous names" toggleGroup="$userSearch">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </RadioButton>
+                                        <RadioButton fx:id="emailRadioButton" mnemonicParsing="false"
+                                                     text="search by email" toggleGroup="$userSearch">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </RadioButton>
+                                        <RadioButton fx:id="steamIdRadioButton" mnemonicParsing="false"
+                                                     text="search by Steam ID" toggleGroup="$userSearch">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </RadioButton>
+                                        <TextField fx:id="userSearchTextField">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </TextField>
+                                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </Button>
+                                    </children>
+                                    <HBox.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                    </HBox.margin>
+                                </VBox>
+                                <TableView fx:id="userSearchTableView" maxHeight="1.7976931348623157E308"
+                                           maxWidth="1.7976931348623157E308" minWidth="550.0" prefHeight="200.0"
+                                           HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0"/>
+                            </VBox.margin>
+                        </Separator>
+                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                            <tabs>
+                                <Tab text="Name History">
+                                    <content>
+                                        <TableView fx:id="nameHistoryTableView" maxHeight="1.7976931348623157E308"
+                                                   maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
+                                    </content>
+                                </Tab>
+                                <Tab text="Bans">
+                                    <content>
+                                        <VBox>
+                                            <children>
+                                                <TableView fx:id="bansTableView" prefHeight="200.0" prefWidth="200.0"
+                                                           VBox.vgrow="ALWAYS">
+                                                    <VBox.margin>
+                                                        <Insets bottom="10.0"/>
+                                                    </VBox.margin>
+                                                </TableView>
+                                                <HBox alignment="CENTER">
+                                                    <children>
+                                                        <TextField minWidth="250.0" promptText="Ban reason"
+                                                                   HBox.hgrow="ALWAYS">
+                                                            <HBox.margin>
+                                                                <Insets right="10.0"/>
+                                                            </HBox.margin>
+                                                        </TextField>
+                                                        <TextField maxWidth="120.0" promptText="Duration (days)">
+                                                            <HBox.margin>
+                                                                <Insets right="10.0"/>
+                                                            </HBox.margin>
+                                                        </TextField>
+                                                        <ComboBox promptText="Ban type">
+                                                            <HBox.margin>
+                                                                <Insets right="10.0"/>
+                                                            </HBox.margin>
+                                                        </ComboBox>
+                                                        <Button mnemonicParsing="false" text="Apply ban">
+                                                            <HBox.margin>
+                                                                <Insets/>
+                                                            </HBox.margin>
+                                                        </Button>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </content>
+                                </Tab>
+                                <Tab text="Recent games">
+                                    <content>
+                                        <TableView fx:id="recentGamesTableView" prefHeight="200.0"/>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                            <VBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </VBox.margin>
+                        </TabPane>
+                    </children>
+                </VBox>
+            </content>
+        </Tab>
         <Tab closable="false" text="Ladder Map Pool">
             <content>
                 <VBox>
@@ -112,11 +233,6 @@
                         </HBox>
                     </children>
                 </VBox>
-            </content>
-        </Tab>
-        <Tab text="Bans">
-            <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
             </content>
         </Tab>
         <Tab text="Map vault">

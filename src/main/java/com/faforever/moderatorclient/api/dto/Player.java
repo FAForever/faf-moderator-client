@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @EqualsAndHashCode(of = "id")
@@ -15,7 +17,11 @@ public class Player {
     @Id
     private String id;
     private String login;
+    @Relationship("names")
+    List<NameRecord> names;
+    private String email;
     private String userAgent;
+    private String steamId;
 
     @Relationship("globalRating")
     private GlobalRating globalRating;
