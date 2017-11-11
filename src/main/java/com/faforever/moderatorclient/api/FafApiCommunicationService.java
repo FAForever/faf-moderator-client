@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.api;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FafApiCommunicationService {
     private final RestTemplateBuilder restTemplateBuilder;
     private final HttpComponentsClientHttpRequestFactory requestFactory;
@@ -64,6 +66,7 @@ public class FafApiCommunicationService {
 
     @SneakyThrows
     public void authorize(String username, String password) {
+        log.debug("Starting OAuth2 login with user = '{}', password=[hidden]");
         ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
         details.setClientId(apiClientId);
         details.setClientSecret(apiClientSecret);
@@ -158,6 +161,11 @@ public class FafApiCommunicationService {
     @SneakyThrows
     public <T> List<T> getPage(ElideRouteBuilder routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
         authorizedLatch.await();
-        return (List<T>) restOperations.getForObject(routeBuilder.build(), List.class);
+        return (List<T>) restOperations.getForObject(
+                routeBuilder
+                        .pageSize(pageSize)
+                        .pageNumber(page)
+                        .build(),
+                List.class);
     }
 }

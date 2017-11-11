@@ -20,6 +20,7 @@ public class UiService {
 
     @SneakyThrows
     public <T extends Controller<?>> T loadFxml(String relativePath) {
+        log.trace("Loading fxml from relative path: {}", relativePath);
         FXMLLoader loader = new FXMLLoader();
         loader.setControllerFactory(applicationContext::getBean);
         loader.setLocation(getClass().getResource("/" + relativePath));
