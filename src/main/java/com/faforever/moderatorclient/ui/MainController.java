@@ -44,7 +44,6 @@ public class MainController implements Controller<TabPane> {
     public TableView<NameRecord> nameHistoryTableView;
     public TableView<BanInfo> banTableView;
     public TableView<Teamkill> teamkillTableView;
-    public TableView recentGamesTableView;
 
     // Tab "Ladder Map Pool"
     public TreeTableView<MapTableItemAdapter> ladderPoolView;

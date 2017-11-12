@@ -121,11 +121,6 @@
                                         <TableView fx:id="teamkillTableView" prefHeight="200.0" prefWidth="200.0"/>
                                     </content>
                                 </Tab>
-                                <Tab text="Recent games">
-                                    <content>
-                                        <TableView fx:id="recentGamesTableView" prefHeight="200.0"/>
-                                    </content>
-                                </Tab>
                             </tabs>
                             <VBox.margin>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
