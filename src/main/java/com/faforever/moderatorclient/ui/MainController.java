@@ -12,8 +12,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.stereotype.Component;
@@ -264,6 +267,12 @@ public class MainController implements Controller<TabPane> {
         updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         updateTimeColumn.setMinWidth(180);
         banTableView.getColumns().add(updateTimeColumn);
+
+        TableColumn<BanInfo, BanInfo> actionColumn = new TableColumn<>("Action");
+        actionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        actionColumn.setCellFactory(param -> new BanActionCell());
+        actionColumn.setMinWidth(230);
+        banTableView.getColumns().add(actionColumn);
     }
 
     private void initTeamkillTableView() {
@@ -384,5 +393,65 @@ public class MainController implements Controller<TabPane> {
 
         fillMapTreeView(mapVaultView,
                 mapService.findMaps(mapNamePattern).stream());
+    }
+
+    private class BanActionCell extends TableCell<BanInfo, BanInfo> {
+        final HBox hBox = new HBox();
+        final Button revokeButton = new Button("revoke");
+        final Button changeDurationButton = new Button("change duration");
+        @Getter
+        BanInfo banInfo;
+
+        public BanActionCell() {
+            hBox.getChildren().addAll(revokeButton, changeDurationButton);
+
+            revokeButton.setOnAction(event -> {
+                TextInputDialog banRevocationReasonDialog = new TextInputDialog("");
+                banRevocationReasonDialog.setTitle("Ban Revocation");
+                banRevocationReasonDialog.setHeaderText("Why do you revoke this ban?");
+                banRevocationReasonDialog.setContentText("Reason:");
+
+                Optional<String> result = banRevocationReasonDialog.showAndWait();
+                result.ifPresent(revocationReason -> {
+                    log.info("Revocation of ban id '{}' confirmed with reason: {}", this.getBanInfo().getId(), revocationReason);
+                });
+            });
+
+            changeDurationButton.setOnAction(event -> {
+                TextInputDialog banRevocationReasonDialog = new TextInputDialog("");
+                banRevocationReasonDialog.setTitle("Change ban duration");
+                banRevocationReasonDialog.setHeaderText("How many days do you want to change the ban duration (negative number allowed)?");
+                banRevocationReasonDialog.setContentText("Days to add/subtract [i.e. -0.5]:");
+
+                Optional<String> result = banRevocationReasonDialog.showAndWait();
+                result.ifPresent(revocationReason -> {
+                    try {
+                        double durationChange = Double.parseDouble(revocationReason);
+                        log.info("Changed duration of ban id '{}' by days: {}", this.getBanInfo().getId(), durationChange);
+                    } catch (NumberFormatException e) {
+                        Alert numberAlert = new Alert(Alert.AlertType.ERROR, "The value you provided was not a number.", ButtonType.OK);
+                        numberAlert.setTitle("Change ban duration failed");
+                        numberAlert.show();
+                    }
+                });
+            });
+        }
+
+        //Display button if the row is not empty
+        @Override
+        @SneakyThrows
+        protected void updateItem(BanInfo banInfo, boolean empty) {
+            super.updateItem(banInfo, empty);
+
+            if (banInfo != null) {
+                this.banInfo = banInfo;
+
+                if (banInfo.getBanStatus() == BanStatus.BANNED) {
+                    setGraphic(hBox);
+                }
+            } else {
+                setGraphic(null);
+            }
+        }
     }
 }

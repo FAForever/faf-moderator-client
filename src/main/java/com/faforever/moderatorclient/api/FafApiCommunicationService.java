@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FafApiCommunicationService {
+    private Player selfPlayer;
     private final RestTemplateBuilder restTemplateBuilder;
     private final HttpComponentsClientHttpRequestFactory requestFactory;
     private final String apiClientId;
@@ -89,8 +90,8 @@ public class FafApiCommunicationService {
     public LegacyAccessLevel login(String username, String password) {
         authorize(username, password);
         try {
-            Player player = getOne("/me?include=lobbyGroup", Player.class);
-            return player.getLobbyGroup().getAccessLevel();
+            selfPlayer = getOne("/me?include=lobbyGroup", Player.class);
+            return selfPlayer.getLobbyGroup().getAccessLevel();
         } catch (OAuth2AccessDeniedException e) {
             return null;
         }
