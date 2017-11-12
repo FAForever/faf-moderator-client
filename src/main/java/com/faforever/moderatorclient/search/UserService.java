@@ -22,11 +22,11 @@ public class UserService {
         this.fafApi = fafApi;
     }
 
-    private ElideRouteBuilder addModeratorIncludes(ElideRouteBuilder builder) {
+    private ElideRouteBuilder addModeratorIncludes(@NotNull ElideRouteBuilder builder) {
         return addModeratorIncludes(builder, null);
     }
 
-    private ElideRouteBuilder addModeratorIncludes(ElideRouteBuilder builder, String prefix) {
+    private ElideRouteBuilder addModeratorIncludes(@NotNull ElideRouteBuilder builder, String prefix) {
         String variablePrefix = "";
 
         if (prefix != null) {
@@ -57,15 +57,15 @@ public class UserService {
         return findUsersByAttribute("login", pattern);
     }
 
-    public List<Player> findUserByEmail(String pattern) {
+    public List<Player> findUserByEmail(@NotNull String pattern) {
         return findUsersByAttribute("email", pattern);
     }
 
-    public List<Player> findUserBySteamId(String pattern) {
+    public List<Player> findUserBySteamId(@NotNull String pattern) {
         return findUsersByAttribute("steamId", pattern);
     }
 
-    public Collection<Player> findUsersByPreviousName(String pattern) {
+    public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
         log.debug("Searching for user by previous name with pattern: {}", pattern);
         ElideRouteBuilder routeBuilder = new ElideRouteBuilder(NameRecord.class)
                 .addInclude("player")
