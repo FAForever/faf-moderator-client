@@ -22,7 +22,7 @@ public class MapService {
 
     public List<Map> findMaps(String mapNamePattern) {
         log.debug("Searching for maps with pattern: {}", mapNamePattern);
-        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Map.class);
+        ElideRouteBuilder<Map> routeBuilder = ElideRouteBuilder.of(Map.class);
 
         if (mapNamePattern != null && mapNamePattern.length() > 0) {
             routeBuilder.filter(ElideRouteBuilder.qBuilder().string("displayName").eq(mapNamePattern));
@@ -36,7 +36,7 @@ public class MapService {
     public List<Map> findMapsInLadder1v1Pool() {
         log.debug("Searching for all ladder1v1 maps");
         List<Ladder1v1Map> ladder1v1Maps = fafApi.getAll(
-                new ElideRouteBuilder(Ladder1v1Map.class)
+                ElideRouteBuilder.of(Ladder1v1Map.class)
                         .addInclude("mapVersion")
                         .addInclude("mapVersion.map"));
 
@@ -52,11 +52,11 @@ public class MapService {
 
     public void removeMapVersionFromLadderPool(String mapVersionId) {
         log.debug("Deleting mapVersion from ladder pool: {}", mapVersionId);
-        fafApi.delete(new ElideRouteBuilder(Ladder1v1Map.class).id(mapVersionId));
+        fafApi.delete(ElideRouteBuilder.of(Ladder1v1Map.class).id(mapVersionId));
     }
 
     public void addMapVersionToLadderPool(String mapVersionID) {
         log.debug("Adding mapVersion to ladder pool: {}", mapVersionID);
-        fafApi.post(new ElideRouteBuilder(Ladder1v1Map.class), new Ladder1v1Map().setMapVersion(new MapVersion().setId(mapVersionID)), Ladder1v1Map.class);
+        fafApi.post(ElideRouteBuilder.of(Ladder1v1Map.class), new Ladder1v1Map().setMapVersion(new MapVersion().setId(mapVersionID)));
     }
 }

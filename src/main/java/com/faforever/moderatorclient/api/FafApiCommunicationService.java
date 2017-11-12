@@ -16,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -98,7 +96,7 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public void post(ElideRouteBuilder routeBuilder, Object request, boolean bufferRequestBody) {
+    public void post(ElideRouteBuilder<?> routeBuilder, Object request, boolean bufferRequestBody) {
         authorizedLatch.await();
         requestFactory.setBufferRequestBody(bufferRequestBody);
 
@@ -111,52 +109,50 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public <T> T post(ElideRouteBuilder routeBuilder, Object request, Class<T> type) {
+    public <T> T post(ElideRouteBuilder<T> routeBuilder, Object request) {
         authorizedLatch.await();
-        ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), request, type);
+        ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), request, routeBuilder.getDtoClass());
         return entity.getBody();
     }
 
     @SneakyThrows
-    public <T> T patch(String endpointPath, Object request, Class<T> type) {
+    public <T> T patch(ElideRouteBuilder<T> routeBuilder, Object request) {
         authorizedLatch.await();
-        return restOperations.patchForObject(endpointPath, request, type);
+        return restOperations.patchForObject(routeBuilder.build(), request, routeBuilder.getDtoClass());
     }
 
-    public void delete(ElideRouteBuilder routeBuilder) {
+    public void delete(ElideRouteBuilder<?> routeBuilder) {
         restOperations.delete(routeBuilder.build());
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
+    public <T> T getOne(ElideRouteBuilder<T> routeBuilder) {
+        return getOne(routeBuilder.build(), routeBuilder.getDtoClass(), Collections.emptyMap());
+    }
+
+    @SuppressWarnings("unchecked")
+    @SneakyThrows
     public <T> T getOne(String endpointPath, Class<T> type) {
-        return restOperations.getForObject(endpointPath, type, Collections.emptyMap());
+        return getOne(endpointPath, type, Collections.emptyMap());
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
     public <T> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
-        java.util.Map<String, List<String>> multiValues = params.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> Collections.singletonList(String.valueOf(entry.getValue()))));
-
-        UriComponents uriComponents = UriComponentsBuilder.fromPath(endpointPath)
-                .queryParams(CollectionUtils.toMultiValueMap(multiValues))
-                .build();
-
-        authorizedLatch.await();
-        return getOne(uriComponents.toUriString(), type);
+        return restOperations.getForObject(endpointPath, type, params);
     }
 
-    public <T> List<T> getAll(ElideRouteBuilder routeBuilder) {
+    public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder) {
         return getAll(routeBuilder, Collections.emptyMap());
     }
 
-    public <T> List<T> getAll(ElideRouteBuilder routeBuilder, java.util.Map<String, Serializable> params) {
+    public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder, java.util.Map<String, Serializable> params) {
         return getMany(routeBuilder, apiMaxPageSize, params);
     }
 
     @SneakyThrows
-    public <T> List<T> getMany(ElideRouteBuilder routeBuilder, int count, java.util.Map<String, Serializable> params) {
+    public <T> List<T> getMany(ElideRouteBuilder<T> routeBuilder, int count, java.util.Map<String, Serializable> params) {
         List<T> result = new LinkedList<>();
         List<T> current = null;
         int page = 1;
@@ -167,7 +163,7 @@ public class FafApiCommunicationService {
         return result;
     }
 
-    public <T> List<T> getPage(ElideRouteBuilder routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
+    public <T> List<T> getPage(ElideRouteBuilder<T> routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
         java.util.Map<String, List<String>> multiValues = params.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> Collections.singletonList(String.valueOf(entry.getValue()))));
 
@@ -176,7 +172,7 @@ public class FafApiCommunicationService {
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T> List<T> getPage(ElideRouteBuilder routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
+    public <T> List<T> getPage(ElideRouteBuilder<T> routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
         authorizedLatch.await();
         String route = routeBuilder
                 .pageSize(pageSize)
@@ -185,6 +181,7 @@ public class FafApiCommunicationService {
         log.debug("Sending API request: {}", route);
         return (List<T>) restOperations.getForObject(
                 route,
-                List.class);
+                List.class,
+                params);
     }
 }

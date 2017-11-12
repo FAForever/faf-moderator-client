@@ -4,6 +4,9 @@ import com.github.jasminb.jsonapi.annotations.Type;
 import com.github.rutledgepaulv.qbuilders.builders.QBuilder;
 import com.github.rutledgepaulv.qbuilders.conditions.Condition;
 import com.github.rutledgepaulv.qbuilders.visitors.RSQLVisitor;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -13,29 +16,36 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ElideRouteBuilder {
-    private final Class<?> dtoClass;
+public class ElideRouteBuilder<T> {
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
+    private Class<T> dtoClass;
     private String id = null;
     private Condition<?> filterCondition;
     private List<String> includes = new ArrayList<>();
     private Integer pageSize = null;
     private Integer pageNumber = null;
 
-    public ElideRouteBuilder(Class<?> dtoClass) {
-        this.dtoClass = dtoClass;
+    private ElideRouteBuilder() {
+    }
+
+    public static <T> ElideRouteBuilder<T> of(Class<T> clazz) {
+        ElideRouteBuilder<T> b = new ElideRouteBuilder<>();
+        b.setDtoClass(clazz);
+        return b;
     }
 
     public static <T extends QBuilder<T>> QBuilder<T> qBuilder() {
         return new QBuilder<>();
     }
 
-    public ElideRouteBuilder addInclude(String include) {
+    public ElideRouteBuilder<T> addInclude(String include) {
         log.trace("include added: {}", include);
         includes.add(include);
         return this;
     }
 
-    public ElideRouteBuilder id(String id) {
+    public ElideRouteBuilder<T> id(String id) {
         Assert.state(filterCondition == null, "lookup of id and filter cannot be combined");
         Assert.state(pageSize == null, "lookup of id and pageSize cannot be combined");
         Assert.state(pageNumber == null, "lookup of id and pageNumber cannot be combined");
@@ -44,21 +54,21 @@ public class ElideRouteBuilder {
         return this;
     }
 
-    public ElideRouteBuilder filter(Condition<?> eq) {
+    public ElideRouteBuilder<T> filter(Condition<?> eq) {
         Assert.state(id == null, "lookup of id and filter cannot be combined");
         log.trace("filter set: {}", eq.toString());
         filterCondition = eq;
         return this;
     }
 
-    public ElideRouteBuilder pageSize(int size) {
+    public ElideRouteBuilder<T> pageSize(int size) {
         Assert.state(id == null, "lookup of id and filter cannot be combined");
         log.trace("page size set: {}", size);
         pageSize = size;
         return this;
     }
 
-    public ElideRouteBuilder pageNumber(int number) {
+    public ElideRouteBuilder<T> pageNumber(int number) {
         Assert.state(id == null, "lookup of id and filter cannot be combined");
         log.trace("page number set: {}", number);
         pageNumber = number;

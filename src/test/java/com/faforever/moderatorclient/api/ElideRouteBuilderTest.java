@@ -9,20 +9,20 @@ import static org.junit.Assert.assertThat;
 public class ElideRouteBuilderTest {
     @Test
     public void testGetList() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .build(), is("/data/ladder1v1Map"));
     }
 
     @Test
     public void testGetId() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .id("5")
                 .build(), is("/data/ladder1v1Map/5"));
     }
 
     @Test(expected = IllegalStateException.class)
     public void testGetIdWithFilter() {
-        new ElideRouteBuilder(Ladder1v1Map.class)
+        ElideRouteBuilder.of(Ladder1v1Map.class)
                 .id("5")
                 .filter(null)
                 .build();
@@ -30,7 +30,7 @@ public class ElideRouteBuilderTest {
 
     @Test(expected = IllegalStateException.class)
     public void testGetIdWithPageSize() {
-        new ElideRouteBuilder(Ladder1v1Map.class)
+        ElideRouteBuilder.of(Ladder1v1Map.class)
                 .id("5")
                 .pageSize(5)
                 .build();
@@ -38,21 +38,21 @@ public class ElideRouteBuilderTest {
 
     @Test(expected = IllegalStateException.class)
     public void testGetIdWithPageNumber() {
-        new ElideRouteBuilder(Ladder1v1Map.class)
+        ElideRouteBuilder.of(Ladder1v1Map.class)
                 .id("5")
                 .pageNumber(5);
     }
 
     @Test
     public void testGetListSingleInclude() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .addInclude("mapVersion")
                 .build(), is("/data/ladder1v1Map?include=mapVersion"));
     }
 
     @Test
     public void testGetListMultipleInclude() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .addInclude("mapVersion")
                 .addInclude("mapVersion.map")
                 .build(), is("/data/ladder1v1Map?include=mapVersion,mapVersion.map"));
@@ -60,7 +60,7 @@ public class ElideRouteBuilderTest {
 
     @Test
     public void testGetListFiltered() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .filter(
                         ElideRouteBuilder.qBuilder()
                                 .intNum("mapVersion.id").gt(10)
@@ -72,7 +72,7 @@ public class ElideRouteBuilderTest {
 
     @Test
     public void testGetListCombinedFilter() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .addInclude("mapVersion")
                 .addInclude("mapVersion.map")
                 .pageSize(10)
@@ -88,7 +88,7 @@ public class ElideRouteBuilderTest {
 
     @Test
     public void testGetListCombinedId() {
-        assertThat(new ElideRouteBuilder(Ladder1v1Map.class)
+        assertThat(ElideRouteBuilder.of(Ladder1v1Map.class)
                 .addInclude("mapVersion")
                 .addInclude("mapVersion.map")
                 .id("5")

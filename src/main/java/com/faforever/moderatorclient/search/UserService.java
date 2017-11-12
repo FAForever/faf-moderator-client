@@ -44,7 +44,7 @@ public class UserService {
 
     private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
         log.debug("Searching for user by attribute '{}' with pattern: {}", attribute, pattern);
-        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Player.class)
+        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
                 .filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(routeBuilder);
 
@@ -67,7 +67,7 @@ public class UserService {
 
     public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
         log.debug("Searching for user by previous name with pattern: {}", pattern);
-        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(NameRecord.class)
+        ElideRouteBuilder<NameRecord> routeBuilder = ElideRouteBuilder.of(NameRecord.class)
                 .addInclude("player")
                 .filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
         addModeratorIncludes(routeBuilder, "player");
@@ -81,7 +81,7 @@ public class UserService {
 
     public List<Teamkill> findTeamkillsByUserId(@NotNull String userId) {
         log.debug("Searching for teamkills invoked by user id: {}", userId);
-        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Teamkill.class)
+        ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
                 .addInclude("teamkiller")
                 .addInclude("victim")
                 .filter(ElideRouteBuilder.qBuilder().string("teamkiller.id").eq(userId));
