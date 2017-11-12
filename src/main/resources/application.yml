@@ -7,4 +7,4 @@ faforever:
     max-page-size: 10_000
 logging:
   level:
-    com.faforever.moderatorapp: debug
+    com.faforever.moderatorclient: DEBUG
