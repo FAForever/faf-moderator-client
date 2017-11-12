@@ -1,9 +1,10 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.dto.Map;
-import com.faforever.moderatorclient.api.dto.Player;
+import com.faforever.moderatorclient.api.dto.*;
 import com.faforever.moderatorclient.search.MapService;
 import com.faforever.moderatorclient.search.UserService;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.net.URL;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
@@ -38,8 +41,9 @@ public class MainController implements Controller<TabPane> {
     public RadioButton steamIdRadioButton;
     public TextField userSearchTextField;
     public TableView<Player> userSearchTableView;
-    public TableView nameHistoryTableView;
-    public TableView bansTableView;
+    public TableView<NameRecord> nameHistoryTableView;
+    public TableView<BanInfo> banTableView;
+    public TableView<Teamkill> teamkillTableView;
     public TableView recentGamesTableView;
 
     // Tab "Ladder Map Pool"
@@ -151,6 +155,13 @@ public class MainController implements Controller<TabPane> {
     }
 
     private void initUserManagementTab() {
+        initUserSearchTableView();
+        initNameHistoryTableView();
+        initBanTableView();
+        initTeamkillTableView();
+    }
+
+    private void initUserSearchTableView() {
         TableColumn<Player, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setMinWidth(50);
@@ -170,6 +181,128 @@ public class MainController implements Controller<TabPane> {
         steamIdColumn.setCellValueFactory(new PropertyValueFactory<>("steamId"));
         steamIdColumn.setMinWidth(100);
         userSearchTableView.getColumns().add(steamIdColumn);
+
+        userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
+    }
+
+    private void initNameHistoryTableView() {
+        TableColumn<NameRecord, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        nameHistoryTableView.getColumns().add(idColumn);
+
+        TableColumn<NameRecord, OffsetDateTime> changeTimeColumn = new TableColumn<>("Change Time");
+        changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("changeTime"));
+        changeTimeColumn.setMinWidth(180);
+        nameHistoryTableView.getColumns().add(changeTimeColumn);
+
+        TableColumn<NameRecord, String> nameColumn = new TableColumn<>("Previous Name");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        nameColumn.setMinWidth(200);
+        nameHistoryTableView.getColumns().add(nameColumn);
+    }
+
+    private void initBanTableView() {
+        TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        banTableView.getColumns().add(idColumn);
+
+        TableColumn<BanInfo, BanLevel> banLevelColumn = new TableColumn<>("Level");
+        banLevelColumn.setCellValueFactory(new PropertyValueFactory<>("level"));
+        banLevelColumn.setMinWidth(80);
+        banTableView.getColumns().add(banLevelColumn);
+
+        TableColumn<BanInfo, BanStatus> banStatusColumn = new TableColumn<>("Status");
+        banStatusColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBanStatus()));
+        banStatusColumn.setMinWidth(100);
+        banTableView.getColumns().add(banStatusColumn);
+
+        TableColumn<BanInfo, BanDurationType> banDurationColumn = new TableColumn<>("Duration");
+        banDurationColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDuration()));
+        banDurationColumn.setMinWidth(100);
+        banTableView.getColumns().add(banDurationColumn);
+
+        TableColumn<BanInfo, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
+        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        expiresAtColumn.setMinWidth(180);
+        banTableView.getColumns().add(expiresAtColumn);
+
+        TableColumn<BanInfo, String> reasonColumn = new TableColumn<>("Reason");
+        reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
+        reasonColumn.setMinWidth(250);
+        banTableView.getColumns().add(reasonColumn);
+
+        TableColumn<BanInfo, Player> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+        authorColumn.setMinWidth(150);
+        banTableView.getColumns().add(authorColumn);
+
+        TableColumn<BanInfo, String> revokeReasonColumn = new TableColumn<>("Revocation Reason");
+        revokeReasonColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue().getBanRevokeData())
+                        .map(BanRevokeData::getReason)
+                        .orElse(""))
+        );
+        revokeReasonColumn.setMinWidth(250);
+        banTableView.getColumns().add(revokeReasonColumn);
+
+        TableColumn<BanInfo, Player> revokeAuthorColumn = new TableColumn<>("Revocation Author");
+        revokeAuthorColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue().getBanRevokeData())
+                        .map(BanRevokeData::getAuthor)
+                        .orElse(null))
+        );
+        revokeAuthorColumn.setMinWidth(150);
+        banTableView.getColumns().add(revokeAuthorColumn);
+
+        TableColumn<BanInfo, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created Time");
+        changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        changeTimeColumn.setMinWidth(180);
+        banTableView.getColumns().add(changeTimeColumn);
+
+        TableColumn<BanInfo, OffsetDateTime> updateTimeColumn = new TableColumn<>("Update (Revoke) Time");
+        updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
+        updateTimeColumn.setMinWidth(180);
+        banTableView.getColumns().add(updateTimeColumn);
+    }
+
+    private void initTeamkillTableView() {
+        TableColumn<Teamkill, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        teamkillTableView.getColumns().add(idColumn);
+
+        TableColumn<Teamkill, Player> victimColumn = new TableColumn<>("Victim");
+        victimColumn.setCellValueFactory(new PropertyValueFactory<>("victim"));
+        victimColumn.setMinWidth(180);
+        teamkillTableView.getColumns().add(victimColumn);
+
+        TableColumn<Teamkill, String> banStatusColumn = new TableColumn<>("Game ID");
+        banStatusColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGame().getId()));
+        banStatusColumn.setMinWidth(100);
+        teamkillTableView.getColumns().add(banStatusColumn);
+
+        TableColumn<Teamkill, Long> gameTimeColumn = new TableColumn<>("Game Time");
+        gameTimeColumn.setCellValueFactory(new PropertyValueFactory<>("gameTime"));
+        gameTimeColumn.setMinWidth(100);
+        teamkillTableView.getColumns().add(gameTimeColumn);
+
+        TableColumn<Teamkill, Long> reportedAtColumn = new TableColumn<>("Reported At");
+        reportedAtColumn.setCellValueFactory(new PropertyValueFactory<>("reportedAt"));
+        reportedAtColumn.setMinWidth(180);
+        teamkillTableView.getColumns().add(reportedAtColumn);
+    }
+
+    private void onSelectedUser(ObservableValue<? extends Player> observable, Player oldValue, Player newValue) {
+        nameHistoryTableView.getItems().clear();
+        nameHistoryTableView.getItems().addAll(newValue.getNames());
+
+        banTableView.getItems().clear();
+        banTableView.getItems().addAll(newValue.getBans());
+
+        teamkillTableView.getItems().clear();
+        teamkillTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
     }
 
     public void onUserSearch() {

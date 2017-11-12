@@ -4,6 +4,7 @@ import com.faforever.moderatorclient.api.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.dto.NameRecord;
 import com.faforever.moderatorclient.api.dto.Player;
+import com.faforever.moderatorclient.api.dto.Teamkill;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,31 @@ public class UserService {
         this.fafApi = fafApi;
     }
 
+    private ElideRouteBuilder addModeratorIncludes(ElideRouteBuilder builder) {
+        return addModeratorIncludes(builder, null);
+    }
+
+    private ElideRouteBuilder addModeratorIncludes(ElideRouteBuilder builder, String prefix) {
+        String variablePrefix = "";
+
+        if (prefix != null) {
+            variablePrefix = prefix + ".";
+        }
+
+        return builder
+                .addInclude(variablePrefix + "names")
+                .addInclude(variablePrefix + "globalRating")
+                .addInclude(variablePrefix + "ladder1v1Rating")
+                .addInclude(variablePrefix + "lobbyGroup")
+                .addInclude(variablePrefix + "bans")
+                .addInclude(variablePrefix + "bans.banRevokeData");
+    }
+
     private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
         log.debug("Searching for user by attribute '{}' with pattern: {}", attribute, pattern);
-        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Player.class);
-
-        routeBuilder.filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
+        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Player.class)
+                .filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
+        addModeratorIncludes(routeBuilder);
 
         List<Player> result = fafApi.getAll(routeBuilder);
         log.trace("found {} users", result.size());
@@ -47,9 +68,9 @@ public class UserService {
     public Collection<Player> findUsersByPreviousName(String pattern) {
         log.debug("Searching for user by previous name with pattern: {}", pattern);
         ElideRouteBuilder routeBuilder = new ElideRouteBuilder(NameRecord.class)
-                .addInclude("player");
-
-        routeBuilder.filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
+                .addInclude("player")
+                .filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
+        addModeratorIncludes(routeBuilder, "player");
 
         List<NameRecord> result = fafApi.getAll(routeBuilder);
         log.trace("found {} name records", result.size());
@@ -58,5 +79,15 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
+    public List<Teamkill> findTeamkillsByUserId(@NotNull String userId) {
+        log.debug("Searching for teamkills invoked by user id: {}", userId);
+        ElideRouteBuilder routeBuilder = new ElideRouteBuilder(Teamkill.class)
+                .addInclude("teamkiller")
+                .addInclude("victim")
+                .filter(ElideRouteBuilder.qBuilder().string("teamkiller.id").eq(userId));
 
+        List<Teamkill> result = fafApi.getAll(routeBuilder);
+        log.trace("found {} teamkills", result.size());
+        return result;
+    }
 }

@@ -19,8 +19,10 @@ public class Player {
     private String login;
     @Relationship("names")
     List<NameRecord> names;
+    @RestrictedVisibility("IsModerator")
     private String email;
     private String userAgent;
+    @RestrictedVisibility("IsModerator")
     private String steamId;
 
     @Relationship("globalRating")
@@ -31,4 +33,12 @@ public class Player {
 
     @Relationship("lobbyGroup")
     private LobbyGroup lobbyGroup;
+
+    @Relationship("bans")
+    private List<BanInfo> bans;
+
+    @Override
+    public String toString() {
+        return String.format("%s [id %s]", login, id);
+    }
 }

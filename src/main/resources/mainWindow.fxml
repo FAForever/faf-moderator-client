@@ -81,7 +81,7 @@
                                     <content>
                                         <VBox>
                                             <children>
-                                                <TableView fx:id="bansTableView" prefHeight="200.0" prefWidth="200.0"
+                                                <TableView fx:id="banTableView" prefHeight="200.0" prefWidth="200.0"
                                                            VBox.vgrow="ALWAYS">
                                                     <VBox.margin>
                                                         <Insets bottom="10.0"/>
@@ -114,6 +114,11 @@
                                                 </HBox>
                                             </children>
                                         </VBox>
+                                    </content>
+                                </Tab>
+                                <Tab text="Teamkills">
+                                    <content>
+                                        <TableView fx:id="teamkillTableView" prefHeight="200.0" prefWidth="200.0"/>
                                     </content>
                                 </Tab>
                                 <Tab text="Recent games">

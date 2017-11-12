@@ -177,11 +177,13 @@ public class FafApiCommunicationService {
     @SneakyThrows
     public <T> List<T> getPage(ElideRouteBuilder routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
         authorizedLatch.await();
+        String route = routeBuilder
+                .pageSize(pageSize)
+                .pageNumber(page)
+                .build();
+        log.debug("Sending API request: {}", route);
         return (List<T>) restOperations.getForObject(
-                routeBuilder
-                        .pageSize(pageSize)
-                        .pageNumber(page)
-                        .build(),
+                route,
                 List.class);
     }
 }
