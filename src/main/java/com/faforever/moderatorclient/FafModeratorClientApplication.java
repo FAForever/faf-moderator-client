@@ -18,8 +18,6 @@ import org.springframework.context.ConfigurableApplicationContext;
         SecurityAutoConfiguration.class,
 })
 public class FafModeratorClientApplication extends Application {
-    public static boolean isLoggedIn = false;
-    public static int myUserId = -1;
     private ConfigurableApplicationContext applicationContext;
 
     public static void main(String[] args) {
