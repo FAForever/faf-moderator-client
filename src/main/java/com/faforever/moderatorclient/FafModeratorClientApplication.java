@@ -5,6 +5,7 @@ import com.faforever.moderatorclient.ui.StageHolder;
 import com.faforever.moderatorclient.ui.UiService;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,6 +42,7 @@ public class FafModeratorClientApplication extends Application {
         UiService uiService = applicationContext.getBean(UiService.class);
         MainController mainController = uiService.loadFxml("mainWindow.fxml");
         mainController.display();
+        primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
         primaryStage.setScene(new Scene(mainController.getRoot()));
         primaryStage.show();
     }
