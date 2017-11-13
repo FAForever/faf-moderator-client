@@ -1,8 +1,8 @@
-package com.faforever.moderatorclient.api.rest;
+package com.faforever.moderatorclient.api.rest.domain;
 
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
-import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
+import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api;
+package com.faforever.moderatorclient.api.rest;
 
 
 import com.faforever.moderatorclient.api.dto.ApiException;

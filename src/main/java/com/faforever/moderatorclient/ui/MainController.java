@@ -1,9 +1,9 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.*;
-import com.faforever.moderatorclient.api.rest.AvatarService;
-import com.faforever.moderatorclient.api.rest.MapService;
-import com.faforever.moderatorclient.api.rest.UserService;
+import com.faforever.moderatorclient.api.rest.domain.AvatarService;
+import com.faforever.moderatorclient.api.rest.domain.MapService;
+import com.faforever.moderatorclient.api.rest.domain.UserService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
