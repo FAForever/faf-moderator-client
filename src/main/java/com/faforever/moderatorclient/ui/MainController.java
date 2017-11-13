@@ -12,11 +12,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.stereotype.Component;
@@ -43,6 +40,8 @@ public class MainController implements Controller<TabPane> {
     public RadioButton emailRadioButton;
     public RadioButton steamIdRadioButton;
     public TextField userSearchTextField;
+    public Button newBanButton;
+    public Button editBanButton;
     public TableView<Player> userSearchTableView;
     public TableView<NameRecord> nameHistoryTableView;
     public TableView<BanInfo> banTableView;
@@ -205,6 +204,10 @@ public class MainController implements Controller<TabPane> {
     }
 
     private void initBanTableView() {
+        banTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            editBanButton.setDisable(newValue == null);
+        });
+
         TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setMinWidth(50);
@@ -267,12 +270,6 @@ public class MainController implements Controller<TabPane> {
         updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         updateTimeColumn.setMinWidth(180);
         banTableView.getColumns().add(updateTimeColumn);
-
-        TableColumn<BanInfo, BanInfo> actionColumn = new TableColumn<>("Action");
-        actionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-        actionColumn.setCellFactory(param -> new BanActionCell());
-        actionColumn.setMinWidth(230);
-        banTableView.getColumns().add(actionColumn);
     }
 
     private void initTeamkillTableView() {
@@ -304,13 +301,17 @@ public class MainController implements Controller<TabPane> {
 
     private void onSelectedUser(ObservableValue<? extends Player> observable, Player oldValue, Player newValue) {
         nameHistoryTableView.getItems().clear();
-        nameHistoryTableView.getItems().addAll(newValue.getNames());
-
         banTableView.getItems().clear();
-        banTableView.getItems().addAll(newValue.getBans());
-
         teamkillTableView.getItems().clear();
-        teamkillTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
+
+        if (newValue != null) {
+            nameHistoryTableView.getItems().addAll(newValue.getNames());
+            banTableView.getItems().addAll(newValue.getBans());
+            teamkillTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
+
+        }
+
+        newBanButton.setDisable(newValue == null);
     }
 
     public void onUserSearch() {
@@ -395,63 +396,31 @@ public class MainController implements Controller<TabPane> {
                 mapService.findMaps(mapNamePattern).stream());
     }
 
-    private class BanActionCell extends TableCell<BanInfo, BanInfo> {
-        final HBox hBox = new HBox();
-        final Button revokeButton = new Button("revoke");
-        final Button changeDurationButton = new Button("change duration");
-        @Getter
-        BanInfo banInfo;
+    public void onNewBan() {
+        Player selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedPlayer, "Tou need to select a player to create a ban.");
 
-        public BanActionCell() {
-            hBox.getChildren().addAll(revokeButton, changeDurationButton);
+        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        banInfoController.setBanInfo(new BanInfo()
+                .setPlayer(selectedPlayer)
+        );
 
-            revokeButton.setOnAction(event -> {
-                TextInputDialog banRevocationReasonDialog = new TextInputDialog("");
-                banRevocationReasonDialog.setTitle("Ban Revocation");
-                banRevocationReasonDialog.setHeaderText("Why do you revoke this ban?");
-                banRevocationReasonDialog.setContentText("Reason:");
+        Stage banInfoDialog = new Stage();
+        banInfoDialog.setTitle("Apply new ban");
+        banInfoDialog.setScene(new Scene(banInfoController.getRoot()));
+        banInfoDialog.showAndWait();
+    }
 
-                Optional<String> result = banRevocationReasonDialog.showAndWait();
-                result.ifPresent(revocationReason -> {
-                    log.info("Revocation of ban id '{}' confirmed with reason: {}", this.getBanInfo().getId(), revocationReason);
-                });
-            });
+    public void onEditBan() {
+        BanInfo selectedBan = banTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedBan, "You need to select a ban to edit it.");
 
-            changeDurationButton.setOnAction(event -> {
-                TextInputDialog banRevocationReasonDialog = new TextInputDialog("");
-                banRevocationReasonDialog.setTitle("Change ban duration");
-                banRevocationReasonDialog.setHeaderText("How many days do you want to change the ban duration (negative number allowed)?");
-                banRevocationReasonDialog.setContentText("Days to add/subtract [i.e. -0.5]:");
+        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        banInfoController.setBanInfo(selectedBan);
 
-                Optional<String> result = banRevocationReasonDialog.showAndWait();
-                result.ifPresent(revocationReason -> {
-                    try {
-                        double durationChange = Double.parseDouble(revocationReason);
-                        log.info("Changed duration of ban id '{}' by days: {}", this.getBanInfo().getId(), durationChange);
-                    } catch (NumberFormatException e) {
-                        Alert numberAlert = new Alert(Alert.AlertType.ERROR, "The value you provided was not a number.", ButtonType.OK);
-                        numberAlert.setTitle("Change ban duration failed");
-                        numberAlert.show();
-                    }
-                });
-            });
-        }
-
-        //Display button if the row is not empty
-        @Override
-        @SneakyThrows
-        protected void updateItem(BanInfo banInfo, boolean empty) {
-            super.updateItem(banInfo, empty);
-
-            if (banInfo != null) {
-                this.banInfo = banInfo;
-
-                if (banInfo.getBanStatus() == BanStatus.BANNED) {
-                    setGraphic(hBox);
-                }
-            } else {
-                setGraphic(null);
-            }
-        }
+        Stage banInfoDialog = new Stage();
+        banInfoDialog.setTitle("Edit Ban");
+        banInfoDialog.setScene(new Scene(banInfoController.getRoot()));
+        banInfoDialog.showAndWait();
     }
 }

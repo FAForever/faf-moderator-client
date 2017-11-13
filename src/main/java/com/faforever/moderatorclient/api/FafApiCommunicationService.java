@@ -2,6 +2,9 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.moderatorclient.api.dto.LegacyAccessLevel;
 import com.faforever.moderatorclient.api.dto.Player;
+import com.github.jasminb.jsonapi.JSONAPIDocument;
+import com.github.jasminb.jsonapi.ResourceConverter;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +31,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FafApiCommunicationService {
+    private final ResourceConverter resourceConverter;
+    @Getter
     private Player selfPlayer;
     private final RestTemplateBuilder restTemplateBuilder;
     private final HttpComponentsClientHttpRequestFactory requestFactory;
@@ -39,7 +44,7 @@ public class FafApiCommunicationService {
     private RestOperations restOperations;
 
 
-    public FafApiCommunicationService(RestTemplateBuilder restTemplateBuilder,
+    public FafApiCommunicationService(ResourceConverter resourceConverter, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler,
                                       @Value("${faforever.api.base-url}")
@@ -54,6 +59,7 @@ public class FafApiCommunicationService {
                                               int apiMaxPageSize
 
     ) {
+        this.resourceConverter = resourceConverter;
         this.apiClientId = apiClientId;
         this.apiClientSecret = apiClientSecret;
         this.apiAccessTokenUrl = apiAccessTokenUrl;
@@ -109,16 +115,18 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public <T> T post(ElideRouteBuilder<T> routeBuilder, Object request) {
+    public <T> T post(ElideRouteBuilder<T> routeBuilder, T object) {
         authorizedLatch.await();
-        ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), request, routeBuilder.getDtoClass());
+        JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
+        String dataString = new String(resourceConverter.writeDocument(data));
+        ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
         return entity.getBody();
     }
 
     @SneakyThrows
-    public <T> T patch(ElideRouteBuilder<T> routeBuilder, Object request) {
+    public <T> T patch(ElideRouteBuilder<T> routeBuilder, T object) {
         authorizedLatch.await();
-        return restOperations.patchForObject(routeBuilder.build(), request, routeBuilder.getDtoClass());
+        return restOperations.patchForObject(routeBuilder.build(), object, routeBuilder.getDtoClass());
     }
 
     public void delete(ElideRouteBuilder<?> routeBuilder) {

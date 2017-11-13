@@ -8,3 +8,7 @@ faforever:
 logging:
   level:
     com.faforever.moderatorclient: DEBUG
+spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false

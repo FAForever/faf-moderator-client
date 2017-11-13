@@ -2,9 +2,7 @@ package com.faforever.moderatorclient.search;
 
 import com.faforever.moderatorclient.api.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.dto.NameRecord;
-import com.faforever.moderatorclient.api.dto.Player;
-import com.faforever.moderatorclient.api.dto.Teamkill;
+import com.faforever.moderatorclient.api.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -89,5 +87,22 @@ public class UserService {
         List<Teamkill> result = fafApi.getAll(routeBuilder);
         log.trace("found {} teamkills", result.size());
         return result;
+    }
+
+    public BanInfo patchBanInfo(@NotNull BanInfo banInfo) {
+        log.debug("Patching BanInfo of id: ", banInfo.getId());
+        return fafApi.patch(ElideRouteBuilder.of(BanInfo.class).id(banInfo.getId()), banInfo);
+    }
+
+    public BanRevokeData revokeBan(@NotNull BanRevokeData banRevokeData) {
+        log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
+        banRevokeData.setAuthor(fafApi.getSelfPlayer());
+        return fafApi.post(ElideRouteBuilder.of(BanRevokeData.class), banRevokeData);
+    }
+
+    public BanInfo createBan(@NotNull BanInfo banInfo) {
+        log.debug("Creating ban");
+        banInfo.setAuthor(fafApi.getSelfPlayer());
+        return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo);
     }
 }

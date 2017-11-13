@@ -89,28 +89,26 @@
                                                 </TableView>
                                                 <HBox alignment="CENTER">
                                                     <children>
-                                                        <TextField minWidth="250.0" promptText="Ban reason"
-                                                                   HBox.hgrow="ALWAYS">
-                                                            <HBox.margin>
-                                                                <Insets right="10.0"/>
-                                                            </HBox.margin>
-                                                        </TextField>
-                                                        <TextField maxWidth="120.0" promptText="Duration (days)">
-                                                            <HBox.margin>
-                                                                <Insets right="10.0"/>
-                                                            </HBox.margin>
-                                                        </TextField>
-                                                        <ComboBox promptText="Ban type">
-                                                            <HBox.margin>
-                                                                <Insets right="10.0"/>
-                                                            </HBox.margin>
-                                                        </ComboBox>
-                                                        <Button mnemonicParsing="false" text="Apply ban">
+                                                        <Button fx:id="newBanButton" mnemonicParsing="false"
+                                                                onAction="#onNewBan" text="Apply new ban">
                                                             <HBox.margin>
                                                                 <Insets/>
                                                             </HBox.margin>
                                                         </Button>
+                                                        <Button fx:id="editBanButton" disable="true"
+                                                                mnemonicParsing="false" onAction="#onEditBan"
+                                                                text="Edit selected ban">
+                                                            <HBox.margin>
+                                                                <Insets left="10.0"/>
+                                                            </HBox.margin>
+                                                        </Button>
                                                     </children>
+                                                    <VBox.margin>
+                                                        <Insets/>
+                                                    </VBox.margin>
+                                                    <padding>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </padding>
                                                 </HBox>
                                             </children>
                                         </VBox>
