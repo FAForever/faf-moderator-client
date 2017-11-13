@@ -89,8 +89,9 @@
                                                 </TableView>
                                                 <HBox alignment="CENTER">
                                                     <children>
-                                                        <Button fx:id="newBanButton" mnemonicParsing="false"
-                                                                onAction="#onNewBan" text="Apply new ban">
+                                                        <Button fx:id="newBanButton" disable="true"
+                                                                mnemonicParsing="false" onAction="#onNewBan"
+                                                                text="Apply new ban">
                                                             <HBox.margin>
                                                                 <Insets/>
                                                             </HBox.margin>

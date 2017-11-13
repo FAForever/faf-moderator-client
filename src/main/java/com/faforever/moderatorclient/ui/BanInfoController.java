@@ -48,6 +48,7 @@ public class BanInfoController implements Controller<Pane> {
     public RadioButton temporaryBanRadioButton;
     public RadioButton chatOnlyBanRadioButton;
     public RadioButton globalBanRadioButton;
+    public Button revokeButton;
     @Getter
     private BanInfo banInfo;
 
@@ -69,20 +70,27 @@ public class BanInfoController implements Controller<Pane> {
     public void setBanInfo(BanInfo banInfo) {
         this.banInfo = banInfo;
 
-        affectedUserTextField.setText(banInfo.getPlayer().toString());
-        Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.toString()));
-        banReasonTextField.setText(banInfo.getReason());
-        if (banInfo.getBanRevokeData() != null) {
-            revocationReasonTextField.setText(banInfo.getBanRevokeData().getReason());
-            revocationAuthorTextField.setText(banInfo.getBanRevokeData().getAuthor().toString());
+        if (banInfo.getId() != null) {
+            affectedUserTextField.setText(banInfo.getPlayer().toString());
+            Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.toString()));
+            banReasonTextField.setText(banInfo.getReason());
+
+            revocationReasonTextField.setDisable(false);
+            revokeButton.setDisable(false);
+
+            permanentBanRadioButton.setSelected(banInfo.getDuration() == BanDurationType.PERMANENT);
+            temporaryBanRadioButton.setSelected(banInfo.getDuration() == BanDurationType.TEMPORARY);
+            Optional.ofNullable(banInfo.getExpiresAt()).ifPresent(offsetDateTime -> untilTextField.setText(offsetDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
+
+            if (banInfo.getBanRevokeData() != null) {
+                revocationReasonTextField.setText(banInfo.getBanRevokeData().getReason());
+                revocationAuthorTextField.setText(banInfo.getBanRevokeData().getAuthor().toString());
+            }
+
+            chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
+            globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
+
         }
-
-        permanentBanRadioButton.setSelected(banInfo.getDuration() == BanDurationType.PERMANENT);
-        temporaryBanRadioButton.setSelected(banInfo.getDuration() == BanDurationType.TEMPORARY);
-        Optional.ofNullable(banInfo.getExpiresAt()).ifPresent(offsetDateTime -> untilTextField.setText(offsetDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
-
-        chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
-        globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
     }
 
     public void onSave() {
