@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.search;
+package com.faforever.moderatorclient.api.rest;
 
 import com.faforever.moderatorclient.api.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
@@ -36,6 +36,8 @@ public class UserService {
                 .addInclude(variablePrefix + "globalRating")
                 .addInclude(variablePrefix + "ladder1v1Rating")
                 .addInclude(variablePrefix + "lobbyGroup")
+                .addInclude(variablePrefix + "avatarAssignments")
+                .addInclude(variablePrefix + "avatarAssignments.avatar")
                 .addInclude(variablePrefix + "bans")
                 .addInclude(variablePrefix + "bans.banRevokeData");
     }
@@ -49,6 +51,10 @@ public class UserService {
         List<Player> result = fafApi.getAll(routeBuilder);
         log.trace("found {} users", result.size());
         return result;
+    }
+
+    public List<Player> findUserById(@NotNull String pattern) {
+        return findUsersByAttribute("id", pattern);
     }
 
     public List<Player> findUserByName(@NotNull String pattern) {

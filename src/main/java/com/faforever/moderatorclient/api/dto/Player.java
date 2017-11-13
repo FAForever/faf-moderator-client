@@ -1,5 +1,6 @@
 package com.faforever.moderatorclient.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
@@ -36,6 +37,10 @@ public class Player {
 
     @Relationship("bans")
     private List<BanInfo> bans;
+
+    @Relationship("avatarAssignments")
+    @JsonIgnore
+    private List<AvatarAssignment> avatarAssignments;
 
     @Override
     public String toString() {

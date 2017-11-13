@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.search;
+package com.faforever.moderatorclient.api.rest;
 
 import com.faforever.moderatorclient.api.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;

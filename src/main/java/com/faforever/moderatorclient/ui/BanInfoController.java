@@ -5,7 +5,7 @@ import com.faforever.moderatorclient.api.dto.BanDurationType;
 import com.faforever.moderatorclient.api.dto.BanInfo;
 import com.faforever.moderatorclient.api.dto.BanLevel;
 import com.faforever.moderatorclient.api.dto.BanRevokeData;
-import com.faforever.moderatorclient.search.UserService;
+import com.faforever.moderatorclient.api.rest.UserService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;

@@ -1,14 +1,16 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.*;
-import com.faforever.moderatorclient.search.MapService;
-import com.faforever.moderatorclient.search.UserService;
+import com.faforever.moderatorclient.api.rest.AvatarService;
+import com.faforever.moderatorclient.api.rest.MapService;
+import com.faforever.moderatorclient.api.rest.UserService;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -32,13 +34,15 @@ public class MainController implements Controller<TabPane> {
     private final UiService uiService;
     private final UserService userService;
     private final MapService mapService;
+    private final AvatarService avatarService;
     public TabPane root;
 
     // Tab "User Management"
-    public RadioButton currentNameRadioButton;
-    public RadioButton previousNamesRadioButton;
-    public RadioButton emailRadioButton;
-    public RadioButton steamIdRadioButton;
+    public RadioButton searchUserByIdRadioButton;
+    public RadioButton searchUserByCurrentNameRadioButton;
+    public RadioButton searchUserByPreviousNamesRadioButton;
+    public RadioButton searchUserByEmailRadioButton;
+    public RadioButton searchUserBySteamIdRadioButton;
     public TextField userSearchTextField;
     public Button newBanButton;
     public Button editBanButton;
@@ -46,6 +50,7 @@ public class MainController implements Controller<TabPane> {
     public TableView<NameRecord> nameHistoryTableView;
     public TableView<BanInfo> banTableView;
     public TableView<Teamkill> teamkillTableView;
+    public TableView<AvatarAssignment> userAvatarsTableView;
 
     // Tab "Ladder Map Pool"
     public TreeTableView<MapTableItemAdapter> ladderPoolView;
@@ -57,10 +62,20 @@ public class MainController implements Controller<TabPane> {
     public Button removeFromPoolButton;
     public Button addToPoolButton;
 
-    public MainController(UiService uiService, UserService userService, MapService mapSearchService) {
+    // Tab "Avatars"
+    public TableView<Avatar> avatarTableView;
+    public TableView<AvatarAssignment> avatarAssignmentTableView;
+    public RadioButton showAllAvatarsRadioButton;
+    public RadioButton searchAvatarsByIdRadioButton;
+    public RadioButton searchAvatarsByTooltipRadioButton;
+    public RadioButton searchAvatarsByAssignedUserRadioButton;
+    public TextField searchAvatarsTextField;
+
+    public MainController(UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService) {
         this.uiService = uiService;
         this.userService = userService;
         this.mapService = mapSearchService;
+        this.avatarService = avatarService;
     }
 
     private static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
@@ -130,6 +145,98 @@ public class MainController implements Controller<TabPane> {
     public void initialize() {
         initUserManagementTab();
         initLadderMapPoolTab();
+        initAvatarTab();
+    }
+
+    private void initAvatarTab() {
+        initAvatarTableView();
+        initAvatarAssignmentTableView();
+    }
+
+    private void initAvatarAssignmentTableView() {
+        TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        idColumn.setEditable(false);
+        avatarAssignmentTableView.getColumns().add(idColumn);
+
+        TableColumn<AvatarAssignment, String> userIdColumn = new TableColumn<>("User ID");
+        userIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        userIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue())
+                        .map(avatarAssignment -> avatarAssignment.getPlayer().getId())
+                        .orElse(""))
+        );
+        userIdColumn.setMinWidth(50);
+        idColumn.setEditable(true);
+        avatarAssignmentTableView.getColumns().add(userIdColumn);
+
+        TableColumn<AvatarAssignment, String> userNameColumn = new TableColumn<>("User name");
+        userNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue())
+                        .map(avatarAssignment -> avatarAssignment.getPlayer().getLogin())
+                        .orElse(""))
+        );
+        userNameColumn.setMinWidth(150);
+        userNameColumn.setEditable(false);
+        avatarAssignmentTableView.getColumns().add(userNameColumn);
+
+        TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
+        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+        selectedColumn.setMinWidth(50);
+        avatarAssignmentTableView.getColumns().add(selectedColumn);
+
+        TableColumn<AvatarAssignment, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
+        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        expiresAtColumn.setMinWidth(180);
+        avatarAssignmentTableView.getColumns().add(expiresAtColumn);
+
+
+        TableColumn<AvatarAssignment, OffsetDateTime> assignedAtColumn = new TableColumn<>("Assigned at");
+        assignedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        assignedAtColumn.setMinWidth(180);
+        idColumn.setEditable(false);
+        avatarAssignmentTableView.getColumns().add(assignedAtColumn);
+    }
+
+    private void initAvatarTableView() {
+        TableColumn<Avatar, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(50);
+        avatarTableView.getColumns().add(idColumn);
+
+        TableColumn<Avatar, String> previewColumn = new TableColumn<>("Preview");
+        previewColumn.setCellValueFactory(new PropertyValueFactory<>("url"));
+        previewColumn.setCellFactory(param -> new UrlImageViewTableCell<>());
+        previewColumn.setMinWidth(50);
+        avatarTableView.getColumns().add(previewColumn);
+
+        TableColumn<Avatar, String> tooltipColumn = new TableColumn<>("Tooltip");
+        tooltipColumn.setCellValueFactory(new PropertyValueFactory<>("tooltip"));
+        tooltipColumn.setMinWidth(50);
+        avatarTableView.getColumns().add(tooltipColumn);
+
+        TableColumn<Avatar, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created");
+        changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        changeTimeColumn.setMinWidth(180);
+        avatarTableView.getColumns().add(changeTimeColumn);
+
+        TableColumn<Avatar, String> urlColumn = new TableColumn<>("URL");
+        urlColumn.setCellValueFactory(new PropertyValueFactory<>("url"));
+        urlColumn.setMinWidth(50);
+        avatarTableView.getColumns().add(urlColumn);
+
+        avatarTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            avatarAssignmentTableView.getItems().clear();
+            Optional.ofNullable(newValue).ifPresent(avatar -> avatarAssignmentTableView.getItems().addAll(avatar.getAssignments()));
+        });
+    }
+
+    public void refreshAvatars() {
+        avatarTableView.getItems().clear();
+        avatarTableView.getItems().addAll(
+                avatarService.getAll()
+        );
     }
 
     private void initLadderMapPoolTab() {
@@ -160,6 +267,48 @@ public class MainController implements Controller<TabPane> {
         initNameHistoryTableView();
         initBanTableView();
         initTeamkillTableView();
+        initUserAvatarsTableView();
+    }
+
+    private void initUserAvatarsTableView() {
+        TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("Assignment ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setMinWidth(140);
+        userAvatarsTableView.getColumns().add(idColumn);
+
+        TableColumn<AvatarAssignment, String> avatarIdColumn = new TableColumn<>("Avatar ID");
+        avatarIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getAvatar().getId()
+        ));
+        avatarIdColumn.setMinWidth(50);
+        userAvatarsTableView.getColumns().add(avatarIdColumn);
+
+        TableColumn<AvatarAssignment, String> previewColumn = new TableColumn<>("Preview");
+        previewColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getAvatar().getUrl()
+        ));
+        previewColumn.setCellFactory(param -> new UrlImageViewTableCell<>());
+        previewColumn.setMinWidth(50);
+        userAvatarsTableView.getColumns().add(previewColumn);
+
+        TableColumn<AvatarAssignment, String> tooltipColumn = new TableColumn<>("Tooltip");
+        tooltipColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getAvatar().getTooltip()
+        ));
+        tooltipColumn.setMinWidth(100);
+        userAvatarsTableView.getColumns().add(tooltipColumn);
+
+        TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
+        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+//        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
+        selectedColumn.setMinWidth(50);
+        userAvatarsTableView.getColumns().add(selectedColumn);
+
+        TableColumn<AvatarAssignment, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires At");
+        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        expiresAtColumn.setMinWidth(180);
+        userAvatarsTableView.getColumns().add(expiresAtColumn);
+
     }
 
     private void initUserSearchTableView() {
@@ -303,12 +452,13 @@ public class MainController implements Controller<TabPane> {
         nameHistoryTableView.getItems().clear();
         banTableView.getItems().clear();
         teamkillTableView.getItems().clear();
+        userAvatarsTableView.getItems().clear();
 
         if (newValue != null) {
             nameHistoryTableView.getItems().addAll(newValue.getNames());
             banTableView.getItems().addAll(newValue.getBans());
             teamkillTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
-
+            userAvatarsTableView.getItems().addAll(newValue.getAvatarAssignments());
         }
 
         newBanButton.setDisable(newValue == null);
@@ -319,19 +469,15 @@ public class MainController implements Controller<TabPane> {
 
         Collection<Player> usersFound = Collections.emptyList();
         String searchPattern = userSearchTextField.getText();
-        if (currentNameRadioButton.isSelected()) {
+        if (searchUserByIdRadioButton.isSelected()) {
+            usersFound = userService.findUserById(searchPattern);
+        } else if (searchUserByCurrentNameRadioButton.isSelected()) {
             usersFound = userService.findUserByName(searchPattern);
-        }
-
-        if (previousNamesRadioButton.isSelected()) {
+        } else if (searchUserByPreviousNamesRadioButton.isSelected()) {
             usersFound = userService.findUsersByPreviousName(searchPattern);
-        }
-
-        if (emailRadioButton.isSelected()) {
+        } else if (searchUserByEmailRadioButton.isSelected()) {
             usersFound = userService.findUserByEmail(searchPattern);
-        }
-
-        if (steamIdRadioButton.isSelected()) {
+        } else if (searchUserBySteamIdRadioButton.isSelected()) {
             usersFound = userService.findUserBySteamId(searchPattern);
         }
 
@@ -350,6 +496,7 @@ public class MainController implements Controller<TabPane> {
         loginDialog.showAndWait();
 
         refreshLadderPool();
+        refreshAvatars();
     }
 
     private void refreshLadderPool() {
@@ -394,6 +541,23 @@ public class MainController implements Controller<TabPane> {
 
         fillMapTreeView(mapVaultView,
                 mapService.findMaps(mapNamePattern).stream());
+    }
+
+    public void onSearchAvatars() {
+        avatarTableView.getItems().clear();
+        Collection<Avatar> avatars;
+        String pattern = searchAvatarsTextField.getText();
+
+        if (searchAvatarsByIdRadioButton.isSelected()) {
+            avatars = avatarService.findAvatarsById(pattern);
+        } else if (searchAvatarsByTooltipRadioButton.isSelected()) {
+            avatars = avatarService.findAvatarsByTooltip(pattern);
+        } else if (searchAvatarsByAssignedUserRadioButton.isSelected()) {
+            avatars = avatarService.findAvatarsByAssignedUser(pattern);
+        } else {
+            avatars = avatarService.getAll();
+        }
+        avatarTableView.getItems().addAll(avatars);
     }
 
     public void onNewBan() {

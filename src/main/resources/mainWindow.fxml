@@ -6,8 +6,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <TabPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
-         maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.111"
-         fx:controller="com.faforever.moderatorclient.ui.MainController">
+         maxWidth="1.7976931348623157E308" prefHeight="700.0" prefWidth="1000.0"
+         xmlns="http://javafx.com/javafx/8.0.111" fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
         <Tab text="User Management">
             <content>
@@ -17,8 +17,8 @@
                             <children>
                                 <VBox>
                                     <children>
-                                        <RadioButton fx:id="currentNameRadioButton" mnemonicParsing="false"
-                                                     selected="true" text="search by current name">
+                                        <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false"
+                                                     selected="true" text="search by id">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
@@ -26,19 +26,26 @@
                                                 <ToggleGroup fx:id="userSearch"/>
                                             </toggleGroup>
                                         </RadioButton>
-                                        <RadioButton fx:id="previousNamesRadioButton" mnemonicParsing="false"
-                                                     text="search by previous names" toggleGroup="$userSearch">
+                                        <RadioButton fx:id="searchUserByCurrentNameRadioButton" mnemonicParsing="false"
+                                                     text="search by current name" toggleGroup="$userSearch">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </RadioButton>
-                                        <RadioButton fx:id="emailRadioButton" mnemonicParsing="false"
+                                        <RadioButton fx:id="searchUserByPreviousNamesRadioButton"
+                                                     mnemonicParsing="false" text="search by previous names"
+                                                     toggleGroup="$userSearch">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </RadioButton>
+                                        <RadioButton fx:id="searchUserByEmailRadioButton" mnemonicParsing="false"
                                                      text="search by email" toggleGroup="$userSearch">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </RadioButton>
-                                        <RadioButton fx:id="steamIdRadioButton" mnemonicParsing="false"
+                                        <RadioButton fx:id="searchUserBySteamIdRadioButton" mnemonicParsing="false"
                                                      text="search by Steam ID" toggleGroup="$userSearch">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
@@ -49,7 +56,7 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </TextField>
-                                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search">
+                                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search user">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
@@ -71,12 +78,6 @@
                         </Separator>
                         <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                             <tabs>
-                                <Tab text="Name History">
-                                    <content>
-                                        <TableView fx:id="nameHistoryTableView" maxHeight="1.7976931348623157E308"
-                                                   maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
-                                    </content>
-                                </Tab>
                                 <Tab text="Bans">
                                     <content>
                                         <VBox>
@@ -118,6 +119,17 @@
                                 <Tab text="Teamkills">
                                     <content>
                                         <TableView fx:id="teamkillTableView" prefHeight="200.0" prefWidth="200.0"/>
+                                    </content>
+                                </Tab>
+                                <Tab text="Name History">
+                                    <content>
+                                        <TableView fx:id="nameHistoryTableView" maxHeight="1.7976931348623157E308"
+                                                   maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
+                                    </content>
+                                </Tab>
+                                <Tab text="Avatars">
+                                    <content>
+                                        <TableView fx:id="userAvatarsTableView" prefHeight="200.0" prefWidth="200.0"/>
                                     </content>
                                 </Tab>
                             </tabs>
@@ -246,7 +258,96 @@
         </Tab>
         <Tab text="Avatars">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
+                <VBox>
+                    <children>
+                        <VBox>
+                            <children>
+                                <HBox>
+                                    <children>
+                                        <VBox>
+                                            <children>
+                                                <RadioButton fx:id="showAllAvatarsRadioButton" mnemonicParsing="false"
+                                                             selected="true" text="show all">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                    <toggleGroup>
+                                                        <ToggleGroup fx:id="avatarSearch"/>
+                                                    </toggleGroup>
+                                                </RadioButton>
+                                                <RadioButton fx:id="searchAvatarsByIdRadioButton"
+                                                             mnemonicParsing="false" text="search by id"
+                                                             toggleGroup="$avatarSearch">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                </RadioButton>
+                                                <RadioButton fx:id="searchAvatarsByTooltipRadioButton"
+                                                             mnemonicParsing="false" text="search by tooltip"
+                                                             toggleGroup="$avatarSearch">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                </RadioButton>
+                                                <RadioButton fx:id="searchAvatarsByAssignedUserRadioButton"
+                                                             mnemonicParsing="false" text="search by assigned user"
+                                                             toggleGroup="$avatarSearch">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                </RadioButton>
+                                                <TextField fx:id="searchAvatarsTextField">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                </TextField>
+                                                <Button mnemonicParsing="false" onAction="#onSearchAvatars"
+                                                        text="search avatars">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                    </VBox.margin>
+                                                </Button>
+                                                <Button mnemonicParsing="false" text="delete selected avatar">
+                                                    <VBox.margin>
+                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="40.0"/>
+                                                    </VBox.margin>
+                                                </Button>
+                                            </children>
+                                            <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </HBox.margin>
+                                        </VBox>
+                                        <TableView fx:id="avatarTableView" HBox.hgrow="ALWAYS"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <HBox>
+                            <children>
+                                <TextField promptText="New avatar tooltip" HBox.hgrow="ALWAYS"/>
+                                <Button mnemonicParsing="false" text="choose file &amp; add"/>
+                            </children>
+                            <VBox.margin>
+                                <Insets top="10.0"/>
+                            </VBox.margin>
+                        </HBox>
+                        <Separator prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="15.0" top="15.0"/>
+                            </VBox.margin>
+                        </Separator>
+                        <TabPane>
+                            <tabs>
+                                <Tab text="Assignments">
+                                    <content>
+                                        <TableView fx:id="avatarAssignmentTableView" editable="true" prefHeight="200.0"
+                                                   prefWidth="200.0"/>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                    </children>
+                </VBox>
             </content>
         </Tab>
     </tabs>
