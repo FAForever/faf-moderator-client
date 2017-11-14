@@ -73,6 +73,11 @@ public class MainController implements Controller<TabPane> {
         this.avatarService = avatarService;
     }
 
+    @Override
+    public TabPane getRoot() {
+        return root;
+    }
+
     @FXML
     public void initialize() {
         initUserManagementTab();
@@ -81,26 +86,17 @@ public class MainController implements Controller<TabPane> {
         initRecentActivityTab();
     }
 
-    private void initRecentActivityTab() {
-        ViewHelper.buildUserTableView(userRegistrationFeedTableView);
-        ViewHelper.buildTeamkillTableView(teamkillFeedTableView, true);
-    }
+    private void initUserManagementTab() {
+        ViewHelper.buildUserTableView(userSearchTableView);
+        ViewHelper.buildNameHistoryTableView(userNameHistoryTableView);
+        ViewHelper.buildBanTableView(userBansTableView);
+        ViewHelper.buildTeamkillTableView(userTeamkillsTableView, false);
+        ViewHelper.buildUserAvatarsTableView(userAvatarsTableView);
 
-    private void initAvatarTab() {
-        ViewHelper.buildAvatarTableView(avatarTableView);
-        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView);
-
-        avatarTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            avatarAssignmentTableView.getItems().clear();
-            Optional.ofNullable(newValue).ifPresent(avatar -> avatarAssignmentTableView.getItems().addAll(avatar.getAssignments()));
+        userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
+        userBansTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            editBanButton.setDisable(newValue == null);
         });
-    }
-
-    public void refreshAvatars() {
-        avatarTableView.getItems().clear();
-        avatarTableView.getItems().addAll(
-                avatarService.getAll()
-        );
     }
 
     private void initLadderMapPoolTab() {
@@ -126,17 +122,61 @@ public class MainController implements Controller<TabPane> {
         });
     }
 
-    private void initUserManagementTab() {
-        ViewHelper.buildUserTableView(userSearchTableView);
-        ViewHelper.buildNameHistoryTableView(userNameHistoryTableView);
-        ViewHelper.buildBanTableView(userBansTableView);
-        ViewHelper.buildTeamkillTableView(userTeamkillsTableView, false);
-        ViewHelper.buildUserAvatarsTableView(userAvatarsTableView);
+    private void initAvatarTab() {
+        ViewHelper.buildAvatarTableView(avatarTableView);
+        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView);
 
-        userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
-        userBansTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            editBanButton.setDisable(newValue == null);
+        avatarTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            avatarAssignmentTableView.getItems().clear();
+            Optional.ofNullable(newValue).ifPresent(avatar -> avatarAssignmentTableView.getItems().addAll(avatar.getAssignments()));
         });
+    }
+
+    private void initRecentActivityTab() {
+        ViewHelper.buildUserTableView(userRegistrationFeedTableView);
+        ViewHelper.buildTeamkillTableView(teamkillFeedTableView, true);
+    }
+
+    public void display() {
+        LoginController loginController = uiService.loadFxml("login.fxml");
+
+        Stage loginDialog = new Stage();
+        loginDialog.setOnCloseRequest(event -> System.exit(0));
+        loginDialog.setAlwaysOnTop(true);
+        loginDialog.setTitle("FAF Moderator Client");
+        loginDialog.setScene(new Scene(loginController.getRoot()));
+        loginDialog.initStyle(StageStyle.UTILITY);
+        loginDialog.showAndWait();
+
+        refreshLadderPool();
+        refreshAvatars();
+        refreshRecentActivity();
+    }
+
+    private void refreshLadderPool() {
+        ladderPoolView.getRoot().getChildren().clear();
+        mapService.findMapsInLadder1v1Pool()
+                .forEach(map -> {
+                    TreeItem<MapTableItemAdapter> mapItem = new TreeItem<>(new MapTableItemAdapter(map));
+                    ladderPoolView.getRoot().getChildren().add(mapItem);
+
+                    map.getVersions().forEach(mapVersion -> mapItem.getChildren().add(new TreeItem<>(new MapTableItemAdapter(mapVersion))));
+                });
+    }
+
+    private void refreshAvatars() {
+        avatarTableView.getItems().clear();
+        avatarTableView.getItems().addAll(
+                avatarService.getAll()
+        );
+    }
+
+    private void refreshRecentActivity() {
+        userRegistrationFeedTableView.getItems().clear();
+        userRegistrationFeedTableView.getItems().addAll(userService.findLatestRegistrations());
+
+        teamkillFeedTableView.getItems().clear();
+        teamkillFeedTableView.getItems().addAll(userService.findLatestTeamkills());
     }
 
     private void onSelectedUser(ObservableValue<? extends Player> observable, Player oldValue, Player newValue) {
@@ -173,46 +213,6 @@ public class MainController implements Controller<TabPane> {
         }
 
         userSearchTableView.getItems().addAll(usersFound);
-    }
-
-    public void display() {
-        LoginController loginController = uiService.loadFxml("login.fxml");
-
-        Stage loginDialog = new Stage();
-        loginDialog.setOnCloseRequest(event -> System.exit(0));
-        loginDialog.setAlwaysOnTop(true);
-        loginDialog.setTitle("FAF Moderator Client");
-        loginDialog.setScene(new Scene(loginController.getRoot()));
-        loginDialog.initStyle(StageStyle.UTILITY);
-        loginDialog.showAndWait();
-
-        refreshLadderPool();
-        refreshAvatars();
-        refreshRecentActivity();
-    }
-
-    private void refreshRecentActivity() {
-        userRegistrationFeedTableView.getItems().clear();
-        userRegistrationFeedTableView.getItems().addAll(userService.findLatestRegistrations());
-
-        teamkillFeedTableView.getItems().clear();
-        teamkillFeedTableView.getItems().addAll(userService.findLatestTeamkills());
-    }
-
-    private void refreshLadderPool() {
-        ladderPoolView.getRoot().getChildren().clear();
-        mapService.findMapsInLadder1v1Pool()
-                .forEach(map -> {
-                    TreeItem<MapTableItemAdapter> mapItem = new TreeItem<>(new MapTableItemAdapter(map));
-                    ladderPoolView.getRoot().getChildren().add(mapItem);
-
-                    map.getVersions().forEach(mapVersion -> mapItem.getChildren().add(new TreeItem<>(new MapTableItemAdapter(mapVersion))));
-                });
-    }
-
-    @Override
-    public TabPane getRoot() {
-        return root;
     }
 
     public void onRemoveFromLadderPool() {
