@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,18 @@ public class UserService {
                 .addInclude(variablePrefix + "avatarAssignments.avatar")
                 .addInclude(variablePrefix + "bans")
                 .addInclude(variablePrefix + "bans.banRevokeData");
+    }
+
+    public List<Player> findLatestRegistrations() {
+        log.debug("Searching for latest registrations");
+        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+                .sort("id", false)
+                .pageSize(50);
+        addModeratorIncludes(routeBuilder);
+
+        List<Player> result = fafApi.getPage(routeBuilder, 50, 1, Collections.emptyMap());
+        log.trace("found {} users", result.size());
+        return result;
     }
 
     private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
@@ -81,6 +94,18 @@ public class UserService {
         return result.stream()
                 .map(NameRecord::getPlayer)
                 .collect(Collectors.toSet());
+    }
+
+    public List<Teamkill> findLatestTeamkills() {
+        log.debug("Searching for latest teamkills ");
+        ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
+                .addInclude("teamkiller")
+                .addInclude("victim")
+                .sort("id", false);
+
+        List<Teamkill> result = fafApi.getPage(routeBuilder, 50, 1, Collections.emptyMap());
+        log.trace("found {} teamkills", result.size());
+        return result;
     }
 
     public List<Teamkill> findTeamkillsByUserId(@NotNull String userId) {

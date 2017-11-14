@@ -82,8 +82,8 @@
                                     <content>
                                         <VBox>
                                             <children>
-                                                <TableView fx:id="banTableView" prefHeight="200.0" prefWidth="200.0"
-                                                           VBox.vgrow="ALWAYS">
+                                                <TableView fx:id="userBansTableView" prefHeight="200.0"
+                                                           prefWidth="200.0" VBox.vgrow="ALWAYS">
                                                     <VBox.margin>
                                                         <Insets bottom="10.0"/>
                                                     </VBox.margin>
@@ -118,12 +118,12 @@
                                 </Tab>
                                 <Tab text="Teamkills">
                                     <content>
-                                        <TableView fx:id="teamkillTableView" prefHeight="200.0" prefWidth="200.0"/>
+                                        <TableView fx:id="userTeamkillsTableView" prefHeight="200.0" prefWidth="200.0"/>
                                     </content>
                                 </Tab>
                                 <Tab text="Name History">
                                     <content>
-                                        <TableView fx:id="nameHistoryTableView" maxHeight="1.7976931348623157E308"
+                                        <TableView fx:id="userNameHistoryTableView" maxHeight="1.7976931348623157E308"
                                                    maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
                                     </content>
                                 </Tab>
@@ -348,6 +348,28 @@
                         </TabPane>
                     </children>
                 </VBox>
+            </content>
+        </Tab>
+        <Tab text="Recent activity">
+            <content>
+                <ScrollPane fitToWidth="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                    <content>
+                        <VBox>
+                            <children>
+                                <TitledPane expanded="false" text="Latest Registrations">
+                                    <content>
+                                        <TableView fx:id="userRegistrationFeedTableView"/>
+                                    </content>
+                                </TitledPane>
+                                <TitledPane expanded="false" text="Latest Teamkills">
+                                    <content>
+                                        <TableView fx:id="teamkillFeedTableView"/>
+                                    </content>
+                                </TitledPane>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
             </content>
         </Tab>
     </tabs>

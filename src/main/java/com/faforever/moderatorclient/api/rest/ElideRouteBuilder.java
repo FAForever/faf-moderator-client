@@ -23,6 +23,7 @@ public class ElideRouteBuilder<T> {
     private String id = null;
     private Condition<?> filterCondition;
     private List<String> includes = new ArrayList<>();
+    private List<String> sorts = new ArrayList<>();
     private Integer pageSize = null;
     private Integer pageNumber = null;
 
@@ -61,6 +62,12 @@ public class ElideRouteBuilder<T> {
         return this;
     }
 
+    public ElideRouteBuilder<T> sort(String field, boolean ascending) {
+        log.trace("{} sort added: {}", ascending ? "ascending" : "descending", field);
+        sorts.add(ascending ? "+" : "-" + field);
+        return this;
+    }
+
     public ElideRouteBuilder<T> pageSize(int size) {
         Assert.state(id == null, "lookup of id and filter cannot be combined");
         log.trace("page size set: {}", size);
@@ -87,6 +94,11 @@ public class ElideRouteBuilder<T> {
 
         if (filterCondition != null) {
             queryArgs.add(String.format("filter=%s", filterCondition.query(new RSQLVisitor())));
+        }
+
+        if (sorts.size() > 0) {
+            queryArgs.add(String.format("sort=%s", sorts.stream().collect(Collectors.joining(","))));
+
         }
 
         if (pageSize != null) {
