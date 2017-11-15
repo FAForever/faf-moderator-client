@@ -155,8 +155,7 @@
                         </Label>
                         <HBox prefWidth="700.0">
                             <children>
-                                <TreeTableView fx:id="ladderPoolView" prefHeight="200.0" prefWidth="500.0"
-                                               HBox.hgrow="ALWAYS"/>
+                                <TreeTableView fx:id="ladderPoolView" HBox.hgrow="ALWAYS"/>
                                 <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0"
                                            pickOnBounds="true" preserveRatio="true"/>
                             </children>
@@ -228,7 +227,7 @@
                         <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
                         <HBox VBox.vgrow="ALWAYS">
                             <children>
-                                <TreeTableView fx:id="mapVaultView" prefHeight="200.0" prefWidth="500.0"/>
+                                <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS"/>
                                 <ImageView fx:id="mapVaultImageView" fitHeight="150.0" fitWidth="200.0"
                                            pickOnBounds="true" preserveRatio="true"/>
                             </children>

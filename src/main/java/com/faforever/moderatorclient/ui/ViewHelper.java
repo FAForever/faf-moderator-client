@@ -292,26 +292,26 @@ class ViewHelper {
     static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");
         idColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
+        idColumn.setMinWidth(100);
         mapTreeView.getColumns().add(idColumn);
 
-        TreeTableColumn<MapTableItemAdapter, String> nameColumn = new TreeTableColumn<>("Name");
-        nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
+        TreeTableColumn<MapTableItemAdapter, String> nameColumn = new TreeTableColumn<>("Name / Description");
+        nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("nameOrDescription"));
+        nameColumn.setMinWidth(300);
         mapTreeView.getColumns().add(nameColumn);
 
         TreeTableColumn<MapTableItemAdapter, ComparableVersion> versionColumn = new TreeTableColumn<>("Version");
         versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("version"));
         mapTreeView.getColumns().add(versionColumn);
 
-        TreeTableColumn<MapTableItemAdapter, String> descriptionColumn = new TreeTableColumn<>("Description");
-        descriptionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("description"));
-        mapTreeView.getColumns().add(descriptionColumn);
-
         TreeTableColumn<MapTableItemAdapter, String> sizeColumn = new TreeTableColumn<>("Size");
         sizeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("size"));
+        sizeColumn.setMinWidth(130);
         mapTreeView.getColumns().add(sizeColumn);
 
         TreeTableColumn<MapTableItemAdapter, String> filenameColumn = new TreeTableColumn<>("Filename");
         filenameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("filename"));
+        filenameColumn.setMinWidth(300);
         mapTreeView.getColumns().add(filenameColumn);
 
         TreeTableColumn<MapTableItemAdapter, String> isRankedColumn = new TreeTableColumn<>("Ranked");

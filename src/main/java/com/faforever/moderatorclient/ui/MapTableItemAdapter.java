@@ -34,12 +34,8 @@ public class MapTableItemAdapter {
         return isMap() ? map.getId() : mapVersion.getId();
     }
 
-    public String getName() {
-        return isMap() ? map.getDisplayName() : null;
-    }
-
-    public String getDescription() {
-        return isMapVersion() ? mapVersion.getDescription() : null;
+    public String getNameOrDescription() {
+        return isMap() ? map.getDisplayName() : mapVersion.getDescription();
     }
 
     public ComparableVersion getVersion() {

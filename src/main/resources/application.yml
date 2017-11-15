@@ -7,7 +7,7 @@ faforever:
     max-page-size: 10_000
 logging:
   level:
-    com.faforever.moderatorclient: INFO
+    com.faforever.moderatorclient: DEBUG
 spring:
   jackson:
     serialization:
