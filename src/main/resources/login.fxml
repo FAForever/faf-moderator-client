@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -25,8 +24,9 @@
             <children>
                 <Label text="Username" GridPane.rowIndex="1"/>
                 <Label text="Password" GridPane.rowIndex="2"/>
-                <TextField fx:id="usernameField" text="test" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                <PasswordField fx:id="passwordField" text="test_password" GridPane.columnIndex="1"
+                <TextField fx:id="usernameField" promptText="Your FAF account name" GridPane.columnIndex="1"
+                           GridPane.rowIndex="1"/>
+                <PasswordField fx:id="passwordField" promptText="Your FAF password" GridPane.columnIndex="1"
                                GridPane.rowIndex="2"/>
                 <HBox alignment="TOP_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="4">
                     <children>

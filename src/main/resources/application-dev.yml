@@ -1,13 +1,13 @@
 faforever:
   api:
-    base-url: https://api.faforever.com
-    client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
-    client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
+    base-url: http://localhost:8010
+    client-id: postman-test
+    client-secret: postman-test
     access-token-uri: ${faforever.api.base-url}/oauth/token
     max-page-size: 10_000
 logging:
   level:
-    com.faforever.moderatorclient: INFO
+    com.faforever.moderatorclient: DEBUG
 spring:
   jackson:
     serialization:
