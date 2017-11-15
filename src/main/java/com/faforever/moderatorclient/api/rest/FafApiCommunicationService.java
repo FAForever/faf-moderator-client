@@ -95,6 +95,10 @@ public class FafApiCommunicationService {
         authorize(username, password);
         try {
             selfPlayer = getOne("/me?include=lobbyGroup", Player.class);
+            if (selfPlayer.getLobbyGroup() == null) {
+                return LegacyAccessLevel.ROLE_USER;
+            }
+
             return selfPlayer.getLobbyGroup().getAccessLevel();
         } catch (OAuth2AccessDeniedException e) {
             return null;
