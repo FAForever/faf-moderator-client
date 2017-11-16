@@ -14,7 +14,7 @@
             <content>
                 <VBox>
                     <children>
-                        <HBox>
+                        <HBox VBox.vgrow="ALWAYS">
                             <children>
                                 <VBox minWidth="220.0">
                                     <children>

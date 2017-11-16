@@ -8,6 +8,8 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
@@ -236,10 +238,52 @@ class ViewHelper {
     }
 
     static void buildUserTableView(TableView<Player> tableView) {
-        TableColumn<Player, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
-        idColumn.setMinWidth(50);
+        TableColumn<Player, Player> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        idColumn.setCellFactory(param -> new TableCell<Player, Player>() {
+            Tooltip tooltip = new Tooltip();
+
+            {
+                setTooltip(tooltip);
+                setTextAlignment(TextAlignment.RIGHT);
+            }
+
+            @Override
+            protected void updateItem(Player item, boolean empty) {
+                super.updateItem(item, empty);
+                setTextFill(Color.BLACK);
+
+                if (item == null) {
+                    setText("");
+                    setStyle("");
+                    tooltip.setText("");
+                } else {
+                    setText(item.getId());
+
+                    if (item.getBans().isEmpty()) {
+                        setStyle("");
+                        tooltip.setText("No bans");
+                    } else {
+                        setStyle("-fx-font-weight: bold");
+
+                        if (item.getBans().stream()
+                                .anyMatch(banInfo -> banInfo.getBanStatus() == BanStatus.BANNED && banInfo.getDuration() == BanDurationType.PERMANENT)) {
+                            tooltip.setText("Permanent ban");
+                            setTextFill(Color.valueOf("#ca0000"));
+                        } else if (item.getBans().stream()
+                                .allMatch(banInfo -> banInfo.getBanStatus() == BanStatus.EXPIRED)) {
+                            tooltip.setText("Expired ban");
+                            setTextFill(Color.valueOf("#098700"));
+                        } else {
+                            tooltip.setText("Temporary ban");
+                            setTextFill(Color.valueOf("#ff8800"));
+                        }
+                    }
+                }
+            }
+        });
+        idColumn.setComparator(Comparator.comparingInt(o -> Integer.parseInt(o.getId())));
+        idColumn.setMinWidth(70);
         tableView.getColumns().add(idColumn);
 
         TableColumn<Player, String> nameColumn = new TableColumn<>("Name");
