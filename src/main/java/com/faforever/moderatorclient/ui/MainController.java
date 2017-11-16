@@ -155,6 +155,7 @@ public class MainController implements Controller<TabPane> {
 
     private void refreshLadderPool() {
         ladderPoolView.getRoot().getChildren().clear();
+        ladderPoolView.getSortOrder().clear();
         mapService.findMapsInLadder1v1Pool()
                 .forEach(map -> {
                     TreeItem<MapTableItemAdapter> mapItem = new TreeItem<>(new MapTableItemAdapter(map));
@@ -166,24 +167,31 @@ public class MainController implements Controller<TabPane> {
 
     private void refreshAvatars() {
         avatarTableView.getItems().clear();
+        avatarTableView.getSortOrder().clear();
         avatarTableView.getItems().addAll(
                 avatarService.getAll()
         );
     }
 
-    private void refreshRecentActivity() {
+    public void refreshRecentActivity() {
         userRegistrationFeedTableView.getItems().clear();
+        userRegistrationFeedTableView.getSortOrder().clear();
         userRegistrationFeedTableView.getItems().addAll(userService.findLatestRegistrations());
 
         teamkillFeedTableView.getItems().clear();
+        userRegistrationFeedTableView.getSortOrder().clear();
         teamkillFeedTableView.getItems().addAll(userService.findLatestTeamkills());
     }
 
     private void onSelectedUser(ObservableValue<? extends Player> observable, Player oldValue, Player newValue) {
         userNameHistoryTableView.getItems().clear();
+        userNameHistoryTableView.getSortOrder().clear();
         userBansTableView.getItems().clear();
+        userBansTableView.getSortOrder().clear();
         userTeamkillsTableView.getItems().clear();
+        userTeamkillsTableView.getSortOrder().clear();
         userAvatarsTableView.getItems().clear();
+        userAvatarsTableView.getSortOrder().clear();
 
         if (newValue != null) {
             userNameHistoryTableView.getItems().addAll(newValue.getNames());
@@ -197,6 +205,7 @@ public class MainController implements Controller<TabPane> {
 
     public void onUserSearch() {
         userSearchTableView.getItems().clear();
+        userSearchTableView.getSortOrder().clear();
 
         Collection<Player> usersFound = Collections.emptyList();
         String searchPattern = userSearchTextField.getText();
@@ -233,6 +242,7 @@ public class MainController implements Controller<TabPane> {
 
     public void onSearchMapVault() {
         mapVaultView.getRoot().getChildren().clear();
+        mapVaultView.getSortOrder().clear();
         String mapNamePattern = null;
 
         if (filterByMapNameCheckBox.isSelected()) {
@@ -245,6 +255,7 @@ public class MainController implements Controller<TabPane> {
 
     public void onSearchAvatars() {
         avatarTableView.getItems().clear();
+        avatarTableView.getSortOrder().clear();
         Collection<Avatar> avatars;
         String pattern = searchAvatarsTextField.getText();
 
