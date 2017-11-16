@@ -74,7 +74,7 @@ public class FafApiCommunicationService {
 
     @SneakyThrows
     private void authorize(String username, String password) {
-        log.debug("Configuring OAuth2 login with user = '{}', password=[hidden]");
+        log.debug("Configuring OAuth2 login with user = '{}', password=[hidden]", username);
         ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
         details.setClientId(apiClientId);
         details.setClientSecret(apiClientSecret);
