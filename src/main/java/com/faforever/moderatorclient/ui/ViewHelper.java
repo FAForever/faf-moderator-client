@@ -12,6 +12,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,6 +40,7 @@ class ViewHelper {
     static void buildAvatarTableView(TableView<Avatar> tableView) {
         TableColumn<Avatar, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
@@ -68,6 +70,7 @@ class ViewHelper {
     static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         idColumn.setEditable(false);
         tableView.getColumns().add(idColumn);
@@ -79,6 +82,7 @@ class ViewHelper {
                         .map(avatarAssignment -> avatarAssignment.getPlayer().getId())
                         .orElse(""))
         );
+        userIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         userIdColumn.setMinWidth(50);
         idColumn.setEditable(true);
         tableView.getColumns().add(userIdColumn);
@@ -114,6 +118,7 @@ class ViewHelper {
     static void buildBanTableView(TableView<BanInfo> tableView) {
         TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
@@ -179,6 +184,7 @@ class ViewHelper {
     static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
         TableColumn<NameRecord, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
@@ -196,6 +202,7 @@ class ViewHelper {
     static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
         TableColumn<Teamkill, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
@@ -211,10 +218,11 @@ class ViewHelper {
         victimColumn.setMinWidth(180);
         tableView.getColumns().add(victimColumn);
 
-        TableColumn<Teamkill, String> banStatusColumn = new TableColumn<>("Game ID");
-        banStatusColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGame().getId()));
-        banStatusColumn.setMinWidth(100);
-        tableView.getColumns().add(banStatusColumn);
+        TableColumn<Teamkill, String> gameIdColumn = new TableColumn<>("Game ID");
+        gameIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGame().getId()));
+        gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        gameIdColumn.setMinWidth(100);
+        tableView.getColumns().add(gameIdColumn);
 
         TableColumn<Teamkill, Long> gameTimeColumn = new TableColumn<>("Game Time");
         gameTimeColumn.setCellValueFactory(new PropertyValueFactory<>("gameTime"));
@@ -230,6 +238,7 @@ class ViewHelper {
     static void buildUserTableView(TableView<Player> tableView) {
         TableColumn<Player, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
@@ -251,6 +260,7 @@ class ViewHelper {
 
     static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("Assignment ID");
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setMinWidth(140);
         tableView.getColumns().add(idColumn);
@@ -259,6 +269,7 @@ class ViewHelper {
         avatarIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 param.getValue().getAvatar().getId()
         ));
+        avatarIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         avatarIdColumn.setMinWidth(50);
         tableView.getColumns().add(avatarIdColumn);
 
@@ -266,6 +277,7 @@ class ViewHelper {
         previewColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 param.getValue().getAvatar().getUrl()
         ));
+
         previewColumn.setCellFactory(param -> new UrlImageViewTableCell<>());
         previewColumn.setMinWidth(50);
         tableView.getColumns().add(previewColumn);
@@ -292,26 +304,27 @@ class ViewHelper {
     static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");
         idColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
         mapTreeView.getColumns().add(idColumn);
 
-        TreeTableColumn<MapTableItemAdapter, String> nameColumn = new TreeTableColumn<>("Name");
-        nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("name"));
+        TreeTableColumn<MapTableItemAdapter, String> nameColumn = new TreeTableColumn<>("Name / Description");
+        nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("nameOrDescription"));
+        nameColumn.setMinWidth(300);
         mapTreeView.getColumns().add(nameColumn);
 
         TreeTableColumn<MapTableItemAdapter, ComparableVersion> versionColumn = new TreeTableColumn<>("Version");
         versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("version"));
         mapTreeView.getColumns().add(versionColumn);
 
-        TreeTableColumn<MapTableItemAdapter, String> descriptionColumn = new TreeTableColumn<>("Description");
-        descriptionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("description"));
-        mapTreeView.getColumns().add(descriptionColumn);
-
         TreeTableColumn<MapTableItemAdapter, String> sizeColumn = new TreeTableColumn<>("Size");
         sizeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("size"));
+        sizeColumn.setMinWidth(130);
         mapTreeView.getColumns().add(sizeColumn);
 
         TreeTableColumn<MapTableItemAdapter, String> filenameColumn = new TreeTableColumn<>("Filename");
         filenameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("filename"));
+        filenameColumn.setMinWidth(300);
         mapTreeView.getColumns().add(filenameColumn);
 
         TreeTableColumn<MapTableItemAdapter, String> isRankedColumn = new TreeTableColumn<>("Ranked");

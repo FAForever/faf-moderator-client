@@ -22,7 +22,8 @@ public class MapService {
 
     public List<Map> findMaps(String mapNamePattern) {
         log.debug("Searching for maps with pattern: {}", mapNamePattern);
-        ElideRouteBuilder<Map> routeBuilder = ElideRouteBuilder.of(Map.class);
+        ElideRouteBuilder<Map> routeBuilder = ElideRouteBuilder.of(Map.class)
+                .addInclude("versions");
 
         if (mapNamePattern != null && mapNamePattern.length() > 0) {
             routeBuilder.filter(ElideRouteBuilder.qBuilder().string("displayName").eq(mapNamePattern));
