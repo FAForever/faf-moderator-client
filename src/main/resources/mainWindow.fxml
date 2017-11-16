@@ -6,8 +6,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <TabPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
-         maxWidth="1.7976931348623157E308" prefHeight="700.0" prefWidth="1000.0"
-         xmlns="http://javafx.com/javafx/8.0.111" fx:controller="com.faforever.moderatorclient.ui.MainController">
+         maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0"
+         prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111"
+         fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
         <Tab text="User Management">
             <content>
@@ -15,7 +16,7 @@
                     <children>
                         <HBox>
                             <children>
-                                <VBox>
+                                <VBox minWidth="220.0">
                                     <children>
                                         <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false"
                                                      selected="true" text="search by id">

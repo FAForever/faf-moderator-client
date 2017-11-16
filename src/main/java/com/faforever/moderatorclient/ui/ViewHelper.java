@@ -254,8 +254,28 @@ class ViewHelper {
 
         TableColumn<Player, String> steamIdColumn = new TableColumn<>("Steam ID");
         steamIdColumn.setCellValueFactory(new PropertyValueFactory<>("steamId"));
-        steamIdColumn.setMinWidth(100);
+        steamIdColumn.setMinWidth(150);
         tableView.getColumns().add(steamIdColumn);
+
+        TableColumn<Player, String> ipColumn = new TableColumn<>("Recent IP Address");
+        ipColumn.setCellValueFactory(new PropertyValueFactory<>("recentIpAddress"));
+        ipColumn.setMinWidth(160);
+        tableView.getColumns().add(ipColumn);
+
+        TableColumn<Player, OffsetDateTime> createTimeColumn = new TableColumn<>("Registration Date");
+        createTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<Player, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last lobby login");
+        updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
+
+        TableColumn<Player, String> userAgentColumn = new TableColumn<>("User Agent");
+        userAgentColumn.setCellValueFactory(new PropertyValueFactory<>("userAgent"));
+        userAgentColumn.setMinWidth(200);
+        tableView.getColumns().add(userAgentColumn);
     }
 
     static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
