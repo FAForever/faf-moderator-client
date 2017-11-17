@@ -52,6 +52,12 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </RadioButton>
+                                        <RadioButton fx:id="searchUserByIpRadioButton" mnemonicParsing="false"
+                                                     text="search by IP address" toggleGroup="$userSearch">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </RadioButton>
                                         <TextField fx:id="userSearchTextField">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>

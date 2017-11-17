@@ -34,6 +34,7 @@ public class MainController implements Controller<TabPane> {
     public RadioButton searchUserByPreviousNamesRadioButton;
     public RadioButton searchUserByEmailRadioButton;
     public RadioButton searchUserBySteamIdRadioButton;
+    public RadioButton searchUserByIpRadioButton;
     public TextField userSearchTextField;
     public Button newBanButton;
     public Button editBanButton;
@@ -219,6 +220,8 @@ public class MainController implements Controller<TabPane> {
             usersFound = userService.findUserByEmail(searchPattern);
         } else if (searchUserBySteamIdRadioButton.isSelected()) {
             usersFound = userService.findUserBySteamId(searchPattern);
+        } else if (searchUserByIpRadioButton.isSelected()) {
+            usersFound = userService.findUserByIP(searchPattern);
         }
 
         userSearchTableView.getItems().addAll(usersFound);

@@ -82,6 +82,10 @@ public class UserService {
         return findUsersByAttribute("steamId", pattern);
     }
 
+    public List<Player> findUserByIP(@NotNull String pattern) {
+        return findUsersByAttribute("recentIpAddress", pattern);
+    }
+
     public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
         log.debug("Searching for user by previous name with pattern: {}", pattern);
         ElideRouteBuilder<NameRecord> routeBuilder = ElideRouteBuilder.of(NameRecord.class)
