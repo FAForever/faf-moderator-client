@@ -12,9 +12,9 @@
     <tabs>
         <Tab text="User Management">
             <content>
-                <VBox>
-                    <children>
-                        <HBox VBox.vgrow="ALWAYS">
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                    <items>
+                        <HBox>
                             <children>
                                 <VBox minWidth="220.0">
                                     <children>
@@ -78,12 +78,7 @@
                                            HBox.hgrow="ALWAYS"/>
                             </children>
                         </HBox>
-                        <Separator prefWidth="200.0">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="20.0"/>
-                            </VBox.margin>
-                        </Separator>
-                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                        <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
                             <tabs>
                                 <Tab text="Bans">
                                     <content>
@@ -140,53 +135,18 @@
                                     </content>
                                 </Tab>
                             </tabs>
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                            </VBox.margin>
                         </TabPane>
-                    </children>
-                </VBox>
+                    </items>
+                </SplitPane>
             </content>
         </Tab>
         <Tab closable="false" text="Ladder Map Pool">
             <content>
-                <VBox>
-                    <children>
-                        <Label text="Current ladder pool">
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                            </padding>
-                            <font>
-                                <Font name="System Bold" size="15.0"/>
-                            </font>
-                        </Label>
-                        <HBox prefWidth="700.0">
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                    <items>
+                        <VBox>
                             <children>
-                                <TreeTableView fx:id="ladderPoolView" HBox.hgrow="ALWAYS"/>
-                                <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0"
-                                           pickOnBounds="true" preserveRatio="true"/>
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                              VBox.vgrow="ALWAYS">
-                            <children>
-                                <Button fx:id="removeFromPoolButton" alignment="CENTER" disable="true"
-                                        mnemonicParsing="false" onAction="#onRemoveFromLadderPool"
-                                        text="remove selected map from pool" HBox.hgrow="ALWAYS">
-                                    <HBox.margin>
-                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                                    </HBox.margin>
-                                </Button>
-                            </children>
-                        </HBox>
-                        <Separator>
-                            <VBox.margin>
-                                <Insets bottom="10.0" top="10.0"/>
-                            </VBox.margin>
-                        </Separator>
-                        <HBox>
-                            <children>
-                                <Label text="Map vault">
+                                <Label text="Current ladder pool">
                                     <padding>
                                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
                                     </padding>
@@ -194,62 +154,99 @@
                                         <Font name="System Bold" size="15.0"/>
                                     </font>
                                 </Label>
-                                <Label text="(only ranked and not hidden maps)">
-                                    <padding>
-                                        <Insets bottom="10.0" right="10.0" top="10.0"/>
-                                    </padding>
-                                </Label>
+                                <HBox prefWidth="700.0">
+                                    <children>
+                                        <TreeTableView fx:id="ladderPoolView" HBox.hgrow="ALWAYS"/>
+                                        <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0"
+                                                   pickOnBounds="true" preserveRatio="true"/>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER" maxHeight="1.7976931348623157E308"
+                                      maxWidth="1.7976931348623157E308">
+                                    <children>
+                                        <Button fx:id="removeFromPoolButton" alignment="CENTER" disable="true"
+                                                mnemonicParsing="false" onAction="#onRemoveFromLadderPool"
+                                                text="remove selected map from pool" HBox.hgrow="ALWAYS">
+                                            <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                </HBox>
                             </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT">
+                        </VBox>
+                        <VBox>
                             <children>
-                                <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false"
-                                          text="filter by map name:">
-                                    <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </padding>
-                                    <HBox.margin>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </HBox.margin>
-                                </CheckBox>
-                                <TextField fx:id="mapNamePatternTextField">
-                                    <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </padding>
-                                    <HBox.margin>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </HBox.margin>
-                                </TextField>
-                                <Button mnemonicParsing="false" onAction="#onSearchMapVault" text="search vault">
-                                    <padding>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </padding>
-                                    <HBox.margin>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                    </HBox.margin>
-                                </Button>
+                                <HBox>
+                                    <children>
+                                        <Label text="Map vault">
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </padding>
+                                            <font>
+                                                <Font name="System Bold" size="15.0"/>
+                                            </font>
+                                        </Label>
+                                        <Label text="(only ranked and not hidden maps)">
+                                            <padding>
+                                                <Insets bottom="10.0" right="10.0" top="10.0"/>
+                                            </padding>
+                                        </Label>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT">
+                                    <children>
+                                        <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false"
+                                                  text="filter by map name:">
+                                            <padding>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </padding>
+                                            <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </HBox.margin>
+                                        </CheckBox>
+                                        <TextField fx:id="mapNamePatternTextField">
+                                            <padding>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </padding>
+                                            <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </HBox.margin>
+                                        </TextField>
+                                        <Button mnemonicParsing="false" onAction="#onSearchMapVault"
+                                                text="search vault">
+                                            <padding>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </padding>
+                                            <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
+                                <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
+                                <HBox>
+                                    <children>
+                                        <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS"/>
+                                        <ImageView fx:id="mapVaultImageView" fitHeight="150.0" fitWidth="200.0"
+                                                   pickOnBounds="true" preserveRatio="true"/>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER">
+                                    <children>
+                                        <Button fx:id="addToPoolButton" disable="true" mnemonicParsing="false"
+                                                onAction="#onAddToLadderPool" text="add selected map to pool">
+                                            <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                </HBox>
                             </children>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
-                        <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
-                        <HBox VBox.vgrow="ALWAYS">
-                            <children>
-                                <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS"/>
-                                <ImageView fx:id="mapVaultImageView" fitHeight="150.0" fitWidth="200.0"
-                                           pickOnBounds="true" preserveRatio="true"/>
-                            </children>
-                        </HBox>
-                        <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                            <VBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-                            </VBox.margin>
-                            <children>
-                                <Button fx:id="addToPoolButton" disable="true" mnemonicParsing="false"
-                                        onAction="#onAddToLadderPool" text="add selected map to pool"/>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
+                        </VBox>
+                    </items>
+                </SplitPane>
             </content>
         </Tab>
         <Tab text="Map vault">
@@ -264,8 +261,8 @@
         </Tab>
         <Tab text="Avatars">
             <content>
-                <VBox>
-                    <children>
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                    <items>
                         <VBox>
                             <children>
                                 <HBox>
@@ -326,23 +323,18 @@
                                         <TableView fx:id="avatarTableView" HBox.hgrow="ALWAYS"/>
                                     </children>
                                 </HBox>
+                                <HBox>
+                                    <children>
+                                        <TextField promptText="New avatar tooltip" HBox.hgrow="ALWAYS"/>
+                                        <Button mnemonicParsing="false" text="choose file &amp; add"/>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets top="10.0"/>
+                                    </VBox.margin>
+                                </HBox>
                             </children>
                         </VBox>
-                        <HBox>
-                            <children>
-                                <TextField promptText="New avatar tooltip" HBox.hgrow="ALWAYS"/>
-                                <Button mnemonicParsing="false" text="choose file &amp; add"/>
-                            </children>
-                            <VBox.margin>
-                                <Insets top="10.0"/>
-                            </VBox.margin>
-                        </HBox>
-                        <Separator prefWidth="200.0">
-                            <VBox.margin>
-                                <Insets bottom="15.0" top="15.0"/>
-                            </VBox.margin>
-                        </Separator>
-                        <TabPane>
+                        <TabPane minHeight="200.0">
                             <tabs>
                                 <Tab text="Assignments">
                                     <content>
@@ -352,8 +344,8 @@
                                 </Tab>
                             </tabs>
                         </TabPane>
-                    </children>
-                </VBox>
+                    </items>
+                </SplitPane>
             </content>
         </Tab>
         <Tab text="Recent activity">
