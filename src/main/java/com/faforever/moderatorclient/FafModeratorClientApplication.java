@@ -38,7 +38,7 @@ public class FafModeratorClientApplication extends Application {
         primaryStage.setTitle("FAF Moderator Client");
 
         UiService uiService = applicationContext.getBean(UiService.class);
-        MainController mainController = uiService.loadFxml("mainWindow.fxml");
+        MainController mainController = uiService.loadFxml("ui/mainWindow.fxml");
         mainController.display();
         primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
         primaryStage.setScene(new Scene(mainController.getRoot()));

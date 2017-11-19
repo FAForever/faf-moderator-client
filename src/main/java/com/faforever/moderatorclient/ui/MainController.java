@@ -139,7 +139,7 @@ public class MainController implements Controller<TabPane> {
     }
 
     public void display() {
-        LoginController loginController = uiService.loadFxml("login.fxml");
+        LoginController loginController = uiService.loadFxml("ui/login.fxml");
 
         Stage loginDialog = new Stage();
         loginDialog.setOnCloseRequest(event -> System.exit(0));
@@ -278,7 +278,7 @@ public class MainController implements Controller<TabPane> {
         Player selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
         Assert.notNull(selectedPlayer, "Tou need to select a player to create a ban.");
 
-        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(new BanInfo()
                 .setPlayer(selectedPlayer)
         );
@@ -293,7 +293,7 @@ public class MainController implements Controller<TabPane> {
         BanInfo selectedBan = userBansTableView.getSelectionModel().getSelectedItem();
         Assert.notNull(selectedBan, "You need to select a ban to edit it.");
 
-        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(selectedBan);
 
         Stage banInfoDialog = new Stage();
