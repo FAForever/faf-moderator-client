@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -25,6 +26,10 @@ public class Player {
     private String userAgent;
     @RestrictedVisibility("IsModerator")
     private String steamId;
+    @RestrictedVisibility("IsModerator")
+    private String recentIpAddress;
+    private OffsetDateTime createTime;
+    private OffsetDateTime updateDateTime;
 
     @Relationship("globalRating")
     private GlobalRating globalRating;

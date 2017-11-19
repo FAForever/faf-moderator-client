@@ -50,7 +50,7 @@ public class UserService {
                 .pageSize(50);
         addModeratorIncludes(routeBuilder);
 
-        List<Player> result = fafApi.getPage(routeBuilder, 50, 1, Collections.emptyMap());
+        List<Player> result = fafApi.getPage(routeBuilder, 100, 1, Collections.emptyMap());
         log.trace("found {} users", result.size());
         return result;
     }
@@ -82,6 +82,10 @@ public class UserService {
         return findUsersByAttribute("steamId", pattern);
     }
 
+    public List<Player> findUserByIP(@NotNull String pattern) {
+        return findUsersByAttribute("recentIpAddress", pattern);
+    }
+
     public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
         log.debug("Searching for user by previous name with pattern: {}", pattern);
         ElideRouteBuilder<NameRecord> routeBuilder = ElideRouteBuilder.of(NameRecord.class)
@@ -103,7 +107,7 @@ public class UserService {
                 .addInclude("victim")
                 .sort("id", false);
 
-        List<Teamkill> result = fafApi.getPage(routeBuilder, 50, 1, Collections.emptyMap());
+        List<Teamkill> result = fafApi.getPage(routeBuilder, 100, 1, Collections.emptyMap());
         log.trace("found {} teamkills", result.size());
         return result;
     }

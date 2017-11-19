@@ -34,6 +34,7 @@ public class MainController implements Controller<TabPane> {
     public RadioButton searchUserByPreviousNamesRadioButton;
     public RadioButton searchUserByEmailRadioButton;
     public RadioButton searchUserBySteamIdRadioButton;
+    public RadioButton searchUserByIpRadioButton;
     public TextField userSearchTextField;
     public Button newBanButton;
     public Button editBanButton;
@@ -138,7 +139,7 @@ public class MainController implements Controller<TabPane> {
     }
 
     public void display() {
-        LoginController loginController = uiService.loadFxml("login.fxml");
+        LoginController loginController = uiService.loadFxml("ui/login.fxml");
 
         Stage loginDialog = new Stage();
         loginDialog.setOnCloseRequest(event -> System.exit(0));
@@ -219,6 +220,8 @@ public class MainController implements Controller<TabPane> {
             usersFound = userService.findUserByEmail(searchPattern);
         } else if (searchUserBySteamIdRadioButton.isSelected()) {
             usersFound = userService.findUserBySteamId(searchPattern);
+        } else if (searchUserByIpRadioButton.isSelected()) {
+            usersFound = userService.findUserByIP(searchPattern);
         }
 
         userSearchTableView.getItems().addAll(usersFound);
@@ -275,7 +278,7 @@ public class MainController implements Controller<TabPane> {
         Player selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
         Assert.notNull(selectedPlayer, "Tou need to select a player to create a ban.");
 
-        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(new BanInfo()
                 .setPlayer(selectedPlayer)
         );
@@ -290,7 +293,7 @@ public class MainController implements Controller<TabPane> {
         BanInfo selectedBan = userBansTableView.getSelectionModel().getSelectedItem();
         Assert.notNull(selectedBan, "You need to select a ban to edit it.");
 
-        BanInfoController banInfoController = uiService.loadFxml("banInfo.fxml");
+        BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(selectedBan);
 
         Stage banInfoDialog = new Stage();
