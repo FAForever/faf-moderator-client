@@ -21,6 +21,7 @@ public class ElideRouteBuilder<T> {
     @Getter
     private Class<T> dtoClass;
     private String id = null;
+    private String relationship = null;
     private Condition<?> filterCondition;
     private List<String> includes = new ArrayList<>();
     private List<String> sorts = new ArrayList<>();
@@ -47,11 +48,23 @@ public class ElideRouteBuilder<T> {
     }
 
     public ElideRouteBuilder<T> id(String id) {
+        Assert.hasLength(id, "id must be given");
         Assert.state(filterCondition == null, "lookup of id and filter cannot be combined");
         Assert.state(pageSize == null, "lookup of id and pageSize cannot be combined");
         Assert.state(pageNumber == null, "lookup of id and pageNumber cannot be combined");
         log.trace("id added: {}", id);
         this.id = id;
+        return this;
+    }
+
+    public ElideRouteBuilder<T> relationship(String name) {
+        Assert.hasLength(name, "name must be given");
+        Assert.state(id != null, "relationship can  only be set after id");
+        Assert.state(filterCondition == null, "lookup of id and filter cannot be combined");
+        Assert.state(pageSize == null, "lookup of id and pageSize cannot be combined");
+        Assert.state(pageNumber == null, "lookup of id and pageNumber cannot be combined");
+        log.trace("relationship added: {}", name);
+        this.relationship = name;
         return this;
     }
 
@@ -112,6 +125,7 @@ public class ElideRouteBuilder<T> {
         String route = "/data/" +
                 dtoPath +
                 (id == null ? "" : "/" + id) +
+                (relationship == null ? "" : "/" + relationship) +
                 queryArgs.toString();
         log.debug("Route built: {}", route);
         return route;

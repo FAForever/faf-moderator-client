@@ -128,6 +128,15 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
+    public Object postRelationship(ElideRouteBuilder<?> routeBuilder, Object object) {
+        authorizedLatch.await();
+        JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
+        String dataString = new String(resourceConverter.writeDocument(data));
+        ResponseEntity<?> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+        return entity.getBody();
+    }
+
+    @SneakyThrows
     public <T> T patch(ElideRouteBuilder<T> routeBuilder, T object) {
         authorizedLatch.await();
         return restOperations.patchForObject(routeBuilder.build(), object, routeBuilder.getDtoClass());
