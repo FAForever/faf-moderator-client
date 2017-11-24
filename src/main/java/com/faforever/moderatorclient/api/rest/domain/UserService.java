@@ -132,7 +132,11 @@ public class UserService {
     public BanRevokeData revokeBan(@NotNull BanRevokeData banRevokeData) {
         log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
         banRevokeData.setAuthor(fafApi.getSelfPlayer());
-        return fafApi.post(ElideRouteBuilder.of(BanRevokeData.class), banRevokeData);
+        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+                .id(banRevokeData.getBan().getId())
+                .relationship("banRevokeData");
+
+        return (BanRevokeData) fafApi.postRelationship(routeBuilder, banRevokeData);
     }
 
     public BanInfo createBan(@NotNull BanInfo banInfo) {

@@ -1,8 +1,12 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.moderatorclient.ui.domain.MapFX;
+import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
@@ -13,6 +17,7 @@ import javafx.scene.text.TextAlignment;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.Optional;
@@ -402,6 +407,109 @@ class ViewHelper {
         TreeItem<MapTableItemAdapter> rootTreeItem = new TreeItem<>(new MapTableItemAdapter(new Map()));
         mapTreeView.setRoot(rootTreeItem);
         mapTreeView.setShowRoot(false);
+    }
+
+    static void buildMapTableView(TableView<MapFX> tableView) {
+        TableColumn<MapFX, String> idColumn = new TableColumn<>("Map ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
+        tableView.getColumns().add(idColumn);
+
+        TableColumn<MapFX, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().displayNameProperty());
+        nameColumn.setMinWidth(200);
+        tableView.getColumns().add(nameColumn);
+
+
+        TableColumn<MapFX, PlayerFX> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> o.getValue().authorProperty());
+        authorColumn.setCellFactory(o -> new TableCell<MapFX, PlayerFX>() {
+            Label label;
+
+            {
+                label = new Label();
+                setGraphic(label);
+            }
+
+            @Override
+            protected void updateItem(PlayerFX item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty) {
+                    label.setText("");
+                } else if (item == null) {
+                    label.setText("unknown");
+                } else {
+                    label.setText(MessageFormat.format("{0} [id = {1}]", item.getLogin(), item.getId()));
+                }
+            }
+        });
+        authorColumn.setMinWidth(200);
+        tableView.getColumns().add(authorColumn);
+
+        TableColumn<MapFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<MapFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
+    }
+
+    static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {
+        TableColumn<MapVersionFX, String> idColumn = new TableColumn<>("Version ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
+        tableView.getColumns().add(idColumn);
+
+        TableColumn<MapVersionFX, ComparableVersion> nameColumn = new TableColumn<>("Version No.");
+        nameColumn.setCellValueFactory(o -> o.getValue().versionProperty());
+        nameColumn.setMinWidth(100);
+        tableView.getColumns().add(nameColumn);
+
+
+        TableColumn<MapVersionFX, Boolean> rankedCheckBoxColumn = new TableColumn<>("Ranked");
+        rankedCheckBoxColumn.setCellValueFactory(param -> param.getValue().rankedProperty());
+        rankedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(rankedCheckBoxColumn));
+        tableView.getColumns().add(rankedCheckBoxColumn);
+
+        TableColumn<MapVersionFX, Boolean> hiddenColumn = new TableColumn<>("Hidden");
+        hiddenColumn.setCellValueFactory(o -> o.getValue().hiddenProperty());
+        hiddenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(hiddenColumn));
+        tableView.getColumns().add(hiddenColumn);
+
+        TableColumn<MapVersionFX, Number> maxPlayersColumn = new TableColumn<>("Max Players");
+        maxPlayersColumn.setCellValueFactory(o -> o.getValue().maxPlayersProperty());
+        maxPlayersColumn.setMinWidth(130);
+        tableView.getColumns().add(maxPlayersColumn);
+
+        TableColumn<MapVersionFX, Number> widthColumn = new TableColumn<>("Width");
+        widthColumn.setCellValueFactory(o -> o.getValue().widthProperty());
+        tableView.getColumns().add(widthColumn);
+
+        TableColumn<MapVersionFX, Number> heightColumn = new TableColumn<>("Height");
+        heightColumn.setCellValueFactory(o -> o.getValue().heightProperty());
+        tableView.getColumns().add(heightColumn);
+
+        TableColumn<MapVersionFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().descriptionProperty());
+        descriptionColumn.setMinWidth(300);
+        tableView.getColumns().add(descriptionColumn);
+
+
+        TableColumn<MapVersionFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Uploaded");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<MapVersionFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
     }
 
     static void fillMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, Stream<Map> mapStream) {

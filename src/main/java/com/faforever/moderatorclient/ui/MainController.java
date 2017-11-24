@@ -4,10 +4,16 @@ import com.faforever.moderatorclient.api.dto.*;
 import com.faforever.moderatorclient.api.rest.domain.AvatarService;
 import com.faforever.moderatorclient.api.rest.domain.MapService;
 import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.mapstruct.MapMapper;
+import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
+import com.faforever.moderatorclient.mapstruct.PlayerMapper;
+import com.faforever.moderatorclient.ui.domain.MapFX;
+import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -17,16 +23,23 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Component
 @Slf4j
 public class MainController implements Controller<TabPane> {
+    private final MapMapper mapMapper;
+    private final MapVersionMapper mapVersionMapper;
+    private final PlayerMapper playerMapper;
+
     private final UiService uiService;
     private final UserService userService;
     private final MapService mapService;
     private final AvatarService avatarService;
+
     public TabPane root;
+
 
     // Tab "User Management"
     public RadioButton searchUserByIdRadioButton;
@@ -54,6 +67,18 @@ public class MainController implements Controller<TabPane> {
     public Button removeFromPoolButton;
     public Button addToPoolButton;
 
+    // Tab "Map vault"
+    public RadioButton searchMapByMapNameRadioButton;
+    public RadioButton searchMapByAuthorIdRadioButton;
+    public RadioButton searchMapByAuthorNameRadioButton;
+    public TextField mapSearchTextField;
+    public CheckBox excludeHiddenMapVersionsCheckbox;
+    public ImageView mapVersionPreviewImageView;
+    public TableView<MapFX> mapSearchTableView;
+    public TableView<MapVersionFX> mapVersionTableView;
+    public Button toggleMapVersionHidingButton;
+    public Button toggleMapVersionRatingButton;
+
     // Tab "Avatars"
     public TableView<Avatar> avatarTableView;
     public TableView<AvatarAssignment> avatarAssignmentTableView;
@@ -67,7 +92,10 @@ public class MainController implements Controller<TabPane> {
     public TableView<Player> userRegistrationFeedTableView;
     public TableView<Teamkill> teamkillFeedTableView;
 
-    public MainController(UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService) {
+    public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService) {
+        this.mapMapper = mapMapper;
+        this.mapVersionMapper = mapVersionMapper;
+        this.playerMapper = playerMapper;
         this.uiService = uiService;
         this.userService = userService;
         this.mapService = mapSearchService;
@@ -83,6 +111,7 @@ public class MainController implements Controller<TabPane> {
     public void initialize() {
         initUserManagementTab();
         initLadderMapPoolTab();
+        initMapVaultTab();
         initAvatarTab();
         initRecentActivityTab();
     }
@@ -119,6 +148,29 @@ public class MainController implements Controller<TabPane> {
                 addToPoolButton.setDisable(true);
             } else {
                 addToPoolButton.setDisable(!newValue.getValue().isMapVersion());
+            }
+        });
+    }
+
+    private void initMapVaultTab() {
+        ViewHelper.buildMapTableView(mapSearchTableView);
+        ViewHelper.buildMapVersionTableView(mapVersionTableView);
+
+        mapSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            mapVersionTableView.getItems().clear();
+            Optional.ofNullable(newValue).ifPresent(map -> mapVersionTableView.getItems().addAll(
+                    map.getVersions()));
+        });
+
+        mapVersionTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == null) {
+                mapVersionPreviewImageView.setImage(null);
+                toggleMapVersionHidingButton.setDisable(true);
+                toggleMapVersionRatingButton.setDisable(true);
+            } else {
+                mapVersionPreviewImageView.setImage(new Image(newValue.getThumbnailUrlLarge().toString()));
+                toggleMapVersionHidingButton.setDisable(false);
+                toggleMapVersionRatingButton.setDisable(false);
             }
         });
     }
@@ -256,6 +308,23 @@ public class MainController implements Controller<TabPane> {
                 mapService.findMaps(mapNamePattern).stream());
     }
 
+    public void onSearchMaps() {
+        mapSearchTableView.getItems().clear();
+        mapSearchTableView.getSortOrder().clear();
+
+        List<Map> mapsFound = Collections.emptyList();
+        String searchPattern = mapSearchTextField.getText();
+        if (searchMapByMapNameRadioButton.isSelected()) {
+            mapsFound = mapService.findMapsByName(searchPattern, excludeHiddenMapVersionsCheckbox.isSelected());
+        } else if (searchMapByAuthorIdRadioButton.isSelected()) {
+            mapsFound = mapService.findMapsByAuthorId(searchPattern, excludeHiddenMapVersionsCheckbox.isSelected());
+        } else if (searchMapByAuthorNameRadioButton.isSelected()) {
+            mapsFound = mapService.findMapsByAuthorName(searchPattern, excludeHiddenMapVersionsCheckbox.isSelected());
+        }
+
+        mapSearchTableView.getItems().addAll(mapMapper.map(mapsFound));
+    }
+
     public void onSearchAvatars() {
         avatarTableView.getItems().clear();
         avatarTableView.getSortOrder().clear();
@@ -300,5 +369,24 @@ public class MainController implements Controller<TabPane> {
         banInfoDialog.setTitle("Edit Ban");
         banInfoDialog.setScene(new Scene(banInfoController.getRoot()));
         banInfoDialog.showAndWait();
+    }
+
+
+    public void onToggleMapVersionHiding() {
+        MapVersionFX mapVersion = mapVersionTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(mapVersion, "You can only edit a selected MapVersion");
+
+        mapVersion.setHidden(!mapVersion.isHidden());
+        mapService.patchMapVersion(mapVersionMapper.map(mapVersion));
+    }
+
+    public void onToggleMapVersionRanking() {
+        MapVersionFX mapVersion = mapVersionTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(mapVersion, "You can only edit a selected MapVersion");
+
+        mapVersion.setRanked(!mapVersion.isRanked());
+        mapService.patchMapVersion(mapVersionMapper.map(mapVersion));
     }
 }

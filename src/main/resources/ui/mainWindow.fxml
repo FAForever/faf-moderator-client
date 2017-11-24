@@ -10,7 +10,7 @@
          prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111"
          fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
-        <Tab text="User Management">
+        <Tab closable="false" text="User Management">
             <content>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                     <items>
@@ -249,17 +249,147 @@
                 </SplitPane>
             </content>
         </Tab>
-        <Tab text="Map vault">
+        <Tab closable="false" text="Map vault">
+            <content>
+                <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+                    <items>
+                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                            <tabs>
+                                <Tab closable="false" text="Search">
+                                    <content>
+                                        <HBox prefHeight="100.0" prefWidth="200.0">
+                                            <children>
+                                                <VBox minWidth="220.0">
+                                                    <children>
+                                                        <RadioButton fx:id="searchMapByMapNameRadioButton"
+                                                                     mnemonicParsing="false" text="search by name">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </VBox.margin>
+                                                            <toggleGroup>
+                                                                <ToggleGroup fx:id="mapSearch"/>
+                                                            </toggleGroup>
+                                                        </RadioButton>
+                                                        <RadioButton fx:id="searchMapByAuthorIdRadioButton"
+                                                                     mnemonicParsing="false" text="search by author id"
+                                                                     toggleGroup="$mapSearch">
+                                                            <padding>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </padding>
+                                                        </RadioButton>
+                                                        <RadioButton fx:id="searchMapByAuthorNameRadioButton"
+                                                                     mnemonicParsing="false"
+                                                                     text="search by author name"
+                                                                     toggleGroup="$mapSearch">
+                                                            <padding>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </padding>
+                                                        </RadioButton>
+                                                        <TextField fx:id="mapSearchTextField">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <CheckBox fx:id="excludeHiddenMapVersionsCheckbox"
+                                                                  mnemonicParsing="false" selected="true"
+                                                                  text="no hidden map versions">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </VBox.margin>
+                                                        </CheckBox>
+                                                        <Button mnemonicParsing="false" onAction="#onSearchMaps"
+                                                                text="search map">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                            </VBox.margin>
+                                                        </Button>
+                                                    </children>
+                                                    <HBox.margin>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                                    </HBox.margin>
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS">
+                                                    <children>
+                                                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
+                                                               maxWidth="1.7976931348623157E308"
+                                                               style="-fx-background-color: #ccc;" text="Maps">
+                                                            <padding>
+                                                                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+                                                            </padding>
+                                                            <font>
+                                                                <Font name="System Bold" size="15.0"/>
+                                                            </font>
+                                                        </Label>
+                                                        <TableView fx:id="mapSearchTableView" prefHeight="200.0"
+                                                                   prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+                                    </content>
+                                </Tab>
+                            </tabs>
+                        </TabPane>
+                        <HBox>
+                            <children>
+                                <VBox alignment="CENTER" prefWidth="220.0">
+                                    <HBox.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                                    </HBox.margin>
+                                    <children>
+                                        <ImageView fx:id="mapVersionPreviewImageView" fitHeight="150.0" fitWidth="200.0"
+                                                   pickOnBounds="true" preserveRatio="true">
+                                            <VBox.margin>
+                                                <Insets bottom="25.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </ImageView>
+                                        <Button fx:id="toggleMapVersionRatingButton" disable="true"
+                                                mnemonicParsing="false" onAction="#onToggleMapVersionRanking"
+                                                text="rank / unrank">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </Button>
+                                        <Button fx:id="toggleMapVersionHidingButton" disable="true"
+                                                mnemonicParsing="false" onAction="#onToggleMapVersionHiding"
+                                                text="hide / unhide">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </Button>
+                                    </children>
+                                </VBox>
+                                <VBox HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label alignment="CENTER" maxHeight="1.7976931348623157E308"
+                                               maxWidth="1.7976931348623157E308" style="-fx-background-color: #ccc;"
+                                               text="Map Versions">
+                                            <VBox.margin>
+                                                <Insets/>
+                                            </VBox.margin>
+                                            <padding>
+                                                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>
+                                            </padding>
+                                            <font>
+                                                <Font name="System Bold" size="15.0"/>
+                                            </font>
+                                        </Label>
+                                        <TableView fx:id="mapVersionTableView" prefHeight="200.0" prefWidth="200.0"
+                                                   VBox.vgrow="ALWAYS"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </items>
+                </SplitPane>
+            </content>
+        </Tab>
+        <Tab closable="false" disable="true" text="Mod vault">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
             </content>
         </Tab>
-        <Tab text="Mod vault">
-            <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0"/>
-            </content>
-        </Tab>
-        <Tab text="Avatars">
+        <Tab closable="false" text="Avatars">
             <content>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
                     <items>
@@ -336,7 +466,7 @@
                         </VBox>
                         <TabPane minHeight="200.0">
                             <tabs>
-                                <Tab text="Assignments">
+                                <Tab closable="false" text="Assignments">
                                     <content>
                                         <TableView fx:id="avatarAssignmentTableView" editable="true" prefHeight="200.0"
                                                    prefWidth="200.0"/>
@@ -348,7 +478,7 @@
                 </SplitPane>
             </content>
         </Tab>
-        <Tab text="Recent activity">
+        <Tab closable="false" text="Recent activity">
             <content>
                 <VBox alignment="TOP_CENTER">
                     <children>

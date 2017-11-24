@@ -1,8 +1,8 @@
 faforever:
   api:
     base-url: http://localhost:8010
-    client-id: postman-test
-    client-secret: postman-test
+    client-id: postman
+    client-secret: postman
     access-token-uri: ${faforever.api.base-url}/oauth/token
     max-page-size: 10_000
 logging:
