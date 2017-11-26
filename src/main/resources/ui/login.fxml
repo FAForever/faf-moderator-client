@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<DialogPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" minWidth="465.0" xmlns="http://javafx.com/javafx/8.0.111"
+<DialogPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" minWidth="465.0" xmlns="http://javafx.com/javafx/8.0.121"
             fx:controller="com.faforever.moderatorclient.ui.LoginController">
     <content>
         <GridPane hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="5.0">
@@ -15,11 +15,7 @@
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="200.0" prefWidth="200.0"/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-                <RowConstraints minHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="30"/>
             </rowConstraints>
             <children>
                 <Label text="Username" GridPane.rowIndex="1"/>
