@@ -8,7 +8,7 @@
 <TabPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
          maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0"
          prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111"
-         fx:controller="com.faforever.moderatorclient.ui.MainController">
+         fx:controller="com.faforever.moderatorclient.ui.MainController" tabClosingPolicy="UNAVAILABLE">
     <tabs>
         <Tab closable="false" text="User Management">
             <content>
@@ -464,7 +464,7 @@
                                 </HBox>
                             </children>
                         </VBox>
-                        <TabPane minHeight="200.0">
+                        <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
                             <tabs>
                                 <Tab closable="false" text="Assignments">
                                     <content>
