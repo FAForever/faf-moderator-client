@@ -9,6 +9,8 @@ import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -17,6 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -25,6 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Slf4j
@@ -91,6 +96,11 @@ public class MainController implements Controller<TabPane> {
     // Tab "Recent activity"
     public TableView<Player> userRegistrationFeedTableView;
     public TableView<Teamkill> teamkillFeedTableView;
+    public TableView<GamePlayerStats> userLastGamesTable;
+    public ChoiceBox<FeaturedMod> featuredModFilterChoiceBox;
+    public Button loadMoreGamesButton;
+    private Runnable loadMoreGamesRunnable;
+    private AtomicInteger page;
 
     public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService) {
         this.mapMapper = mapMapper;
@@ -120,6 +130,34 @@ public class MainController implements Controller<TabPane> {
         ViewHelper.buildUserTableView(userSearchTableView);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView);
         ViewHelper.buildBanTableView(userBansTableView);
+        ViewHelper.buildPlayersGamesTable(userLastGamesTable);
+
+        loadMoreGamesButton.visibleProperty()
+                .bind(Bindings.createBooleanBinding(() -> {
+                    return userLastGamesTable.getItems().size() != 0 && userLastGamesTable.getItems().size() % 100 == 0;
+                }, userLastGamesTable.getItems()));
+
+        featuredModFilterChoiceBox.setConverter(new StringConverter<FeaturedMod>() {
+            @Override
+            public String toString(FeaturedMod object) {
+                return object == null ? "All" : object.getDisplayName();
+            }
+
+            @Override
+            public FeaturedMod fromString(String string) {
+                throw (new UnsupportedOperationException("Not implemented"));
+            }
+        });
+        featuredModFilterChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            userLastGamesTable.getItems().clear();
+            loadMoreGamesRunnable.run();
+        });
+
+        featuredModFilterChoiceBox.getItems().add(null);
+        featuredModFilterChoiceBox.getSelectionModel().select(0);
+        CompletableFuture.supplyAsync(userService::getFeaturedMods)
+                .thenAccept(featuredMods -> Platform.runLater(() -> featuredModFilterChoiceBox.getItems().addAll(featuredMods)));
+
         ViewHelper.buildTeamkillTableView(userTeamkillsTableView, false);
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView);
 
@@ -245,12 +283,19 @@ public class MainController implements Controller<TabPane> {
         userTeamkillsTableView.getSortOrder().clear();
         userAvatarsTableView.getItems().clear();
         userAvatarsTableView.getSortOrder().clear();
+        userLastGamesTable.getItems().clear();
+        userLastGamesTable.getSortOrder().clear();
 
         if (newValue != null) {
             userNameHistoryTableView.getItems().addAll(newValue.getNames());
             userBansTableView.getItems().addAll(newValue.getBans());
             userTeamkillsTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userAvatarsTableView.getItems().addAll(newValue.getAvatarAssignments());
+
+            page = new AtomicInteger(1);
+            loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> userService.getLastHunderedPlayedGamesByFeaturedMod(newValue.getId(), page.get(), featuredModFilterChoiceBox.getSelectionModel().getSelectedItem()))
+                    .thenAccept(gamePlayerStats -> Platform.runLater(() -> userLastGamesTable.getItems().addAll(gamePlayerStats)));
+            loadMoreGamesRunnable.run();
         }
 
         newBanButton.setDisable(newValue == null);
@@ -388,5 +433,10 @@ public class MainController implements Controller<TabPane> {
 
         mapVersion.setRanked(!mapVersion.isRanked());
         mapService.patchMapVersion(mapVersionMapper.map(mapVersion));
+    }
+
+    public void loadMoreGames() {
+        page.incrementAndGet();
+        loadMoreGamesRunnable.run();
     }
 }

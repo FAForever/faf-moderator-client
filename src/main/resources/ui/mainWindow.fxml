@@ -129,6 +129,20 @@
                                                    maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
                                     </content>
                                 </Tab>
+                                <Tab text="Last Games">
+                                    <content>
+                                        <VBox>
+                                            <HBox spacing="10">
+                                                <Label text="Show featured Mods:"/>
+                                                <ChoiceBox fx:id="featuredModFilterChoiceBox"/>
+                                                <Button fx:id="loadMoreGamesButton" text="Load more"
+                                                        onAction="#loadMoreGames"/>
+                                            </HBox>
+                                            <TableView fx:id="userLastGamesTable" maxHeight="1.7976931348623157E308"
+                                                       maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
+                                        </VBox>
+                                    </content>
+                                </Tab>
                                 <Tab text="Avatars">
                                     <content>
                                         <TableView fx:id="userAvatarsTableView" prefHeight="200.0" prefWidth="200.0"/>

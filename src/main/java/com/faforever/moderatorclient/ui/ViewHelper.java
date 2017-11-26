@@ -4,11 +4,11 @@ import com.faforever.moderatorclient.api.dto.*;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.utils.Tools;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,8 +19,12 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 class ViewHelper {
@@ -83,7 +87,6 @@ class ViewHelper {
         tableView.getColumns().add(idColumn);
 
         TableColumn<AvatarAssignment, String> userIdColumn = new TableColumn<>("User ID");
-        userIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         userIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 Optional.ofNullable(param.getValue())
                         .map(avatarAssignment -> avatarAssignment.getPlayer().getId())
@@ -91,7 +94,7 @@ class ViewHelper {
         );
         userIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         userIdColumn.setMinWidth(50);
-        idColumn.setEditable(true);
+        idColumn.setEditable(false);
         tableView.getColumns().add(userIdColumn);
 
         TableColumn<AvatarAssignment, String> userNameColumn = new TableColumn<>("User name");
@@ -457,6 +460,74 @@ class ViewHelper {
         updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
+    }
+
+    static void buildPlayersGamesTable(TableView<GamePlayerStats> tableView) {
+        TableColumn<GamePlayerStats, String> gameIdColum = new TableColumn<>("Game ID");
+        gameIdColum.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getReplay().getId()
+        ));
+        gameIdColum.setComparator(Comparator.comparingInt(Integer::parseInt));
+        gameIdColum.setMinWidth(100);
+        tableView.getColumns().add(gameIdColum);
+
+        TableColumn<GamePlayerStats, String> gameNameColum = new TableColumn<>("Game Name");
+        gameNameColum.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getReplay().getName()
+        ));
+        gameNameColum.setComparator(Comparator.comparingInt(Integer::parseInt));
+        gameNameColum.setMinWidth(100);
+        tableView.getColumns().add(gameNameColum);
+
+        TableColumn<GamePlayerStats, String> rankedColum = new TableColumn<>("Game Validity");
+        rankedColum.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                param.getValue().getReplay().getValidity().name()
+        ));
+        rankedColum.setComparator(Comparator.naturalOrder());
+        rankedColum.setMinWidth(120);
+        tableView.getColumns().add(rankedColum);
+
+        TableColumn<GamePlayerStats, String> beforeGameRatingColum = new TableColumn<>("Rating Before Game");
+        beforeGameRatingColum.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                String.valueOf(Tools.calculateRating(param.getValue().getBeforeMean(), param.getValue().getBeforeDeviation()))
+        ));
+        beforeGameRatingColum.setComparator(Comparator.comparingInt(Integer::parseInt));
+        beforeGameRatingColum.setMinWidth(150);
+        tableView.getColumns().add(beforeGameRatingColum);
+
+        TableColumn<GamePlayerStats, String> afterGameRatingColum = new TableColumn<>("Rating Change");
+        afterGameRatingColum.setCellValueFactory(param -> {
+            long afterRating = Tools.calculateRating(param.getValue().getAfterMean(), param.getValue().getAfterDeviation());
+            long beforeRating = Tools.calculateRating(param.getValue().getBeforeMean(), param.getValue().getBeforeDeviation());
+            return new SimpleObjectProperty<>(
+                    String.valueOf(String.format("%+d", (afterRating - beforeRating)))
+            );
+        });
+        afterGameRatingColum.setComparator(Comparator.comparingInt(Integer::parseInt));
+        afterGameRatingColum.setMinWidth(100);
+        tableView.getColumns().add(afterGameRatingColum);
+
+        TableColumn<GamePlayerStats, OffsetDateTime> scoreTimeDate = new TableColumn<>("Rating Before Game");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault())
+                .withZone(TimeZone.getDefault().toZoneId());
+        scoreTimeDate.setCellValueFactory(param ->
+                new SimpleObjectProperty<>(param.getValue().getScoreTime())
+        );
+        scoreTimeDate.setCellFactory(param -> new TableCell<GamePlayerStats, OffsetDateTime>() {
+            @Override
+            protected void updateItem(OffsetDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty && item != null) {
+                    setGraphic(new Label(item.format(dateTimeFormatter)));
+                } else {
+                    setGraphic(new Label("Unknown date"));
+                }
+            }
+        });
+        scoreTimeDate.setComparator(Comparator.naturalOrder());
+        scoreTimeDate.setMinWidth(150);
+        tableView.getColumns().add(scoreTimeDate);
     }
 
     static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {

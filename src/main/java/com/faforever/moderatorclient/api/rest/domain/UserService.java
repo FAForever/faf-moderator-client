@@ -144,4 +144,32 @@ public class UserService {
         banInfo.setAuthor(fafApi.getSelfPlayer());
         return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo);
     }
+
+    public List<GamePlayerStats> getLastHunderedPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedMod featuredMod) {
+        log.debug("Searching for games played by user id: {}", userId);
+        ElideRouteBuilder<GamePlayerStats> routeBuilder = ElideRouteBuilder.of(GamePlayerStats.class)
+                .addInclude("game")
+                .addInclude("player")
+                .addInclude("game.host")
+                .addInclude("game.featuredMod")
+                .addInclude("game.mapVersion")
+                .addInclude("game.mapVersion.map")
+                .sort("scoreTime", false);
+        if (featuredMod != null) {
+            routeBuilder.filter(ElideRouteBuilder.qBuilder().string("game.featuredMod.technicalName").eq(featuredMod.getTechnicalName())
+                    .and().string("player.id").eq(userId));
+        } else {
+            routeBuilder.filter(ElideRouteBuilder.qBuilder().string("player.id").eq(userId));
+        }
+        return fafApi.getPage(routeBuilder, 100, page, Collections.emptyMap());
+    }
+
+    public List<GamePlayerStats> getLastHunderedPlayedGames(@NotNull String userId, int page) {
+        return getLastHunderedPlayedGamesByFeaturedMod(userId, page, null);
+    }
+
+    public List<FeaturedMod> getFeaturedMods() {
+        ElideRouteBuilder<FeaturedMod> routeBuilder = ElideRouteBuilder.of(FeaturedMod.class);
+        return fafApi.getAll(routeBuilder);
+    }
 }
