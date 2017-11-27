@@ -17,5 +17,5 @@ public interface MapVersionMapper {
 
     List<MapVersionFX> mapToFX(List<MapVersion> mapVersionList);
 
-    List<MapVersion> mapToDTo(List<MapVersionFX> mapVersionFXList);
+    List<MapVersion> mapToDTO(List<MapVersionFX> mapVersionFXList);
 }

@@ -7,6 +7,8 @@ import com.faforever.moderatorclient.api.rest.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.MapMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
+import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import javafx.application.Platform;
@@ -96,8 +98,8 @@ public class MainController implements Controller<TabPane> {
     // Tab "Recent activity"
     public TableView<Player> userRegistrationFeedTableView;
     public TableView<Teamkill> teamkillFeedTableView;
-    public TableView<GamePlayerStats> userLastGamesTable;
-    public ChoiceBox<FeaturedMod> featuredModFilterChoiceBox;
+    public TableView<GamePlayerStatsFX> userLastGamesTable;
+    public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
     public Button loadMoreGamesButton;
     private Runnable loadMoreGamesRunnable;
     private AtomicInteger page;
@@ -137,14 +139,14 @@ public class MainController implements Controller<TabPane> {
                     return userLastGamesTable.getItems().size() != 0 && userLastGamesTable.getItems().size() % 100 == 0;
                 }, userLastGamesTable.getItems()));
 
-        featuredModFilterChoiceBox.setConverter(new StringConverter<FeaturedMod>() {
+        featuredModFilterChoiceBox.setConverter(new StringConverter<FeaturedModFX>() {
             @Override
-            public String toString(FeaturedMod object) {
+            public String toString(FeaturedModFX object) {
                 return object == null ? "All" : object.getDisplayName();
             }
 
             @Override
-            public FeaturedMod fromString(String string) {
+            public FeaturedModFX fromString(String string) {
                 throw (new UnsupportedOperationException("Not implemented"));
             }
         });
