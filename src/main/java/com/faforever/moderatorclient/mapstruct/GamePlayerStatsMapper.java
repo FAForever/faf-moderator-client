@@ -10,11 +10,11 @@ import java.util.List;
 @Mapper(uses = {JavaFXMapper.class, GameMapper.class, PlayerMapper.class})
 public abstract class GamePlayerStatsMapper {
 
-    public abstract GamePlayerStatsFX map(GamePlayerStats gamePlayerStats);
-
     @Mapping(target = "beforeRating", ignore = true)
     @Mapping(target = "afterRating", ignore = true)
     @Mapping(target = "ratingChange", ignore = true)
+    public abstract GamePlayerStatsFX map(GamePlayerStats gamePlayerStats);
+
     public abstract GamePlayerStats map(GamePlayerStatsFX gamePlayerStatsFX);
 
     public abstract List<GamePlayerStatsFX> map(List<GamePlayerStats> gamePlayerStats);

@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -31,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Slf4j
@@ -102,9 +102,11 @@ public class MainController implements Controller<TabPane> {
     public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
     public Button loadMoreGamesButton;
     private Runnable loadMoreGamesRunnable;
-    private AtomicInteger page;
+    private int page = 1;
+    private final String replayDownLoadFormat;
+    private final PlatformService platformService;
 
-    public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService) {
+    public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat, PlatformService platformService) {
         this.mapMapper = mapMapper;
         this.mapVersionMapper = mapVersionMapper;
         this.playerMapper = playerMapper;
@@ -112,6 +114,8 @@ public class MainController implements Controller<TabPane> {
         this.userService = userService;
         this.mapService = mapSearchService;
         this.avatarService = avatarService;
+        this.replayDownLoadFormat = replayDownLoadFormat;
+        this.platformService = platformService;
     }
 
     @Override
@@ -132,12 +136,10 @@ public class MainController implements Controller<TabPane> {
         ViewHelper.buildUserTableView(userSearchTableView);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView);
         ViewHelper.buildBanTableView(userBansTableView);
-        ViewHelper.buildPlayersGamesTable(userLastGamesTable);
+        ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
 
         loadMoreGamesButton.visibleProperty()
-                .bind(Bindings.createBooleanBinding(() -> {
-                    return userLastGamesTable.getItems().size() != 0 && userLastGamesTable.getItems().size() % 100 == 0;
-                }, userLastGamesTable.getItems()));
+                .bind(Bindings.createBooleanBinding(() -> userLastGamesTable.getItems().size() != 0 && userLastGamesTable.getItems().size() % 100 == 0, userLastGamesTable.getItems()));
 
         featuredModFilterChoiceBox.setConverter(new StringConverter<FeaturedModFX>() {
             @Override
@@ -152,7 +154,8 @@ public class MainController implements Controller<TabPane> {
         });
         featuredModFilterChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             userLastGamesTable.getItems().clear();
-            loadMoreGamesRunnable.run();
+            page = 1;
+            if (loadMoreGamesRunnable != null) loadMoreGamesRunnable.run();
         });
 
         featuredModFilterChoiceBox.getItems().add(null);
@@ -294,8 +297,8 @@ public class MainController implements Controller<TabPane> {
             userTeamkillsTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userAvatarsTableView.getItems().addAll(newValue.getAvatarAssignments());
 
-            page = new AtomicInteger(1);
-            loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> userService.getLastHunderedPlayedGamesByFeaturedMod(newValue.getId(), page.get(), featuredModFilterChoiceBox.getSelectionModel().getSelectedItem()))
+            page = 1;
+            loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> userService.getLastHunderedPlayedGamesByFeaturedMod(newValue.getId(), page, featuredModFilterChoiceBox.getSelectionModel().getSelectedItem()))
                     .thenAccept(gamePlayerStats -> Platform.runLater(() -> userLastGamesTable.getItems().addAll(gamePlayerStats)));
             loadMoreGamesRunnable.run();
         }
@@ -438,7 +441,7 @@ public class MainController implements Controller<TabPane> {
     }
 
     public void loadMoreGames() {
-        page.incrementAndGet();
+        page++;
         loadMoreGamesRunnable.run();
     }
 }

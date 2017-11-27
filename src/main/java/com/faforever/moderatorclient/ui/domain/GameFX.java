@@ -154,4 +154,8 @@ public class GameFX extends AbstractEntityFX {
     public ObjectProperty<MapVersion> mapVersionProperty() {
         return mapVersion;
     }
+
+    public String getReplayUrl(String baseUrlFormat) {
+        return String.format(baseUrlFormat, id.get());
+    }
 }

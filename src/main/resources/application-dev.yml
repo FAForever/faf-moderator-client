@@ -5,6 +5,9 @@ faforever:
     client-secret: postman
     access-token-uri: ${faforever.api.base-url}/oauth/token
     max-page-size: 10_000
+  vault:
+    base-url: http://content.faforever.com
+    replayDownloadUrlFormat: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s
 logging:
   level:
     com.faforever.moderatorclient: DEBUG

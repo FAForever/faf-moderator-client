@@ -5,6 +5,7 @@ import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -462,7 +463,7 @@ class ViewHelper {
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView) {
+    static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
         TableColumn<GamePlayerStatsFX, String> gameIdColum = new TableColumn<>("Game ID");
         gameIdColum.setCellValueFactory(param -> param.getValue().getGame().idProperty());
         gameIdColum.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -500,19 +501,45 @@ class ViewHelper {
                 o.getValue().scoreTimeProperty()
         );
         scoreTimeDate.setCellFactory(param -> new TableCell<GamePlayerStatsFX, OffsetDateTime>() {
+            Label label;
+
+            {
+                label = new Label();
+                setGraphic(label);
+            }
             @Override
             protected void updateItem(OffsetDateTime item, boolean empty) {
                 super.updateItem(item, empty);
-                if (!empty && item != null) {
-                    setGraphic(new Label(item.format(dateTimeFormatter)));
-                } else {
-                    setGraphic(new Label("Unknown date"));
-                }
+                label.setVisible(!empty);
+                label.setText(item == null ? "unknown Date" : item.format(dateTimeFormatter));
             }
         });
         scoreTimeDate.setComparator(Comparator.naturalOrder());
         scoreTimeDate.setMinWidth(150);
         tableView.getColumns().add(scoreTimeDate);
+
+        TableColumn<GamePlayerStatsFX, String> replayUrlColumn = new TableColumn<>("Replay");
+        replayUrlColumn.setCellValueFactory(o ->
+                Bindings.createStringBinding(() -> o.getValue().getGame().getReplayUrl(replayDownloadFormat))
+        );
+        replayUrlColumn.setCellFactory(param -> new TableCell<GamePlayerStatsFX, String>() {
+            Button button;
+
+            {
+                button = new Button("Download Replay");
+                setGraphic(button);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                button.setVisible(!empty && item != null);
+                button.setOnAction(event -> platformService.showDocument(item));
+            }
+        });
+        replayUrlColumn.setSortable(false);
+        replayUrlColumn.setMinWidth(150);
+        tableView.getColumns().add(replayUrlColumn);
     }
 
     static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {

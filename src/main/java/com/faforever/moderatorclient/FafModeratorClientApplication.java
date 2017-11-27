@@ -1,8 +1,6 @@
 package com.faforever.moderatorclient;
 
-import com.faforever.moderatorclient.ui.MainController;
-import com.faforever.moderatorclient.ui.StageHolder;
-import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -12,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
         JmxAutoConfiguration.class,
@@ -43,5 +42,10 @@ public class FafModeratorClientApplication extends Application {
         primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
         primaryStage.setScene(new Scene(mainController.getRoot()));
         primaryStage.show();
+    }
+
+    @Bean
+    public PlatformService platformService() {
+        return new PlatformServiceImpl(getHostServices());
     }
 }
