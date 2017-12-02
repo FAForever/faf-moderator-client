@@ -1,7 +1,6 @@
 package com.faforever.moderatorclient.ui.domain;
 
 import com.faforever.moderatorclient.api.dto.Faction;
-import com.faforever.moderatorclient.api.dto.Player;
 import javafx.beans.property.*;
 
 import java.time.OffsetDateTime;
@@ -20,7 +19,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
     private final ObjectProperty<Byte> score;
     private final ObjectProperty<OffsetDateTime> scoreTime;
     private final ObjectProperty<GameFX> game;
-    private final ObjectProperty<Player> player;
+    private final ObjectProperty<PlayerFX> player;
     private final IntegerProperty ratingChange;
     private final IntegerProperty beforeRating;
     private final IntegerProperty afterRating;
@@ -243,15 +242,15 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         return game;
     }
 
-    public Player getPlayer() {
+    public PlayerFX getPlayer() {
         return player.get();
     }
 
-    public void setPlayer(Player player) {
-        this.player.set(player);
+    public void setPlayer(PlayerFX playerFX) {
+        this.player.set(playerFX);
     }
 
-    public ObjectProperty<Player> playerProperty() {
+    public ObjectProperty<PlayerFX> playerProperty() {
         return player;
     }
 }

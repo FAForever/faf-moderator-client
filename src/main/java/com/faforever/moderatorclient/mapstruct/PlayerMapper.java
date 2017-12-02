@@ -7,10 +7,10 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 @Mapper(uses = {JavaFXMapper.class, CycleAvoidingMappingContext.class})
-public interface PlayerMapper {
-    PlayerFX map(Player player);
+public abstract class PlayerMapper {
+    public abstract PlayerFX map(Player player);
 
-    Player map(PlayerFX playerFX);
+    public abstract Player map(PlayerFX playerFX);
 
-    List<PlayerFX> map(List<Player> playerList);
+    public abstract List<PlayerFX> map(List<Player> playerList);
 }

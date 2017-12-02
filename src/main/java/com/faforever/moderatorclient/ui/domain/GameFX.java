@@ -1,6 +1,8 @@
 package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.moderatorclient.api.dto.GameReview;
+import com.faforever.moderatorclient.api.dto.Validity;
+import com.faforever.moderatorclient.api.dto.VictoryCondition;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public class GameFX extends AbstractEntityFX {
     private final StringProperty id;
@@ -18,10 +21,10 @@ public class GameFX extends AbstractEntityFX {
     private final ObjectProperty<Validity> validity;
     private final ObjectProperty<VictoryCondition> victoryCondition;
     private final ObservableList<GameReview> reviews;
-    private final ObservableList<GamePlayerStats> playerStats;
-    private final ObjectProperty<Player> host;
-    private final ObjectProperty<FeaturedMod> featuredMod;
-    private final ObjectProperty<MapVersion> mapVersion;
+    private final ObservableList<GamePlayerStatsFX> playerStats;
+    private final ObjectProperty<PlayerFX> host;
+    private final ObjectProperty<FeaturedModFX> featuredMod;
+    private final ObjectProperty<MapVersionFX> mapVersion;
 
     public GameFX() {
         this.id = new SimpleStringProperty();
@@ -115,43 +118,48 @@ public class GameFX extends AbstractEntityFX {
         return reviews;
     }
 
-    public ObservableList<GamePlayerStats> getPlayerStats() {
+    public ObservableList<GamePlayerStatsFX> getPlayerStats() {
         return playerStats;
     }
 
-    public Player getHost() {
+    public void setPlayerStats(List<GamePlayerStatsFX> statsFXList) {
+        playerStats.clear();
+        playerStats.addAll(statsFXList);
+    }
+
+    public PlayerFX getHost() {
         return host.get();
     }
 
-    public void setHost(Player host) {
+    public void setHost(PlayerFX host) {
         this.host.set(host);
     }
 
-    public ObjectProperty<Player> hostProperty() {
+    public ObjectProperty<PlayerFX> hostProperty() {
         return host;
     }
 
-    public FeaturedMod getFeaturedMod() {
+    public FeaturedModFX getFeaturedMod() {
         return featuredMod.get();
     }
 
-    public void setFeaturedMod(FeaturedMod featuredMod) {
+    public void setFeaturedMod(FeaturedModFX featuredMod) {
         this.featuredMod.set(featuredMod);
     }
 
-    public ObjectProperty<FeaturedMod> featuredModProperty() {
+    public ObjectProperty<FeaturedModFX> featuredModProperty() {
         return featuredMod;
     }
 
-    public MapVersion getMapVersion() {
+    public MapVersionFX getMapVersion() {
         return mapVersion.get();
     }
 
-    public void setMapVersion(MapVersion mapVersion) {
+    public void setMapVersion(MapVersionFX mapVersion) {
         this.mapVersion.set(mapVersion);
     }
 
-    public ObjectProperty<MapVersion> mapVersionProperty() {
+    public ObjectProperty<MapVersionFX> mapVersionProperty() {
         return mapVersion;
     }
 

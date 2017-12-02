@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, PlayerMapper.class, FeaturedModMapper.class, MapVersionMapper.class})
+@Mapper(uses = {JavaFXMapper.class, GamePlayerStatsMapper.class, PlayerMapper.class, FeaturedModMapper.class, MapVersionMapper.class})
 public abstract class GameMapper {
     @Mapping(target = "reviews", ignore = true)
     public abstract GameFX map(Game game);

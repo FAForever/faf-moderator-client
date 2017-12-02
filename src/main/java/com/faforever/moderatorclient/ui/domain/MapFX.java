@@ -140,6 +140,7 @@ public class MapFX extends AbstractEntityFX {
     }
 
     public void setVersions(List<MapVersionFX> versionFXList) {
+        versions.clear();
         versions.addAll(versionFXList);
     }
 

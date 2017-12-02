@@ -4,6 +4,7 @@ import com.faforever.moderatorclient.api.dto.*;
 import com.faforever.moderatorclient.api.rest.domain.AvatarService;
 import com.faforever.moderatorclient.api.rest.domain.MapService;
 import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.mapstruct.MapMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
@@ -39,6 +40,7 @@ public class MainController implements Controller<TabPane> {
     private final MapMapper mapMapper;
     private final MapVersionMapper mapVersionMapper;
     private final PlayerMapper playerMapper;
+    private final GamePlayerStatsMapper gamePlayerStatsMapper;
 
     private final UiService uiService;
     private final UserService userService;
@@ -63,6 +65,11 @@ public class MainController implements Controller<TabPane> {
     public TableView<BanInfo> userBansTableView;
     public TableView<Teamkill> userTeamkillsTableView;
     public TableView<AvatarAssignment> userAvatarsTableView;
+    public TableView<GamePlayerStatsFX> userLastGamesTable;
+    public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
+    public Button loadMoreGamesButton;
+    private Runnable loadMoreGamesRunnable;
+    private int userGamesPage = 1;
 
     // Tab "Ladder Map Pool"
     public TreeTableView<MapTableItemAdapter> ladderPoolView;
@@ -98,18 +105,14 @@ public class MainController implements Controller<TabPane> {
     // Tab "Recent activity"
     public TableView<Player> userRegistrationFeedTableView;
     public TableView<Teamkill> teamkillFeedTableView;
-    public TableView<GamePlayerStatsFX> userLastGamesTable;
-    public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
-    public Button loadMoreGamesButton;
-    private Runnable loadMoreGamesRunnable;
-    private int page = 1;
     private final String replayDownLoadFormat;
     private final PlatformService platformService;
 
-    public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat, PlatformService platformService) {
+    public MainController(MapMapper mapMapper, MapVersionMapper mapVersionMapper, PlayerMapper playerMapper, GamePlayerStatsMapper gamePlayerStatsMapper, UiService uiService, UserService userService, MapService mapSearchService, AvatarService avatarService, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat, PlatformService platformService) {
         this.mapMapper = mapMapper;
         this.mapVersionMapper = mapVersionMapper;
         this.playerMapper = playerMapper;
+        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
         this.uiService = uiService;
         this.userService = userService;
         this.mapService = mapSearchService;
@@ -154,7 +157,7 @@ public class MainController implements Controller<TabPane> {
         });
         featuredModFilterChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             userLastGamesTable.getItems().clear();
-            page = 1;
+            userGamesPage = 1;
             if (loadMoreGamesRunnable != null) loadMoreGamesRunnable.run();
         });
 
@@ -167,9 +170,7 @@ public class MainController implements Controller<TabPane> {
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView);
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
-        userBansTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            editBanButton.setDisable(newValue == null);
-        });
+        userBansTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> editBanButton.setDisable(newValue == null));
     }
 
     private void initLadderMapPoolTab() {
@@ -297,8 +298,8 @@ public class MainController implements Controller<TabPane> {
             userTeamkillsTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userAvatarsTableView.getItems().addAll(newValue.getAvatarAssignments());
 
-            page = 1;
-            loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> userService.getLastHunderedPlayedGamesByFeaturedMod(newValue.getId(), page, featuredModFilterChoiceBox.getSelectionModel().getSelectedItem()))
+            userGamesPage = 1;
+            loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> gamePlayerStatsMapper.map(userService.getLastHundredPlayedGamesByFeaturedMod(newValue.getId(), userGamesPage, featuredModFilterChoiceBox.getSelectionModel().getSelectedItem())))
                     .thenAccept(gamePlayerStats -> Platform.runLater(() -> userLastGamesTable.getItems().addAll(gamePlayerStats)));
             loadMoreGamesRunnable.run();
         }
@@ -441,7 +442,7 @@ public class MainController implements Controller<TabPane> {
     }
 
     public void loadMoreGames() {
-        page++;
+        userGamesPage++;
         loadMoreGamesRunnable.run();
     }
 }

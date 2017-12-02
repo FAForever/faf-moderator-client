@@ -84,7 +84,6 @@ class ViewHelper {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
-        idColumn.setEditable(false);
         tableView.getColumns().add(idColumn);
 
         TableColumn<AvatarAssignment, String> userIdColumn = new TableColumn<>("User ID");
@@ -95,7 +94,6 @@ class ViewHelper {
         );
         userIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         userIdColumn.setMinWidth(50);
-        idColumn.setEditable(false);
         tableView.getColumns().add(userIdColumn);
 
         TableColumn<AvatarAssignment, String> userNameColumn = new TableColumn<>("User name");
@@ -105,7 +103,6 @@ class ViewHelper {
                         .orElse(""))
         );
         userNameColumn.setMinWidth(150);
-        userNameColumn.setEditable(false);
         tableView.getColumns().add(userNameColumn);
 
         TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
@@ -122,7 +119,6 @@ class ViewHelper {
         TableColumn<AvatarAssignment, OffsetDateTime> assignedAtColumn = new TableColumn<>("Assigned at");
         assignedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         assignedAtColumn.setMinWidth(180);
-        idColumn.setEditable(false);
         tableView.getColumns().add(assignedAtColumn);
     }
 
@@ -464,43 +460,43 @@ class ViewHelper {
     }
 
     static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
-        TableColumn<GamePlayerStatsFX, String> gameIdColum = new TableColumn<>("Game ID");
-        gameIdColum.setCellValueFactory(param -> param.getValue().getGame().idProperty());
-        gameIdColum.setComparator(Comparator.comparingInt(Integer::parseInt));
-        gameIdColum.setMinWidth(100);
-        tableView.getColumns().add(gameIdColum);
+        TableColumn<GamePlayerStatsFX, String> gameIdColumn = new TableColumn<>("Game ID");
+        gameIdColumn.setCellValueFactory(o -> o.getValue().getGame().idProperty());
+        gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        gameIdColumn.setMinWidth(100);
+        tableView.getColumns().add(gameIdColumn);
 
-        TableColumn<GamePlayerStatsFX, String> gameNameColum = new TableColumn<>("Game Name");
-        gameNameColum.setCellValueFactory(o -> o.getValue().getGame().nameProperty());
-        gameNameColum.setMinWidth(100);
-        tableView.getColumns().add(gameNameColum);
+        TableColumn<GamePlayerStatsFX, String> gameNameColumn = new TableColumn<>("Game Name");
+        gameNameColumn.setCellValueFactory(o -> o.getValue().getGame().nameProperty());
+        gameNameColumn.setMinWidth(100);
+        tableView.getColumns().add(gameNameColumn);
 
-        TableColumn<GamePlayerStatsFX, String> rankedColum = new TableColumn<>("Game Validity");
-        rankedColum.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                param.getValue().getGame().getValidity().name()
+        TableColumn<GamePlayerStatsFX, String> rankedColumn = new TableColumn<>("Game Validity");
+        rankedColumn.setCellValueFactory(o -> new SimpleObjectProperty<>(
+                o.getValue().getGame().getValidity().name()
         ));
-        rankedColum.setComparator(Comparator.naturalOrder());
-        rankedColum.setMinWidth(120);
-        tableView.getColumns().add(rankedColum);
+        rankedColumn.setComparator(Comparator.naturalOrder());
+        rankedColumn.setMinWidth(120);
+        tableView.getColumns().add(rankedColumn);
 
-        TableColumn<GamePlayerStatsFX, Number> beforeGameRatingColum = new TableColumn<>("Rating Before Game");
-        beforeGameRatingColum.setCellValueFactory(o -> o.getValue().beforeRatingProperty());
-        beforeGameRatingColum.setMinWidth(150);
-        tableView.getColumns().add(beforeGameRatingColum);
+        TableColumn<GamePlayerStatsFX, Number> beforeGameRatingColumn = new TableColumn<>("Rating Before Game");
+        beforeGameRatingColumn.setCellValueFactory(o -> o.getValue().beforeRatingProperty());
+        beforeGameRatingColumn.setMinWidth(150);
+        tableView.getColumns().add(beforeGameRatingColumn);
 
-        TableColumn<GamePlayerStatsFX, Number> afterGameRatingColum = new TableColumn<>("Rating Change");
-        afterGameRatingColum.setCellValueFactory(o -> o.getValue().ratingChangeProperty());
-        afterGameRatingColum.setMinWidth(100);
-        tableView.getColumns().add(afterGameRatingColum);
+        TableColumn<GamePlayerStatsFX, Number> afterGameRatingColumn = new TableColumn<>("Rating Change");
+        afterGameRatingColumn.setCellValueFactory(o -> o.getValue().ratingChangeProperty());
+        afterGameRatingColumn.setMinWidth(100);
+        tableView.getColumns().add(afterGameRatingColumn);
 
-        TableColumn<GamePlayerStatsFX, OffsetDateTime> scoreTimeDate = new TableColumn<>("Score Time");
+        TableColumn<GamePlayerStatsFX, OffsetDateTime> scoreTimeDateColumn = new TableColumn<>("Score Time");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                 .withLocale(Locale.getDefault())
                 .withZone(TimeZone.getDefault().toZoneId());
-        scoreTimeDate.setCellValueFactory(o ->
+        scoreTimeDateColumn.setCellValueFactory(o ->
                 o.getValue().scoreTimeProperty()
         );
-        scoreTimeDate.setCellFactory(param -> new TableCell<GamePlayerStatsFX, OffsetDateTime>() {
+        scoreTimeDateColumn.setCellFactory(param -> new TableCell<GamePlayerStatsFX, OffsetDateTime>() {
             Label label;
 
             {
@@ -511,12 +507,12 @@ class ViewHelper {
             protected void updateItem(OffsetDateTime item, boolean empty) {
                 super.updateItem(item, empty);
                 label.setVisible(!empty);
-                label.setText(item == null ? "unknown Date" : item.format(dateTimeFormatter));
+                label.setText(item == null ? "unknown date" : item.format(dateTimeFormatter));
             }
         });
-        scoreTimeDate.setComparator(Comparator.naturalOrder());
-        scoreTimeDate.setMinWidth(150);
-        tableView.getColumns().add(scoreTimeDate);
+        scoreTimeDateColumn.setComparator(Comparator.naturalOrder());
+        scoreTimeDateColumn.setMinWidth(150);
+        tableView.getColumns().add(scoreTimeDateColumn);
 
         TableColumn<GamePlayerStatsFX, String> replayUrlColumn = new TableColumn<>("Replay");
         replayUrlColumn.setCellValueFactory(o ->

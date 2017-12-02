@@ -6,7 +6,6 @@ import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
-import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -154,7 +153,7 @@ public class UserService {
         return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo);
     }
 
-    public List<GamePlayerStatsFX> getLastHunderedPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedModFX featuredModFX) {
+    public List<GamePlayerStats> getLastHundredPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedModFX featuredModFX) {
         log.debug("Searching for games played by user id: {}", userId);
         ElideRouteBuilder<GamePlayerStats> routeBuilder = ElideRouteBuilder.of(GamePlayerStats.class)
                 .addInclude("game")
@@ -170,11 +169,11 @@ public class UserService {
         } else {
             routeBuilder.filter(ElideRouteBuilder.qBuilder().string("player.id").eq(userId));
         }
-        return gamePlayerStatsMapper.map(fafApi.getPage(routeBuilder, 100, page, Collections.emptyMap()));
+        return fafApi.getPage(routeBuilder, 100, page, Collections.emptyMap());
     }
 
-    public List<GamePlayerStatsFX> getLastHunderedPlayedGames(@NotNull String userId, int page) {
-        return getLastHunderedPlayedGamesByFeaturedMod(userId, page, null);
+    public List<GamePlayerStats> getLastHundredPlayedGames(@NotNull String userId, int page) {
+        return getLastHundredPlayedGamesByFeaturedMod(userId, page, null);
     }
 
     public List<FeaturedModFX> getFeaturedMods() {

@@ -133,10 +133,14 @@
                                     <content>
                                         <VBox>
                                             <HBox spacing="10">
-                                                <Label text="Show featured Mods:"/>
-                                                <ChoiceBox fx:id="featuredModFilterChoiceBox"/>
-                                                <Button fx:id="loadMoreGamesButton" text="Load more"
-                                                        onAction="#loadMoreGames"/>
+                                                <Label maxHeight="1.7976931348623157E308"
+                                                       maxWidth="1.7976931348623157E308" text="Show featured Mods:"/>
+                                                <ChoiceBox fx:id="featuredModFilterChoiceBox" minWidth="150.0"/>
+                                                <Button fx:id="loadMoreGamesButton" onAction="#loadMoreGames"
+                                                        text="Load more"/>
+                                                <VBox.margin>
+                                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                                </VBox.margin>
                                             </HBox>
                                             <TableView fx:id="userLastGamesTable" maxHeight="1.7976931348623157E308"
                                                        maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
