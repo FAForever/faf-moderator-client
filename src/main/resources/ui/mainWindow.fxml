@@ -18,8 +18,8 @@
                             <children>
                                 <VBox minWidth="220.0">
                                     <children>
-                                        <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false"
-                                                     selected="true" text="search by id">
+                                        <RadioButton fx:id="searchUserByCurrentNameRadioButton" mnemonicParsing="false"
+                                                     selected="true" text="search by current name">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
@@ -27,15 +27,15 @@
                                                 <ToggleGroup fx:id="userSearch"/>
                                             </toggleGroup>
                                         </RadioButton>
-                                        <RadioButton fx:id="searchUserByCurrentNameRadioButton" mnemonicParsing="false"
-                                                     text="search by current name" toggleGroup="$userSearch">
+                                        <RadioButton fx:id="searchUserByPreviousNamesRadioButton"
+                                                     mnemonicParsing="false" text="search by previous names"
+                                                     toggleGroup="$userSearch">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </RadioButton>
-                                        <RadioButton fx:id="searchUserByPreviousNamesRadioButton"
-                                                     mnemonicParsing="false" text="search by previous names"
-                                                     toggleGroup="$userSearch">
+                                        <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false"
+                                                     text="search by id" toggleGroup="$userSearch">
                                             <VBox.margin>
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
