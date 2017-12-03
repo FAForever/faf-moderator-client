@@ -1,7 +1,11 @@
 package com.faforever.moderatorclient.mapstruct;
 
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class JavaFXMapper {
@@ -35,6 +39,10 @@ public class JavaFXMapper {
 
     public <T> T map(ObjectProperty<T> value) {
         return value.get();
+    }
+
+    public <T> ObservableList<T> map(List<T> value) {
+        return FXCollections.observableList(value);
     }
 
 //    public <T> ListProperty<T> mapListToListProperty (List<T> value) {

@@ -30,8 +30,8 @@ public class GamePlayerStats {
     @Nullable
     private OffsetDateTime scoreTime;
 
-    @Relationship("replay")
-    private Game replay;
+    @Relationship("game")
+    private Game game;
 
     @Relationship("player")
     private Player player;
