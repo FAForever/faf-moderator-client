@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
+           xmlns="http://javafx.com/javafx/8.0.111"
+           fx:controller="com.faforever.moderatorclient.ui.main_window.AvatarsController">
+    <items>
+        <VBox>
+            <children>
+                <HBox>
+                    <children>
+                        <VBox>
+                            <children>
+                                <RadioButton fx:id="showAllAvatarsRadioButton" mnemonicParsing="false" selected="true"
+                                             text="show all">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="avatarSearch"/>
+                                    </toggleGroup>
+                                </RadioButton>
+                                <RadioButton fx:id="searchAvatarsByIdRadioButton" mnemonicParsing="false"
+                                             text="search by id" toggleGroup="$avatarSearch">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </RadioButton>
+                                <RadioButton fx:id="searchAvatarsByTooltipRadioButton" mnemonicParsing="false"
+                                             text="search by tooltip" toggleGroup="$avatarSearch">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </RadioButton>
+                                <RadioButton fx:id="searchAvatarsByAssignedUserRadioButton" mnemonicParsing="false"
+                                             text="search by assigned user" toggleGroup="$avatarSearch">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </RadioButton>
+                                <TextField fx:id="searchAvatarsTextField">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </TextField>
+                                <Button mnemonicParsing="false" onAction="#onSearchAvatars" text="search avatars">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </Button>
+                                <Button mnemonicParsing="false" text="delete selected avatar">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="40.0"/>
+                                    </VBox.margin>
+                                </Button>
+                            </children>
+                            <HBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </HBox.margin>
+                        </VBox>
+                        <TableView fx:id="avatarTableView" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+                <HBox>
+                    <children>
+                        <TextField promptText="New avatar tooltip" HBox.hgrow="ALWAYS"/>
+                        <Button mnemonicParsing="false" text="choose file &amp; add"/>
+                    </children>
+                    <VBox.margin>
+                        <Insets top="10.0"/>
+                    </VBox.margin>
+                </HBox>
+            </children>
+        </VBox>
+        <TabPane minHeight="200.0">
+            <tabs>
+                <Tab closable="false" text="Assignments">
+                    <content>
+                        <TableView fx:id="avatarAssignmentTableView" editable="true" prefHeight="200.0"
+                                   prefWidth="200.0"/>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </items>
+</SplitPane>

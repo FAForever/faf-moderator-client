@@ -28,12 +28,12 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 
-class ViewHelper {
+public class ViewHelper {
     private ViewHelper() {
         // static class
     }
 
-    static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
+    public static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
         mapTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null || newValue.getValue() == null) {
                 imageView.setImage(null);
@@ -49,7 +49,7 @@ class ViewHelper {
         });
     }
 
-    static void buildAvatarTableView(TableView<Avatar> tableView) {
+    public static void buildAvatarTableView(TableView<Avatar> tableView) {
         TableColumn<Avatar, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -79,7 +79,7 @@ class ViewHelper {
 
     }
 
-    static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
+    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -122,7 +122,7 @@ class ViewHelper {
         tableView.getColumns().add(assignedAtColumn);
     }
 
-    static void buildBanTableView(TableView<BanInfo> tableView) {
+    public static void buildBanTableView(TableView<BanInfo> tableView) {
         TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -188,7 +188,7 @@ class ViewHelper {
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
+    public static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
         TableColumn<NameRecord, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -206,7 +206,7 @@ class ViewHelper {
         tableView.getColumns().add(nameColumn);
     }
 
-    static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
+    public static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
         TableColumn<Teamkill, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -242,7 +242,7 @@ class ViewHelper {
         tableView.getColumns().add(reportedAtColumn);
     }
 
-    static void buildUserTableView(TableView<Player> tableView) {
+    public static void buildUserTableView(TableView<Player> tableView) {
         TableColumn<Player, Player> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
         idColumn.setCellFactory(param -> new TableCell<Player, Player>() {
@@ -327,7 +327,7 @@ class ViewHelper {
         tableView.getColumns().add(userAgentColumn);
     }
 
-    static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
+    public static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("Assignment ID");
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -370,7 +370,7 @@ class ViewHelper {
         tableView.getColumns().add(expiresAtColumn);
     }
 
-    static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
+    public static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");
         idColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -409,7 +409,7 @@ class ViewHelper {
         mapTreeView.setShowRoot(false);
     }
 
-    static void buildMapTableView(TableView<MapFX> tableView) {
+    public static void buildMapTableView(TableView<MapFX> tableView) {
         TableColumn<MapFX, String> idColumn = new TableColumn<>("Map ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -459,7 +459,7 @@ class ViewHelper {
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
+    public static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
         TableColumn<GamePlayerStatsFX, String> gameIdColumn = new TableColumn<>("Game ID");
         gameIdColumn.setCellValueFactory(o -> o.getValue().getGame().idProperty());
         gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -538,7 +538,7 @@ class ViewHelper {
         tableView.getColumns().add(replayUrlColumn);
     }
 
-    static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {
+    public static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {
         TableColumn<MapVersionFX, String> idColumn = new TableColumn<>("Version ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -591,7 +591,7 @@ class ViewHelper {
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    static void fillMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, Stream<Map> mapStream) {
+    public static void fillMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, Stream<Map> mapStream) {
         mapStream.forEach(map -> {
             TreeItem<MapTableItemAdapter> mapItem = new TreeItem<>(new MapTableItemAdapter(map));
             mapTreeView.getRoot().getChildren().add(mapItem);
