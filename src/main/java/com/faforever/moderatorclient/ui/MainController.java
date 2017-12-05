@@ -18,17 +18,19 @@ public class MainController implements Controller<TabPane> {
     public Tab mapVaultTab;
     public Tab modVaultTab;
     public Tab avatarsTab;
+    public Tab recentActivityTab;
+    public Tab domainBlacklistTab;
 
 
     private final UiService uiService;
 
     public TabPane root;
-    public Tab recentActivityTab;
     private UserManagementController userManagementController;
     private LadderMapPoolController ladderMapPoolController;
     private MapVaultController mapVaultController;
     private AvatarsController avatarsController;
     private RecentActivityController recentActivityController;
+    private DomainBlacklistController domainBlacklistController;
 
     public MainController(UiService uiService) {
         this.uiService = uiService;
@@ -46,6 +48,7 @@ public class MainController implements Controller<TabPane> {
         initMapVaultTab();
         initAvatarTab();
         initRecentActivityTab();
+        initDomainBlacklistTab();
     }
 
     private void initUserManagementTab() {
@@ -73,6 +76,11 @@ public class MainController implements Controller<TabPane> {
         recentActivityTab.setContent(recentActivityController.getRoot());
     }
 
+    private void initDomainBlacklistTab() {
+        domainBlacklistController = uiService.loadFxml("ui/main_window/domainBlacklist.fxml");
+        domainBlacklistTab.setContent(domainBlacklistController.getRoot());
+    }
+
     public void display() {
         LoginController loginController = uiService.loadFxml("ui/login.fxml");
 
@@ -87,6 +95,7 @@ public class MainController implements Controller<TabPane> {
         ladderMapPoolController.refresh();
         refreshAvatars();
         refreshRecentActivity();
+        domainBlacklistController.refresh();
     }
 
 
