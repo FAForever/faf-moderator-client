@@ -1,12 +1,11 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.*;
-import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
-import com.faforever.moderatorclient.ui.domain.MapFX;
-import com.faforever.moderatorclient.ui.domain.MapVersionFX;
-import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -598,5 +597,62 @@ public class ViewHelper {
 
             map.getVersions().forEach(mapVersion -> mapItem.getChildren().add(new TreeItem<>(new MapTableItemAdapter(mapVersion))));
         });
+    }
+
+    public static void buildNotesTableView(TableView<UserNoteFX> tableView, ObservableList<UserNoteFX> data, boolean includeUserId) {
+        tableView.setItems(data);
+
+        TableColumn<UserNoteFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        tableView.getColumns().add(idColumn);
+
+        if (includeUserId) {
+            TableColumn<UserNoteFX, String> userColumn = new TableColumn<>("User");
+            userColumn.setCellValueFactory(o -> {
+                PlayerFX user = o.getValue().getUser();
+
+                SimpleStringProperty simpleStringProperty = new SimpleStringProperty();
+                simpleStringProperty.bind(Bindings.createStringBinding(() -> user.getLogin() + " [id " + user.getId() + "]",
+                        user.loginProperty(), user.idProperty()));
+                return simpleStringProperty;
+            });
+            tableView.getColumns().add(userColumn);
+        }
+
+        TableColumn<UserNoteFX, Boolean> watchedCheckBoxColumn = new TableColumn<>("Watched");
+        watchedCheckBoxColumn.setCellValueFactory(param -> param.getValue().watchedProperty());
+        watchedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(watchedCheckBoxColumn));
+        watchedCheckBoxColumn.setEditable(true);
+        tableView.getColumns().add(watchedCheckBoxColumn);
+
+        TableColumn<UserNoteFX, String> noteColumn = new TableColumn<>("Note");
+        noteColumn.setCellValueFactory(param -> param.getValue().noteProperty());
+        noteColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        noteColumn.setEditable(true);
+        noteColumn.setMinWidth(600);
+        tableView.getColumns().add(noteColumn);
+
+        TableColumn<UserNoteFX, String> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> {
+            PlayerFX author = o.getValue().getAuthor();
+
+            SimpleStringProperty simpleStringProperty = new SimpleStringProperty();
+            simpleStringProperty.bind(Bindings.createStringBinding(() -> author.getLogin() + " [id " + author.getId() + "]",
+                    author.loginProperty(), author.idProperty()));
+            return simpleStringProperty;
+        });
+        authorColumn.setMinWidth(150);
+        tableView.getColumns().add(authorColumn);
+
+        TableColumn<UserNoteFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Created");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<UserNoteFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
     }
 }

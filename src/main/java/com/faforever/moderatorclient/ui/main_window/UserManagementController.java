@@ -7,9 +7,13 @@ import com.faforever.moderatorclient.mapstruct.PlayerMapper;
 import com.faforever.moderatorclient.ui.*;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
 import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -33,6 +37,8 @@ public class UserManagementController implements Controller<SplitPane> {
     private final PlayerMapper playerMapper;
     private final GamePlayerStatsMapper gamePlayerStatsMapper;
 
+    private final ObservableList<UserNoteFX> userNotes;
+
     private final String replayDownLoadFormat;
 
     public SplitPane root;
@@ -44,6 +50,9 @@ public class UserManagementController implements Controller<SplitPane> {
     public RadioButton searchUserBySteamIdRadioButton;
     public RadioButton searchUserByIpRadioButton;
     public TextField userSearchTextField;
+    public TableView<UserNoteFX> userNoteTableView;
+    public Button addNoteButton;
+    public Button editNoteButton;
     public Button newBanButton;
     public Button editBanButton;
     public TableView<Player> userSearchTableView;
@@ -64,6 +73,7 @@ public class UserManagementController implements Controller<SplitPane> {
         this.playerMapper = playerMapper;
         this.gamePlayerStatsMapper = gamePlayerStatsMapper;
         this.replayDownLoadFormat = replayDownLoadFormat;
+        userNotes = FXCollections.observableArrayList();
     }
 
     @Override
@@ -74,9 +84,13 @@ public class UserManagementController implements Controller<SplitPane> {
     @FXML
     public void initialize() {
         ViewHelper.buildUserTableView(userSearchTableView);
+        ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView);
         ViewHelper.buildBanTableView(userBansTableView);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
+
+        addNoteButton.disableProperty().bind(userSearchTableView.getSelectionModel().selectedItemProperty().isNull());
+        editNoteButton.disableProperty().bind(userNoteTableView.getSelectionModel().selectedItemProperty().isNull());
 
         loadMoreGamesButton.visibleProperty()
                 .bind(Bindings.createBooleanBinding(() -> userLastGamesTable.getItems().size() != 0 && userLastGamesTable.getItems().size() % 100 == 0, userLastGamesTable.getItems()));
@@ -107,10 +121,11 @@ public class UserManagementController implements Controller<SplitPane> {
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView);
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
-        userBansTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> editBanButton.setDisable(newValue == null));
+        editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
     }
 
     private void onSelectedUser(ObservableValue<? extends Player> observable, Player oldValue, Player newValue) {
+        userNoteTableView.getItems().clear();
         userNameHistoryTableView.getItems().clear();
         userNameHistoryTableView.getSortOrder().clear();
         userBansTableView.getItems().clear();
@@ -122,7 +137,11 @@ public class UserManagementController implements Controller<SplitPane> {
         userLastGamesTable.getItems().clear();
         userLastGamesTable.getSortOrder().clear();
 
+        userNoteTableView.getSortOrder().clear();
+        userNotes.clear();
+
         if (newValue != null) {
+            userNotes.addAll(userService.getUserNotes(newValue.getId()));
             userNameHistoryTableView.getItems().addAll(newValue.getNames());
             userBansTableView.getItems().addAll(newValue.getBans());
             userTeamkillsTableView.getItems().addAll(userService.findTeamkillsByUserId(newValue.getId()));
@@ -162,7 +181,7 @@ public class UserManagementController implements Controller<SplitPane> {
 
     public void onNewBan() {
         Player selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
-        Assert.notNull(selectedPlayer, "Tou need to select a player to create a ban.");
+        Assert.notNull(selectedPlayer, "You need to select a player to create a ban.");
 
         BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(new BanInfo()
@@ -191,5 +210,36 @@ public class UserManagementController implements Controller<SplitPane> {
     public void loadMoreGames() {
         userGamesPage++;
         loadMoreGamesRunnable.run();
+    }
+
+    public void addNote() {
+        PlayerFX selectedPlayer = playerMapper.map(userSearchTableView.getSelectionModel().getSelectedItem());
+        Assert.notNull(selectedPlayer, "You need to select a player to create a userNote.");
+
+        UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
+
+        UserNoteFX userNoteFX = new UserNoteFX();
+        userNoteFX.setUser(selectedPlayer);
+        userNoteController.addPostedListener(userNotes::add);
+
+        userNoteController.setUserNoteFX(userNoteFX);
+
+        Stage userNoteDialog = new Stage();
+        userNoteDialog.setTitle("Add new user note");
+        userNoteDialog.setScene(new Scene(userNoteController.getRoot()));
+        userNoteDialog.showAndWait();
+    }
+
+    public void editNote() {
+        UserNoteFX selectedUserNote = userNoteTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedUserNote, "You need to select a user note to edit it.");
+
+        UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
+        userNoteController.setUserNoteFX(selectedUserNote);
+
+        Stage userNoteDialog = new Stage();
+        userNoteDialog.setTitle("Edit user note");
+        userNoteDialog.setScene(new Scene(userNoteController.getRoot()));
+        userNoteDialog.showAndWait();
     }
 }

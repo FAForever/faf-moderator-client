@@ -5,7 +5,9 @@ import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
+import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -21,12 +23,14 @@ public class UserService {
     private final FafApiCommunicationService fafApi;
     private final GamePlayerStatsMapper gamePlayerStatsMapper;
     private final FeaturedModMapper featuredModMapper;
+    private final UserNoteMapper userNoteMapper;
 
 
-    public UserService(FafApiCommunicationService fafApi, GamePlayerStatsMapper gamePlayerStatsMapper, FeaturedModMapper featuredModMapper) {
+    public UserService(FafApiCommunicationService fafApi, GamePlayerStatsMapper gamePlayerStatsMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper) {
         this.fafApi = fafApi;
         this.gamePlayerStatsMapper = gamePlayerStatsMapper;
         this.featuredModMapper = featuredModMapper;
+        this.userNoteMapper = userNoteMapper;
     }
 
     private ElideRouteBuilder addModeratorIncludes(@NotNull ElideRouteBuilder builder) {
@@ -179,5 +183,34 @@ public class UserService {
     public List<FeaturedModFX> getFeaturedMods() {
         ElideRouteBuilder<FeaturedMod> routeBuilder = ElideRouteBuilder.of(FeaturedMod.class);
         return featuredModMapper.map(fafApi.getAll(routeBuilder));
+    }
+
+    public UserNoteFX getUserNoteById(@NotNull String userNoteId) {
+        log.debug("Search for user note id: " + userNoteId);
+        ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
+                .id(userNoteId)
+                .addInclude("user")
+                .addInclude("author");
+        return userNoteMapper.map(fafApi.getOne(routeBuilder));
+    }
+
+    public List<UserNoteFX> getUserNotes(@NotNull String userId) {
+        log.debug("Search for all note of user id: " + userId);
+        ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
+                .filter(ElideRouteBuilder.qBuilder().string("user.id").eq(userId))
+                .addInclude("user")
+                .addInclude("author");
+        return userNoteMapper.map(fafApi.getAll(routeBuilder));
+    }
+
+    public String createUserNote(UserNote userNote) {
+        log.debug("Creating userNote");
+        userNote.setAuthor(fafApi.getSelfPlayer());
+        return fafApi.post(ElideRouteBuilder.of(UserNote.class), userNote).getId();
+    }
+
+    public UserNoteFX patchUserNote(UserNote userNote) {
+        log.debug("Patching UserNote of id: ", userNote.getId());
+        return userNoteMapper.map(fafApi.patch(ElideRouteBuilder.of(UserNote.class).id(userNote.getId()), userNote));
     }
 }
