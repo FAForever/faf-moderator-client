@@ -68,7 +68,7 @@ public class UserService {
     }
 
     private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
-        log.debug("Searching for user by attribute '{}' with pattern: {}", attribute, pattern);
+        log.debug("Searching for player by attribute '{}' with pattern: {}", attribute, pattern);
         ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
                 .filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(routeBuilder);
@@ -99,7 +99,7 @@ public class UserService {
     }
 
     public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
-        log.debug("Searching for user by previous name with pattern: {}", pattern);
+        log.debug("Searching for player by previous name with pattern: {}", pattern);
         ElideRouteBuilder<NameRecord> routeBuilder = ElideRouteBuilder.of(NameRecord.class)
                 .addInclude("player")
                 .filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
@@ -125,7 +125,7 @@ public class UserService {
     }
 
     public List<Teamkill> findTeamkillsByUserId(@NotNull String userId) {
-        log.debug("Searching for teamkills invoked by user id: {}", userId);
+        log.debug("Searching for teamkills invoked by player id: {}", userId);
         ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
                 .addInclude("teamkiller")
                 .addInclude("victim")
@@ -158,7 +158,7 @@ public class UserService {
     }
 
     public List<GamePlayerStats> getLastHundredPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedModFX featuredModFX) {
-        log.debug("Searching for games played by user id: {}", userId);
+        log.debug("Searching for games played by player id: {}", userId);
         ElideRouteBuilder<GamePlayerStats> routeBuilder = ElideRouteBuilder.of(GamePlayerStats.class)
                 .addInclude("game")
                 .addInclude("player")
@@ -186,19 +186,19 @@ public class UserService {
     }
 
     public UserNoteFX getUserNoteById(@NotNull String userNoteId) {
-        log.debug("Search for user note id: " + userNoteId);
+        log.debug("Search for player note id: " + userNoteId);
         ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
                 .id(userNoteId)
-                .addInclude("user")
+                .addInclude("player")
                 .addInclude("author");
         return userNoteMapper.map(fafApi.getOne(routeBuilder));
     }
 
     public List<UserNoteFX> getUserNotes(@NotNull String userId) {
-        log.debug("Search for all note of user id: " + userId);
+        log.debug("Search for all note of player id: " + userId);
         ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
-                .filter(ElideRouteBuilder.qBuilder().string("user.id").eq(userId))
-                .addInclude("user")
+                .filter(ElideRouteBuilder.qBuilder().string("player.id").eq(userId))
+                .addInclude("player")
                 .addInclude("author");
         return userNoteMapper.map(fafApi.getAll(routeBuilder));
     }

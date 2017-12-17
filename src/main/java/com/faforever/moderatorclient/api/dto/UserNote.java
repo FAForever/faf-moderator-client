@@ -10,8 +10,8 @@ import lombok.Setter;
 @Type("userNote")
 @RestrictedVisibility("IsModerator")
 public class UserNote extends AbstractEntity {
-    @Relationship("user")
-    private Player user;
+    @Relationship("player")
+    private Player player;
     @Relationship("author")
     private Player author;
     private boolean watched;

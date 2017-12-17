@@ -55,7 +55,7 @@
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </VBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search user">
+                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search player">
                             <VBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </VBox.margin>

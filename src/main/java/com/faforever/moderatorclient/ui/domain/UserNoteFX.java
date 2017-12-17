@@ -6,28 +6,28 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class UserNoteFX extends AbstractEntityFX {
-    private final ObjectProperty<PlayerFX> user;
+    private final ObjectProperty<PlayerFX> player;
     private final ObjectProperty<PlayerFX> author;
     private final SimpleBooleanProperty watched;
     private final SimpleStringProperty note;
 
     public UserNoteFX() {
-        user = new SimpleObjectProperty<>();
+        player = new SimpleObjectProperty<>();
         author = new SimpleObjectProperty<>();
         watched = new SimpleBooleanProperty();
         note = new SimpleStringProperty();
     }
 
-    public PlayerFX getUser() {
-        return user.get();
+    public PlayerFX getPlayer() {
+        return player.get();
     }
 
-    public void setUser(PlayerFX user) {
-        this.user.set(user);
+    public void setPlayer(PlayerFX player) {
+        this.player.set(player);
     }
 
-    public ObjectProperty<PlayerFX> userProperty() {
-        return user;
+    public ObjectProperty<PlayerFX> playerProperty() {
+        return player;
     }
 
     public PlayerFX getAuthor() {

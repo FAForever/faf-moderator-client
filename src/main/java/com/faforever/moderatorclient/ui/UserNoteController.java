@@ -62,7 +62,7 @@ public class UserNoteController implements Controller<Pane> {
         this.userNoteFX = userNoteFX;
 
         if (userNoteFX != null) {
-            Optional.ofNullable(userNoteFX.getUser()).ifPresent(author -> affectedUserTextField.textProperty().bind(author.representationProperty()));
+            Optional.ofNullable(userNoteFX.getPlayer()).ifPresent(author -> affectedUserTextField.textProperty().bind(author.representationProperty()));
             Optional.ofNullable(userNoteFX.getAuthor()).ifPresent(author -> authorTextField.textProperty().bind(author.representationProperty()));
             watchedCheckBox.setSelected(userNoteFX.isWatched());
 
@@ -81,7 +81,7 @@ public class UserNoteController implements Controller<Pane> {
         userNoteFX.setWatched(watchedCheckBox.isSelected());
 
         if (userNoteFX.getId() == null) {
-            log.debug("Creating userNote for user '{}'", userNoteFX.getUser().representationProperty().get());
+            log.debug("Creating userNote for player '{}'", userNoteFX.getPlayer().representationProperty().get());
             String newNoteId = userService.createUserNote(userNoteMapper.map(userNoteFX));
             UserNoteFX loadedUserNote = userService.getUserNoteById(newNoteId);
             postedListener.accept(loadedUserNote);

@@ -219,26 +219,26 @@ public class UserManagementController implements Controller<SplitPane> {
         UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
 
         UserNoteFX userNoteFX = new UserNoteFX();
-        userNoteFX.setUser(selectedPlayer);
+        userNoteFX.setPlayer(selectedPlayer);
         userNoteController.addPostedListener(userNotes::add);
 
         userNoteController.setUserNoteFX(userNoteFX);
 
         Stage userNoteDialog = new Stage();
-        userNoteDialog.setTitle("Add new user note");
+        userNoteDialog.setTitle("Add new player note");
         userNoteDialog.setScene(new Scene(userNoteController.getRoot()));
         userNoteDialog.showAndWait();
     }
 
     public void editNote() {
         UserNoteFX selectedUserNote = userNoteTableView.getSelectionModel().getSelectedItem();
-        Assert.notNull(selectedUserNote, "You need to select a user note to edit it.");
+        Assert.notNull(selectedUserNote, "You need to select a player note to edit it.");
 
         UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
         userNoteController.setUserNoteFX(selectedUserNote);
 
         Stage userNoteDialog = new Stage();
-        userNoteDialog.setTitle("Edit user note");
+        userNoteDialog.setTitle("Edit player note");
         userNoteDialog.setScene(new Scene(userNoteController.getRoot()));
         userNoteDialog.showAndWait();
     }

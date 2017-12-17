@@ -106,7 +106,7 @@ public class TextAreaTableCell<S, T> extends TableCell<S, T> {
                 cell.setText(getItemText(cell, converter));
                 cell.setGraphic(null);
 
-                //Add text as tooltip so that user can read text without editing it.
+                //Add text as tooltip so that player can read text without editing it.
                 Tooltip tooltip = new Tooltip(getItemText(cell, converter));
                 tooltip.setWrapText(true);
                 tooltip.prefWidthProperty().bind(cell.widthProperty());

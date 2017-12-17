@@ -608,9 +608,9 @@ public class ViewHelper {
         tableView.getColumns().add(idColumn);
 
         if (includeUserId) {
-            TableColumn<UserNoteFX, String> userColumn = new TableColumn<>("User");
+            TableColumn<UserNoteFX, String> userColumn = new TableColumn<>("Player");
             userColumn.setCellValueFactory(o -> {
-                PlayerFX user = o.getValue().getUser();
+                PlayerFX user = o.getValue().getPlayer();
 
                 SimpleStringProperty simpleStringProperty = new SimpleStringProperty();
                 simpleStringProperty.bind(Bindings.createStringBinding(() -> user.getLogin() + " [id " + user.getId() + "]",

@@ -35,7 +35,7 @@
                                     </VBox.margin>
                                 </RadioButton>
                                 <RadioButton fx:id="searchAvatarsByAssignedUserRadioButton" mnemonicParsing="false"
-                                             text="search by assigned user" toggleGroup="$avatarSearch">
+                                             text="search by assigned player" toggleGroup="$avatarSearch">
                                     <VBox.margin>
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                     </VBox.margin>
