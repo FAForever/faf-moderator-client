@@ -3,6 +3,11 @@ package com.faforever.moderatorclient.api.rest.domain;
 import com.faforever.moderatorclient.api.dto.*;
 import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
+import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
+import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
+import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
+import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -16,9 +21,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
     private final FafApiCommunicationService fafApi;
+    private final GamePlayerStatsMapper gamePlayerStatsMapper;
+    private final FeaturedModMapper featuredModMapper;
+    private final UserNoteMapper userNoteMapper;
 
-    public UserService(FafApiCommunicationService fafApi) {
+
+    public UserService(FafApiCommunicationService fafApi, GamePlayerStatsMapper gamePlayerStatsMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper) {
         this.fafApi = fafApi;
+        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
+        this.featuredModMapper = featuredModMapper;
+        this.userNoteMapper = userNoteMapper;
     }
 
     private ElideRouteBuilder addModeratorIncludes(@NotNull ElideRouteBuilder builder) {
@@ -56,7 +68,7 @@ public class UserService {
     }
 
     private List<Player> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
-        log.debug("Searching for user by attribute '{}' with pattern: {}", attribute, pattern);
+        log.debug("Searching for player by attribute '{}' with pattern: {}", attribute, pattern);
         ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
                 .filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(routeBuilder);
@@ -87,7 +99,7 @@ public class UserService {
     }
 
     public Collection<Player> findUsersByPreviousName(@NotNull String pattern) {
-        log.debug("Searching for user by previous name with pattern: {}", pattern);
+        log.debug("Searching for player by previous name with pattern: {}", pattern);
         ElideRouteBuilder<NameRecord> routeBuilder = ElideRouteBuilder.of(NameRecord.class)
                 .addInclude("player")
                 .filter(ElideRouteBuilder.qBuilder().string("name").eq(pattern));
@@ -113,7 +125,7 @@ public class UserService {
     }
 
     public List<Teamkill> findTeamkillsByUserId(@NotNull String userId) {
-        log.debug("Searching for teamkills invoked by user id: {}", userId);
+        log.debug("Searching for teamkills invoked by player id: {}", userId);
         ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
                 .addInclude("teamkiller")
                 .addInclude("victim")
@@ -132,12 +144,73 @@ public class UserService {
     public BanRevokeData revokeBan(@NotNull BanRevokeData banRevokeData) {
         log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
         banRevokeData.setAuthor(fafApi.getSelfPlayer());
-        return fafApi.post(ElideRouteBuilder.of(BanRevokeData.class), banRevokeData);
+        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+                .id(banRevokeData.getBan().getId())
+                .relationship("banRevokeData");
+
+        return (BanRevokeData) fafApi.postRelationship(routeBuilder, banRevokeData);
     }
 
     public BanInfo createBan(@NotNull BanInfo banInfo) {
         log.debug("Creating ban");
         banInfo.setAuthor(fafApi.getSelfPlayer());
         return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo);
+    }
+
+    public List<GamePlayerStats> getLastHundredPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedModFX featuredModFX) {
+        log.debug("Searching for games played by player id: {}", userId);
+        ElideRouteBuilder<GamePlayerStats> routeBuilder = ElideRouteBuilder.of(GamePlayerStats.class)
+                .addInclude("game")
+                .addInclude("player")
+                .addInclude("game.host")
+                .addInclude("game.featuredMod")
+                .addInclude("game.mapVersion")
+                .addInclude("game.mapVersion.map")
+                .sort("scoreTime", false);
+        if (featuredModFX != null) {
+            routeBuilder.filter(ElideRouteBuilder.qBuilder().string("game.featuredMod.technicalName").eq(featuredModFX.getTechnicalName())
+                    .and().string("player.id").eq(userId));
+        } else {
+            routeBuilder.filter(ElideRouteBuilder.qBuilder().string("player.id").eq(userId));
+        }
+        return fafApi.getPage(routeBuilder, 100, page, Collections.emptyMap());
+    }
+
+    public List<GamePlayerStats> getLastHundredPlayedGames(@NotNull String userId, int page) {
+        return getLastHundredPlayedGamesByFeaturedMod(userId, page, null);
+    }
+
+    public List<FeaturedModFX> getFeaturedMods() {
+        ElideRouteBuilder<FeaturedMod> routeBuilder = ElideRouteBuilder.of(FeaturedMod.class);
+        return featuredModMapper.map(fafApi.getAll(routeBuilder));
+    }
+
+    public UserNoteFX getUserNoteById(@NotNull String userNoteId) {
+        log.debug("Search for player note id: " + userNoteId);
+        ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
+                .id(userNoteId)
+                .addInclude("player")
+                .addInclude("author");
+        return userNoteMapper.map(fafApi.getOne(routeBuilder));
+    }
+
+    public List<UserNoteFX> getUserNotes(@NotNull String userId) {
+        log.debug("Search for all note of player id: " + userId);
+        ElideRouteBuilder<UserNote> routeBuilder = ElideRouteBuilder.of(UserNote.class)
+                .filter(ElideRouteBuilder.qBuilder().string("player.id").eq(userId))
+                .addInclude("player")
+                .addInclude("author");
+        return userNoteMapper.map(fafApi.getAll(routeBuilder));
+    }
+
+    public String createUserNote(UserNote userNote) {
+        log.debug("Creating userNote");
+        userNote.setAuthor(fafApi.getSelfPlayer());
+        return fafApi.post(ElideRouteBuilder.of(UserNote.class), userNote).getId();
+    }
+
+    public UserNoteFX patchUserNote(UserNote userNote) {
+        log.debug("Patching UserNote of id: ", userNote.getId());
+        return userNoteMapper.map(fafApi.patch(ElideRouteBuilder.of(UserNote.class).id(userNote.getId()), userNote));
     }
 }

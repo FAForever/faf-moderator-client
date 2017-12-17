@@ -1,5 +1,6 @@
 package com.faforever.moderatorclient.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.jasminb.jsonapi.annotations.Id;
 import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
@@ -31,8 +32,10 @@ public class Map {
     private MapStatistics statistics;
 
     @Relationship("latestVersion")
+    @JsonIgnore
     private MapVersion latestVersion;
 
     @Relationship("versions")
+    @JsonIgnore
     private List<MapVersion> versions;
 }

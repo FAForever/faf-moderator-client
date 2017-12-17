@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.3" orientation="VERTICAL"
+           prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.111"
+           fx:controller="com.faforever.moderatorclient.ui.main_window.UserManagementController">
+    <items>
+        <HBox>
+            <children>
+                <VBox minWidth="220.0">
+                    <children>
+                        <RadioButton fx:id="searchUserByCurrentNameRadioButton" mnemonicParsing="false" selected="true"
+                                     text="search by current name">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                            <toggleGroup>
+                                <ToggleGroup fx:id="userSearch"/>
+                            </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="searchUserByPreviousNamesRadioButton" mnemonicParsing="false"
+                                     text="search by previous names" toggleGroup="$userSearch">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false" text="search by id"
+                                     toggleGroup="$userSearch">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="searchUserByEmailRadioButton" mnemonicParsing="false" text="search by email"
+                                     toggleGroup="$userSearch">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="searchUserBySteamIdRadioButton" mnemonicParsing="false"
+                                     text="search by Steam ID" toggleGroup="$userSearch">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="searchUserByIpRadioButton" mnemonicParsing="false"
+                                     text="search by IP address" toggleGroup="$userSearch">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </RadioButton>
+                        <TextField fx:id="userSearchTextField">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </TextField>
+                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search player">
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </VBox.margin>
+                        </Button>
+                    </children>
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </HBox.margin>
+                </VBox>
+                <TableView fx:id="userSearchTableView" maxHeight="1.7976931348623157E308"
+                           maxWidth="1.7976931348623157E308" minWidth="550.0" prefHeight="200.0" HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+        <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Notes">
+                    <content>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                            <children>
+                                <TableView fx:id="userNoteTableView" prefHeight="200.0" prefWidth="200.0"
+                                           VBox.vgrow="ALWAYS">
+                                    <VBox.margin>
+                                        <Insets bottom="10.0"/>
+                                    </VBox.margin>
+                                </TableView>
+                                <HBox alignment="CENTER">
+                                    <children>
+                                        <Button fx:id="addNoteButton" mnemonicParsing="false" onAction="#addNote"
+                                                text="Add note"/>
+                                        <Button fx:id="editNoteButton" mnemonicParsing="false" onAction="#editNote"
+                                                text="Edit selected note">
+                                            <HBox.margin>
+                                                <Insets left="10.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab text="Bans">
+                    <content>
+                        <VBox>
+                            <children>
+                                <TableView fx:id="userBansTableView" prefHeight="200.0" prefWidth="200.0"
+                                           VBox.vgrow="ALWAYS">
+                                    <VBox.margin>
+                                        <Insets bottom="10.0"/>
+                                    </VBox.margin>
+                                </TableView>
+                                <HBox alignment="CENTER">
+                                    <children>
+                                        <Button fx:id="newBanButton" disable="true" mnemonicParsing="false"
+                                                onAction="#onNewBan" text="Apply new ban">
+                                            <HBox.margin>
+                                                <Insets/>
+                                            </HBox.margin>
+                                        </Button>
+                                        <Button fx:id="editBanButton" disable="true" mnemonicParsing="false"
+                                                onAction="#onEditBan" text="Edit selected ban">
+                                            <HBox.margin>
+                                                <Insets left="10.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                    <VBox.margin>
+                                        <Insets/>
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab text="Teamkills">
+                    <content>
+                        <TableView fx:id="userTeamkillsTableView" prefHeight="200.0" prefWidth="200.0"/>
+                    </content>
+                </Tab>
+                <Tab text="Name History">
+                    <content>
+                        <TableView fx:id="userNameHistoryTableView" maxHeight="1.7976931348623157E308"
+                                   maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
+                    </content>
+                </Tab>
+                <Tab text="Last Games">
+                    <content>
+                        <VBox>
+                            <children>
+                                <HBox spacing="10">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                    <children>
+                                        <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                                               text="Show featured Mods:"/>
+                                        <ChoiceBox fx:id="featuredModFilterChoiceBox" minWidth="150.0"/>
+                                        <Button fx:id="loadMoreGamesButton" onAction="#loadMoreGames" text="Load more"/>
+                                    </children>
+                                </HBox>
+                                <TableView fx:id="userLastGamesTable" maxHeight="1.7976931348623157E308"
+                                           maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <Tab text="Avatars">
+                    <content>
+                        <TableView fx:id="userAvatarsTableView" prefHeight="200.0" prefWidth="200.0"/>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </items>
+</SplitPane>

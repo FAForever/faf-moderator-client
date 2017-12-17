@@ -107,10 +107,10 @@ public class BanInfoController implements Controller<Pane> {
         banInfo.setLevel(chatOnlyBanRadioButton.isSelected() ? BanLevel.CHAT : BanLevel.GLOBAL);
 
         if (banInfo.getId() == null) {
-            log.debug("Creating ban for user '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
+            log.debug("Creating ban for player '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
             userService.createBan(banInfo);
         } else {
-            log.debug("Updateing ban id '{}'", banInfo.getId());
+            log.debug("Updating ban id '{}'", banInfo.getId());
             userService.patchBanInfo(banInfo);
         }
         close();

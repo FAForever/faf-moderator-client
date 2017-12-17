@@ -1,10 +1,14 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.moderatorclient.ui.domain.*;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -13,17 +17,22 @@ import javafx.scene.text.TextAlignment;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
-class ViewHelper {
+public class ViewHelper {
     private ViewHelper() {
         // static class
     }
 
-    static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
+    public static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
         mapTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null || newValue.getValue() == null) {
                 imageView.setImage(null);
@@ -39,7 +48,7 @@ class ViewHelper {
         });
     }
 
-    static void buildAvatarTableView(TableView<Avatar> tableView) {
+    public static void buildAvatarTableView(TableView<Avatar> tableView) {
         TableColumn<Avatar, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -69,16 +78,14 @@ class ViewHelper {
 
     }
 
-    static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
+    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
-        idColumn.setEditable(false);
         tableView.getColumns().add(idColumn);
 
         TableColumn<AvatarAssignment, String> userIdColumn = new TableColumn<>("User ID");
-        userIdColumn.setCellFactory(TextFieldTableCell.forTableColumn());
         userIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 Optional.ofNullable(param.getValue())
                         .map(avatarAssignment -> avatarAssignment.getPlayer().getId())
@@ -86,7 +93,6 @@ class ViewHelper {
         );
         userIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         userIdColumn.setMinWidth(50);
-        idColumn.setEditable(true);
         tableView.getColumns().add(userIdColumn);
 
         TableColumn<AvatarAssignment, String> userNameColumn = new TableColumn<>("User name");
@@ -96,7 +102,6 @@ class ViewHelper {
                         .orElse(""))
         );
         userNameColumn.setMinWidth(150);
-        userNameColumn.setEditable(false);
         tableView.getColumns().add(userNameColumn);
 
         TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
@@ -113,11 +118,10 @@ class ViewHelper {
         TableColumn<AvatarAssignment, OffsetDateTime> assignedAtColumn = new TableColumn<>("Assigned at");
         assignedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         assignedAtColumn.setMinWidth(180);
-        idColumn.setEditable(false);
         tableView.getColumns().add(assignedAtColumn);
     }
 
-    static void buildBanTableView(TableView<BanInfo> tableView) {
+    public static void buildBanTableView(TableView<BanInfo> tableView) {
         TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -183,7 +187,7 @@ class ViewHelper {
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
+    public static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
         TableColumn<NameRecord, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -201,7 +205,7 @@ class ViewHelper {
         tableView.getColumns().add(nameColumn);
     }
 
-    static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
+    public static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
         TableColumn<Teamkill, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -237,7 +241,7 @@ class ViewHelper {
         tableView.getColumns().add(reportedAtColumn);
     }
 
-    static void buildUserTableView(TableView<Player> tableView) {
+    public static void buildUserTableView(TableView<Player> tableView) {
         TableColumn<Player, Player> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
         idColumn.setCellFactory(param -> new TableCell<Player, Player>() {
@@ -322,7 +326,7 @@ class ViewHelper {
         tableView.getColumns().add(userAgentColumn);
     }
 
-    static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
+    public static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
         TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("Assignment ID");
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -365,7 +369,7 @@ class ViewHelper {
         tableView.getColumns().add(expiresAtColumn);
     }
 
-    static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
+    public static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");
         idColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -404,12 +408,251 @@ class ViewHelper {
         mapTreeView.setShowRoot(false);
     }
 
-    static void fillMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, Stream<Map> mapStream) {
+    public static void buildMapTableView(TableView<MapFX> tableView) {
+        TableColumn<MapFX, String> idColumn = new TableColumn<>("Map ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
+        tableView.getColumns().add(idColumn);
+
+        TableColumn<MapFX, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().displayNameProperty());
+        nameColumn.setMinWidth(200);
+        tableView.getColumns().add(nameColumn);
+
+
+        TableColumn<MapFX, PlayerFX> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> o.getValue().authorProperty());
+        authorColumn.setCellFactory(o -> new TableCell<MapFX, PlayerFX>() {
+            Label label;
+
+            {
+                label = new Label();
+                setGraphic(label);
+            }
+
+            @Override
+            protected void updateItem(PlayerFX item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty) {
+                    label.setText("");
+                } else if (item == null) {
+                    label.setText("unknown");
+                } else {
+                    label.setText(MessageFormat.format("{0} [id = {1}]", item.getLogin(), item.getId()));
+                }
+            }
+        });
+        authorColumn.setMinWidth(200);
+        tableView.getColumns().add(authorColumn);
+
+        TableColumn<MapFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<MapFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
+    }
+
+    public static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
+        TableColumn<GamePlayerStatsFX, String> gameIdColumn = new TableColumn<>("Game ID");
+        gameIdColumn.setCellValueFactory(o -> o.getValue().getGame().idProperty());
+        gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        gameIdColumn.setMinWidth(100);
+        tableView.getColumns().add(gameIdColumn);
+
+        TableColumn<GamePlayerStatsFX, String> gameNameColumn = new TableColumn<>("Game Name");
+        gameNameColumn.setCellValueFactory(o -> o.getValue().getGame().nameProperty());
+        gameNameColumn.setMinWidth(100);
+        tableView.getColumns().add(gameNameColumn);
+
+        TableColumn<GamePlayerStatsFX, String> rankedColumn = new TableColumn<>("Game Validity");
+        rankedColumn.setCellValueFactory(o -> new SimpleObjectProperty<>(
+                o.getValue().getGame().getValidity().name()
+        ));
+        rankedColumn.setComparator(Comparator.naturalOrder());
+        rankedColumn.setMinWidth(120);
+        tableView.getColumns().add(rankedColumn);
+
+        TableColumn<GamePlayerStatsFX, Number> beforeGameRatingColumn = new TableColumn<>("Rating Before Game");
+        beforeGameRatingColumn.setCellValueFactory(o -> o.getValue().beforeRatingProperty());
+        beforeGameRatingColumn.setMinWidth(150);
+        tableView.getColumns().add(beforeGameRatingColumn);
+
+        TableColumn<GamePlayerStatsFX, Number> afterGameRatingColumn = new TableColumn<>("Rating Change");
+        afterGameRatingColumn.setCellValueFactory(o -> o.getValue().ratingChangeProperty());
+        afterGameRatingColumn.setMinWidth(100);
+        tableView.getColumns().add(afterGameRatingColumn);
+
+        TableColumn<GamePlayerStatsFX, OffsetDateTime> scoreTimeDateColumn = new TableColumn<>("Score Time");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .withLocale(Locale.getDefault())
+                .withZone(TimeZone.getDefault().toZoneId());
+        scoreTimeDateColumn.setCellValueFactory(o ->
+                o.getValue().scoreTimeProperty()
+        );
+        scoreTimeDateColumn.setCellFactory(param -> new TableCell<GamePlayerStatsFX, OffsetDateTime>() {
+            Label label;
+
+            {
+                label = new Label();
+                setGraphic(label);
+            }
+            @Override
+            protected void updateItem(OffsetDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                label.setVisible(!empty);
+                label.setText(item == null ? "unknown date" : item.format(dateTimeFormatter));
+            }
+        });
+        scoreTimeDateColumn.setComparator(Comparator.naturalOrder());
+        scoreTimeDateColumn.setMinWidth(150);
+        tableView.getColumns().add(scoreTimeDateColumn);
+
+        TableColumn<GamePlayerStatsFX, String> replayUrlColumn = new TableColumn<>("Replay");
+        replayUrlColumn.setCellValueFactory(o ->
+                Bindings.createStringBinding(() -> o.getValue().getGame().getReplayUrl(replayDownloadFormat))
+        );
+        replayUrlColumn.setCellFactory(param -> new TableCell<GamePlayerStatsFX, String>() {
+            Button button;
+
+            {
+                button = new Button("Download Replay");
+                setGraphic(button);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                button.setVisible(!empty && item != null);
+                button.setOnAction(event -> platformService.showDocument(item));
+            }
+        });
+        replayUrlColumn.setSortable(false);
+        replayUrlColumn.setMinWidth(150);
+        tableView.getColumns().add(replayUrlColumn);
+    }
+
+    public static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {
+        TableColumn<MapVersionFX, String> idColumn = new TableColumn<>("Version ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
+        tableView.getColumns().add(idColumn);
+
+        TableColumn<MapVersionFX, ComparableVersion> nameColumn = new TableColumn<>("Version No.");
+        nameColumn.setCellValueFactory(o -> o.getValue().versionProperty());
+        nameColumn.setMinWidth(100);
+        tableView.getColumns().add(nameColumn);
+
+
+        TableColumn<MapVersionFX, Boolean> rankedCheckBoxColumn = new TableColumn<>("Ranked");
+        rankedCheckBoxColumn.setCellValueFactory(param -> param.getValue().rankedProperty());
+        rankedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(rankedCheckBoxColumn));
+        tableView.getColumns().add(rankedCheckBoxColumn);
+
+        TableColumn<MapVersionFX, Boolean> hiddenColumn = new TableColumn<>("Hidden");
+        hiddenColumn.setCellValueFactory(o -> o.getValue().hiddenProperty());
+        hiddenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(hiddenColumn));
+        tableView.getColumns().add(hiddenColumn);
+
+        TableColumn<MapVersionFX, Number> maxPlayersColumn = new TableColumn<>("Max Players");
+        maxPlayersColumn.setCellValueFactory(o -> o.getValue().maxPlayersProperty());
+        maxPlayersColumn.setMinWidth(130);
+        tableView.getColumns().add(maxPlayersColumn);
+
+        TableColumn<MapVersionFX, Number> widthColumn = new TableColumn<>("Width");
+        widthColumn.setCellValueFactory(o -> o.getValue().widthProperty());
+        tableView.getColumns().add(widthColumn);
+
+        TableColumn<MapVersionFX, Number> heightColumn = new TableColumn<>("Height");
+        heightColumn.setCellValueFactory(o -> o.getValue().heightProperty());
+        tableView.getColumns().add(heightColumn);
+
+        TableColumn<MapVersionFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().descriptionProperty());
+        descriptionColumn.setMinWidth(300);
+        tableView.getColumns().add(descriptionColumn);
+
+
+        TableColumn<MapVersionFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Uploaded");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<MapVersionFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
+    }
+
+    public static void fillMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, Stream<Map> mapStream) {
         mapStream.forEach(map -> {
             TreeItem<MapTableItemAdapter> mapItem = new TreeItem<>(new MapTableItemAdapter(map));
             mapTreeView.getRoot().getChildren().add(mapItem);
 
             map.getVersions().forEach(mapVersion -> mapItem.getChildren().add(new TreeItem<>(new MapTableItemAdapter(mapVersion))));
         });
+    }
+
+    public static void buildNotesTableView(TableView<UserNoteFX> tableView, ObservableList<UserNoteFX> data, boolean includeUserId) {
+        tableView.setItems(data);
+
+        TableColumn<UserNoteFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        tableView.getColumns().add(idColumn);
+
+        if (includeUserId) {
+            TableColumn<UserNoteFX, String> userColumn = new TableColumn<>("Player");
+            userColumn.setCellValueFactory(o -> {
+                PlayerFX user = o.getValue().getPlayer();
+
+                SimpleStringProperty simpleStringProperty = new SimpleStringProperty();
+                simpleStringProperty.bind(Bindings.createStringBinding(() -> user.getLogin() + " [id " + user.getId() + "]",
+                        user.loginProperty(), user.idProperty()));
+                return simpleStringProperty;
+            });
+            tableView.getColumns().add(userColumn);
+        }
+
+        TableColumn<UserNoteFX, Boolean> watchedCheckBoxColumn = new TableColumn<>("Watched");
+        watchedCheckBoxColumn.setCellValueFactory(param -> param.getValue().watchedProperty());
+        watchedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(watchedCheckBoxColumn));
+        watchedCheckBoxColumn.setEditable(true);
+        tableView.getColumns().add(watchedCheckBoxColumn);
+
+        TableColumn<UserNoteFX, String> noteColumn = new TableColumn<>("Note");
+        noteColumn.setCellValueFactory(param -> param.getValue().noteProperty());
+        noteColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        noteColumn.setEditable(true);
+        noteColumn.setMinWidth(600);
+        tableView.getColumns().add(noteColumn);
+
+        TableColumn<UserNoteFX, String> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> {
+            PlayerFX author = o.getValue().getAuthor();
+
+            SimpleStringProperty simpleStringProperty = new SimpleStringProperty();
+            simpleStringProperty.bind(Bindings.createStringBinding(() -> author.getLogin() + " [id " + author.getId() + "]",
+                    author.loginProperty(), author.idProperty()));
+            return simpleStringProperty;
+        });
+        authorColumn.setMinWidth(150);
+        tableView.getColumns().add(authorColumn);
+
+        TableColumn<UserNoteFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Created");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
+        createTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(createTimeColumn);
+
+        TableColumn<UserNoteFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
     }
 }

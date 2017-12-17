@@ -74,7 +74,7 @@ public class FafApiCommunicationService {
 
     @SneakyThrows
     private void authorize(String username, String password) {
-        log.debug("Configuring OAuth2 login with user = '{}', password=[hidden]", username);
+        log.debug("Configuring OAuth2 login with player = '{}', password=[hidden]", username);
         ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
         details.setClientId(apiClientId);
         details.setClientSecret(apiClientSecret);
@@ -89,7 +89,7 @@ public class FafApiCommunicationService {
     }
 
     /**
-     * @return LegacyAccessLevel of the user if login was successful, else null
+     * @return LegacyAccessLevel of the player if login was successful, else null
      */
     public LegacyAccessLevel login(String username, String password) {
         authorize(username, password);
@@ -124,6 +124,15 @@ public class FafApiCommunicationService {
         JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
         String dataString = new String(resourceConverter.writeDocument(data));
         ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+        return entity.getBody();
+    }
+
+    @SneakyThrows
+    public Object postRelationship(ElideRouteBuilder<?> routeBuilder, Object object) {
+        authorizedLatch.await();
+        JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
+        String dataString = new String(resourceConverter.writeDocument(data));
+        ResponseEntity<?> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
         return entity.getBody();
     }
 

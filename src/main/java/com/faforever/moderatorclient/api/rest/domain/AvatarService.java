@@ -48,7 +48,7 @@ public class AvatarService {
     }
 
     public List<Avatar> findAvatarsByAssignedUser(@NotNull String pattern) {
-        log.debug("Searching for avatars by assigned user with pattern: {}", pattern);
+        log.debug("Searching for avatars by assigned player with pattern: {}", pattern);
         ElideRouteBuilder<Avatar> routeBuilder = ElideRouteBuilder.of(Avatar.class)
                 .addInclude("assignments")
                 .addInclude("assignments.player")

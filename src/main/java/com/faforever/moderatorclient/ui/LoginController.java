@@ -22,6 +22,7 @@ public class LoginController implements Controller<Pane> {
 
     public LoginController(FafApiCommunicationService fafApiCommunicationService) {
         this.fafApiCommunicationService = fafApiCommunicationService;
+
     }
 
     @Override
@@ -31,6 +32,7 @@ public class LoginController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
+        errorMessageLabel.managedProperty().bind(errorMessageLabel.visibleProperty());
         errorMessageLabel.setVisible(false);
     }
 
