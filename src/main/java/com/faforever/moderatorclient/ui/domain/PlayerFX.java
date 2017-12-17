@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui.domain;
 
 import com.faforever.moderatorclient.mapstruct.JavaFXMapper;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.mapstruct.Mapper;
@@ -12,6 +13,7 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty userAgent;
     private final StringProperty steamId;
     private final StringProperty recentIpAddress;
+    private final StringProperty representation;
 //    private final ListProperty<NameRecord> names;
 
     public PlayerFX() {
@@ -20,6 +22,9 @@ public class PlayerFX extends AbstractEntityFX {
         userAgent = new SimpleStringProperty();
         steamId = new SimpleStringProperty();
         recentIpAddress = new SimpleStringProperty();
+
+        representation = new SimpleStringProperty();
+        representation.bind(Bindings.concat(login, " [id ", idProperty(), "]"));
     }
 
 //    @Relationship("globalRating")
@@ -97,5 +102,9 @@ public class PlayerFX extends AbstractEntityFX {
 
     public StringProperty recentIpAddressProperty() {
         return recentIpAddress;
+    }
+
+    public StringProperty representationProperty() {
+        return representation;
     }
 }

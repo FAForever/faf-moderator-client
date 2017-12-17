@@ -110,7 +110,7 @@ public class BanInfoController implements Controller<Pane> {
             log.debug("Creating ban for user '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
             userService.createBan(banInfo);
         } else {
-            log.debug("Updateing ban id '{}'", banInfo.getId());
+            log.debug("Updating ban id '{}'", banInfo.getId());
             userService.patchBanInfo(banInfo);
         }
         close();

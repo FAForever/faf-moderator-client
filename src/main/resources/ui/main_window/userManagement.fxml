@@ -3,7 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.3" orientation="VERTICAL"
            prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.111"
            fx:controller="com.faforever.moderatorclient.ui.main_window.UserManagementController">
     <items>
@@ -71,6 +71,35 @@
         </HBox>
         <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
+                <Tab text="Notes">
+                    <content>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                            <children>
+                                <TableView fx:id="userNoteTableView" prefHeight="200.0" prefWidth="200.0"
+                                           VBox.vgrow="ALWAYS">
+                                    <VBox.margin>
+                                        <Insets bottom="10.0"/>
+                                    </VBox.margin>
+                                </TableView>
+                                <HBox alignment="CENTER">
+                                    <children>
+                                        <Button fx:id="addNoteButton" mnemonicParsing="false" onAction="#addNote"
+                                                text="Add note"/>
+                                        <Button fx:id="editNoteButton" mnemonicParsing="false" onAction="#editNote"
+                                                text="Edit selected note">
+                                            <HBox.margin>
+                                                <Insets left="10.0"/>
+                                            </HBox.margin>
+                                        </Button>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
                 <Tab text="Bans">
                     <content>
                         <VBox>
