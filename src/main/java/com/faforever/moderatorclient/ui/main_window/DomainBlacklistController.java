@@ -6,6 +6,8 @@ import com.faforever.moderatorclient.mapstruct.DomainBlacklistMapper;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.domain.DomainBlacklistFX;
 import com.google.common.collect.Lists;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Callback;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class DomainBlacklistController implements Controller<SplitPane> {
     private final DomainBlacklistService domainBlacklistService;
     private final DomainBlacklistMapper domainBlacklistMapper;
+    private ObservableList<DomainBlacklistFX> domainBlacklist;
 
     public SplitPane root;
     public ListView<DomainBlacklistFX> currentDomainBlacklistListView;
@@ -28,10 +31,13 @@ public class DomainBlacklistController implements Controller<SplitPane> {
     public DomainBlacklistController(DomainBlacklistService domainBlacklistService, DomainBlacklistMapper domainBlacklistMapper) {
         this.domainBlacklistService = domainBlacklistService;
         this.domainBlacklistMapper = domainBlacklistMapper;
+
+        domainBlacklist = FXCollections.observableArrayList();
     }
 
     @FXML
     public void initialize() {
+        currentDomainBlacklistListView.setItems(domainBlacklist);
         currentDomainBlacklistListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         currentDomainBlacklistListView.setCellFactory(new Callback<ListView<DomainBlacklistFX>, ListCell<DomainBlacklistFX>>() {
             @Override
@@ -59,8 +65,8 @@ public class DomainBlacklistController implements Controller<SplitPane> {
     }
 
     public void refresh() {
-        currentDomainBlacklistListView.getItems().clear();
-        currentDomainBlacklistListView.getItems().addAll(
+        domainBlacklist.clear();
+        domainBlacklist.addAll(
                 domainBlacklistMapper.map(domainBlacklistService.getAll())
         );
     }
@@ -75,7 +81,7 @@ public class DomainBlacklistController implements Controller<SplitPane> {
 
     public void addList() {
         List<String> newDomains = Lists.newArrayList(addDomainBlacklistTextArea.getText().split("\\n"));
-        List<String> currentDomains = currentDomainBlacklistListView.getItems().stream()
+        List<String> currentDomains = domainBlacklist.stream()
                 .map(DomainBlacklistFX::getDomain)
                 .collect(Collectors.toList());
 
