@@ -48,44 +48,50 @@ public class ViewHelper {
         });
     }
 
-    public static void buildAvatarTableView(TableView<Avatar> tableView) {
-        TableColumn<Avatar, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    public static void buildAvatarTableView(TableView<AvatarFX> tableView, ObservableList<AvatarFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<AvatarFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<Avatar, String> previewColumn = new TableColumn<>("Preview");
-        previewColumn.setCellValueFactory(new PropertyValueFactory<>("url"));
+        TableColumn<AvatarFX, String> previewColumn = new TableColumn<>("Preview");
+        previewColumn.setCellValueFactory(o -> o.getValue().urlProperty());
         previewColumn.setCellFactory(param -> new UrlImageViewTableCell<>());
         previewColumn.setMinWidth(50);
         tableView.getColumns().add(previewColumn);
 
-        TableColumn<Avatar, String> tooltipColumn = new TableColumn<>("Tooltip");
-        tooltipColumn.setCellValueFactory(new PropertyValueFactory<>("tooltip"));
+        TableColumn<AvatarFX, String> tooltipColumn = new TableColumn<>("Tooltip");
+        tooltipColumn.setCellValueFactory(o -> o.getValue().tooltipProperty());
         tooltipColumn.setMinWidth(50);
         tableView.getColumns().add(tooltipColumn);
 
-        TableColumn<Avatar, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created");
-        changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        TableColumn<AvatarFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created");
+        changeTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         changeTimeColumn.setMinWidth(180);
         tableView.getColumns().add(changeTimeColumn);
 
-        TableColumn<Avatar, String> urlColumn = new TableColumn<>("URL");
-        urlColumn.setCellValueFactory(new PropertyValueFactory<>("url"));
+        TableColumn<AvatarFX, String> urlColumn = new TableColumn<>("URL");
+        urlColumn.setCellValueFactory(o -> o.getValue().urlProperty());
         urlColumn.setMinWidth(50);
         tableView.getColumns().add(urlColumn);
 
     }
 
-    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignment> tableView) {
-        TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<AvatarAssignmentFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<AvatarAssignment, String> userIdColumn = new TableColumn<>("User ID");
+        TableColumn<AvatarAssignmentFX, String> userIdColumn = new TableColumn<>("User ID");
+
+
         userIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 Optional.ofNullable(param.getValue())
                         .map(avatarAssignment -> avatarAssignment.getPlayer().getId())
@@ -95,30 +101,27 @@ public class ViewHelper {
         userIdColumn.setMinWidth(50);
         tableView.getColumns().add(userIdColumn);
 
-        TableColumn<AvatarAssignment, String> userNameColumn = new TableColumn<>("User name");
-        userNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                Optional.ofNullable(param.getValue())
-                        .map(avatarAssignment -> avatarAssignment.getPlayer().getLogin())
-                        .orElse(""))
-        );
+        TableColumn<AvatarAssignmentFX, String> userNameColumn = new TableColumn<>("User name");
+        userNameColumn.setCellValueFactory(o -> o.getValue().playerProperty().get().representationProperty());
         userNameColumn.setMinWidth(150);
         tableView.getColumns().add(userNameColumn);
 
-        TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
+        TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
+        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);
 
-        TableColumn<AvatarAssignment, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
-        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        TableColumn<AvatarAssignmentFX, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
+        expiresAtColumn.setCellValueFactory(o -> o.getValue().expiresAtProperty());
         expiresAtColumn.setMinWidth(180);
         tableView.getColumns().add(expiresAtColumn);
 
 
-        TableColumn<AvatarAssignment, OffsetDateTime> assignedAtColumn = new TableColumn<>("Assigned at");
-        assignedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        TableColumn<AvatarAssignmentFX, OffsetDateTime> assignedAtColumn = new TableColumn<>("Assigned at");
+        assignedAtColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         assignedAtColumn.setMinWidth(180);
         tableView.getColumns().add(assignedAtColumn);
+
     }
 
     public static void buildBanTableView(TableView<BanInfo> tableView) {
@@ -502,6 +505,7 @@ public class ViewHelper {
                 label = new Label();
                 setGraphic(label);
             }
+
             @Override
             protected void updateItem(OffsetDateTime item, boolean empty) {
                 super.updateItem(item, empty);
