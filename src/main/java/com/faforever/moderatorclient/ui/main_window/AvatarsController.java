@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.commons.api.dto.Avatar;
 import com.faforever.commons.api.dto.AvatarAssignment;
-import com.faforever.moderatorclient.api.rest.domain.AvatarService;
+import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;

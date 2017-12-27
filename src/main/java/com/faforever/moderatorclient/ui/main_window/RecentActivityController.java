@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.dto.Teamkill;
-import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;

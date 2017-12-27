@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.fxml.FXML;

@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.commons.api.dto.DomainBlacklist;
-import com.faforever.moderatorclient.api.rest.domain.DomainBlacklistService;
+import com.faforever.moderatorclient.api.domain.DomainBlacklistService;
 import com.faforever.moderatorclient.mapstruct.DomainBlacklistMapper;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.domain.DomainBlacklistFX;

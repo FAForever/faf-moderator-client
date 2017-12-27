@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.LegacyAccessLevel;
-import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import javafx.fxml.FXML;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;

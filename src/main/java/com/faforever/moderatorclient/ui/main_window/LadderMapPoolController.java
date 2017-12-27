@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import com.faforever.moderatorclient.api.rest.domain.MapService;
+import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.ui.Controller;

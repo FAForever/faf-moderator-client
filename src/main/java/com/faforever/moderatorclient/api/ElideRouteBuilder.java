@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.rest;
+package com.faforever.moderatorclient.api;
 
 import com.github.jasminb.jsonapi.annotations.Type;
 import com.github.rutledgepaulv.qbuilders.builders.QBuilder;

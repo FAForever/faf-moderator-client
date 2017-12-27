@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.rest;
+package com.faforever.moderatorclient.api;
 
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ReflectionUtils;
