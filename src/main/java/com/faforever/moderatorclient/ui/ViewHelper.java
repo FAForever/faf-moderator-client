@@ -411,7 +411,9 @@ public class ViewHelper {
         mapTreeView.setShowRoot(false);
     }
 
-    public static void buildMapTableView(TableView<MapFX> tableView) {
+    public static void buildMapTableView(TableView<MapFX> tableView, ObservableList<MapFX> data) {
+        tableView.setItems(data);
+
         TableColumn<MapFX, String> idColumn = new TableColumn<>("Map ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -541,7 +543,9 @@ public class ViewHelper {
         tableView.getColumns().add(replayUrlColumn);
     }
 
-    public static void buildMapVersionTableView(TableView<MapVersionFX> tableView) {
+    public static void buildMapVersionTableView(TableView<MapVersionFX> tableView, ObservableList<MapVersionFX> data) {
+        tableView.setItems(data);
+
         TableColumn<MapVersionFX, String> idColumn = new TableColumn<>("Version ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));

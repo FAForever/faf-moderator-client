@@ -8,6 +8,8 @@ import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -26,6 +28,8 @@ public class MapVaultController implements Controller<SplitPane> {
     private final MapService mapService;
     private final MapMapper mapMapper;
     private final MapVersionMapper mapVersionMapper;
+    private ObservableList<MapFX> maps;
+    private ObservableList<MapVersionFX> mapVersions;
 
     public SplitPane root;
 
@@ -44,6 +48,9 @@ public class MapVaultController implements Controller<SplitPane> {
         this.mapService = mapService;
         this.mapMapper = mapMapper;
         this.mapVersionMapper = mapVersionMapper;
+
+        maps = FXCollections.observableArrayList();
+        mapVersions = FXCollections.observableArrayList();
     }
 
     @Override
@@ -53,12 +60,12 @@ public class MapVaultController implements Controller<SplitPane> {
 
     @FXML
     public void initialize() {
-        ViewHelper.buildMapTableView(mapSearchTableView);
-        ViewHelper.buildMapVersionTableView(mapVersionTableView);
+        ViewHelper.buildMapTableView(mapSearchTableView, maps);
+        ViewHelper.buildMapVersionTableView(mapVersionTableView, mapVersions);
 
         mapSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            mapVersionTableView.getItems().clear();
-            Optional.ofNullable(newValue).ifPresent(map -> mapVersionTableView.getItems().addAll(
+            mapVersions.clear();
+            Optional.ofNullable(newValue).ifPresent(map -> mapVersions.addAll(
                     map.getVersions()));
         });
 
@@ -76,7 +83,7 @@ public class MapVaultController implements Controller<SplitPane> {
     }
 
     public void onSearchMaps() {
-        mapSearchTableView.getItems().clear();
+        maps.clear();
         mapSearchTableView.getSortOrder().clear();
 
         List<Map> mapsFound = Collections.emptyList();
@@ -89,7 +96,7 @@ public class MapVaultController implements Controller<SplitPane> {
             mapsFound = mapService.findMapsByAuthorName(searchPattern, excludeHiddenMapVersionsCheckbox.isSelected());
         }
 
-        mapSearchTableView.getItems().addAll(mapMapper.map(mapsFound));
+        maps.addAll(mapMapper.map(mapsFound));
     }
 
     public void onToggleMapVersionHiding() {
