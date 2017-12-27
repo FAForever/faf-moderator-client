@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.mapstruct;
 
-import com.faforever.moderatorclient.api.dto.Map;
+import com.faforever.commons.api.dto.Map;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import org.mapstruct.Mapper;
 

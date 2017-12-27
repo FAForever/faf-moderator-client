@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.rest.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;

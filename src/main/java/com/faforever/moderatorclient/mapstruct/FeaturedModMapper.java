@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.mapstruct;
 
-import com.faforever.moderatorclient.api.dto.FeaturedMod;
+import com.faforever.commons.api.dto.FeaturedMod;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
 import org.mapstruct.Mapper;
 

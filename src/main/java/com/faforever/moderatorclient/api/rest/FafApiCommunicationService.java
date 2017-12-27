@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.api.rest;
 
-import com.faforever.moderatorclient.api.dto.LegacyAccessLevel;
-import com.faforever.moderatorclient.api.dto.Player;
+import com.faforever.commons.api.dto.LegacyAccessLevel;
+import com.faforever.commons.api.dto.Player;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import lombok.Getter;

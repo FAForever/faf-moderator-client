@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.mapstruct;
 
-import com.faforever.moderatorclient.api.dto.UserNote;
+import com.faforever.commons.api.dto.UserNote;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import org.mapstruct.Mapper;
 

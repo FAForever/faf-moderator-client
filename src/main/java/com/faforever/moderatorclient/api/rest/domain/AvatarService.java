@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.api.rest.domain;
 
-import com.faforever.moderatorclient.api.dto.Avatar;
+import com.faforever.commons.api.dto.Avatar;
 import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import lombok.extern.slf4j.Slf4j;

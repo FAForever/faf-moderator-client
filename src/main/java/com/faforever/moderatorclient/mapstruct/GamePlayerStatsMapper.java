@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.mapstruct;
 
-import com.faforever.moderatorclient.api.dto.GamePlayerStats;
+import com.faforever.commons.api.dto.GamePlayerStats;
 import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,8 +1,8 @@
 package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.api.dto.GameReview;
-import com.faforever.moderatorclient.api.dto.Validity;
-import com.faforever.moderatorclient.api.dto.VictoryCondition;
+import com.faforever.commons.api.dto.GameReview;
+import com.faforever.commons.api.dto.Validity;
+import com.faforever.commons.api.dto.VictoryCondition;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

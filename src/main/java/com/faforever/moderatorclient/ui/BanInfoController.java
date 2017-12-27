@@ -1,9 +1,9 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.dto.BanDurationType;
-import com.faforever.moderatorclient.api.dto.BanInfo;
-import com.faforever.moderatorclient.api.dto.BanLevel;
-import com.faforever.moderatorclient.api.dto.BanRevokeData;
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanInfo;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanRevokeData;
 import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.rest.domain.UserService;
 import javafx.fxml.FXML;

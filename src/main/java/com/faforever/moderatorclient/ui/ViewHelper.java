@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;

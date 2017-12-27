@@ -23,7 +23,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
+        <jitpack.faf-java-commons.version>04dc86b</jitpack.faf-java-commons.version>
+        <jitpack.nocatch.version>1.1</jitpack.nocatch.version>
+        <jitpack.q-builders.version>1.6</jitpack.q-builders.version>
+        <jitpack.jasminb.jsonapi-converter.version>0.8</jitpack.jasminb.jsonapi-converter.version>
         <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>
+        <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
+        <com.fasterxml.jackson.datatype.version>2.8.8</com.fasterxml.jackson.datatype.version>
+        <org.jetbrains.annotations.version>13.0</org.jetbrains.annotations.version>
+        <javax.inject.version>1</javax.inject.version>
     </properties>
 
     <repositories>
@@ -37,7 +45,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>13.0</version>
+            <version>${org.jetbrains.annotations.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -50,37 +58,42 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <version>${javax.inject.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.8.8</version>
+            <version>${com.fasterxml.jackson.datatype.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.jasminb</groupId>
             <artifactId>jsonapi-converter</artifactId>
-            <version>0.8</version>
+            <version>${jitpack.jasminb.jsonapi-converter.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.FAForever</groupId>
-            <artifactId>faf-java-commons</artifactId>
-            <version>a53e12e</version>
+            <groupId>com.github.FAForever.faf-java-commons</groupId>
+            <artifactId>faf-commons-data</artifactId>
+            <version>${jitpack.faf-java-commons.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.FAForever.faf-java-commons</groupId>
+            <artifactId>faf-commons-api</artifactId>
+            <version>${jitpack.faf-java-commons.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.micheljung</groupId>
             <artifactId>nocatch</artifactId>
-            <version>1.1</version>
+            <version>${jitpack.nocatch.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
+            <version>${org.apache.httpcomponents.httpclient.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.rutledgepaulv</groupId>
             <artifactId>q-builders</artifactId>
-            <version>1.6</version>
+            <version>${jitpack.q-builders.version}</version>
         </dependency>
 
         <dependency>

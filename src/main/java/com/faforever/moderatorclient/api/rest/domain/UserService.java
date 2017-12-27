@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.api.rest.domain;
 
-import com.faforever.moderatorclient.api.dto.*;
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
