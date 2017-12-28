@@ -8,9 +8,9 @@ import javafx.collections.ObservableList;
 import java.util.List;
 
 public class AvatarFX extends AbstractEntityFX {
-    private StringProperty url;
-    private StringProperty tooltip;
-    private ObservableList<AvatarAssignmentFX> assignments;
+    private final StringProperty url;
+    private final StringProperty tooltip;
+    private final ObservableList<AvatarAssignmentFX> assignments;
 
     public AvatarFX() {
         url = new SimpleStringProperty();
@@ -48,6 +48,9 @@ public class AvatarFX extends AbstractEntityFX {
 
     public void setAssignments(List<AvatarAssignmentFX> assignmentFXList) {
         assignments.clear();
-        assignments.addAll(assignmentFXList);
+
+        if (assignmentFXList != null) {
+            assignments.addAll(assignmentFXList);
+        }
     }
 }

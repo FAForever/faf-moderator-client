@@ -8,11 +8,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import java.time.OffsetDateTime;
 
 public class AvatarAssignmentFX extends AbstractEntityFX {
-    private BooleanProperty selected;
-    private ObjectProperty<OffsetDateTime> expiresAt;
-
-    private ObjectProperty<PlayerFX> player;
-    private ObjectProperty<AvatarFX> avatar;
+    private final BooleanProperty selected;
+    private final ObjectProperty<OffsetDateTime> expiresAt;
+    private final ObjectProperty<PlayerFX> player;
+    private final ObjectProperty<AvatarFX> avatar;
 
     public AvatarAssignmentFX() {
         selected = new SimpleBooleanProperty();

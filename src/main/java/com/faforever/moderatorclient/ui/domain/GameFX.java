@@ -27,17 +27,17 @@ public class GameFX extends AbstractEntityFX {
     private final ObjectProperty<MapVersionFX> mapVersion;
 
     public GameFX() {
-        this.id = new SimpleStringProperty();
-        this.name = new SimpleStringProperty();
-        this.startTime = new SimpleObjectProperty<>();
-        this.endTime = new SimpleObjectProperty<>();
-        this.validity = new SimpleObjectProperty<>();
-        this.victoryCondition = new SimpleObjectProperty<>();
-        this.reviews = FXCollections.observableArrayList();
-        this.playerStats = FXCollections.observableArrayList();
-        this.host = new SimpleObjectProperty<>();
-        this.featuredMod = new SimpleObjectProperty<>();
-        this.mapVersion = new SimpleObjectProperty<>();
+        id = new SimpleStringProperty();
+        name = new SimpleStringProperty();
+        startTime = new SimpleObjectProperty<>();
+        endTime = new SimpleObjectProperty<>();
+        validity = new SimpleObjectProperty<>();
+        victoryCondition = new SimpleObjectProperty<>();
+        reviews = FXCollections.observableArrayList();
+        playerStats = FXCollections.observableArrayList();
+        host = new SimpleObjectProperty<>();
+        featuredMod = new SimpleObjectProperty<>();
+        mapVersion = new SimpleObjectProperty<>();
     }
 
     @Override
@@ -124,7 +124,10 @@ public class GameFX extends AbstractEntityFX {
 
     public void setPlayerStats(List<GamePlayerStatsFX> statsFXList) {
         playerStats.clear();
-        playerStats.addAll(statsFXList);
+
+        if (statsFXList != null) {
+            playerStats.addAll(statsFXList);
+        }
     }
 
     public PlayerFX getHost() {

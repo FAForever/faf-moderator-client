@@ -8,11 +8,11 @@ import java.util.List;
 
 @Mapper(uses = {JavaFXMapper.class, MapMapper.class, CycleAvoidingMappingContext.class})
 public abstract class MapVersionMapper {
-    public abstract MapVersionFX map(MapVersion mapVersion);
+    public abstract MapVersionFX map(MapVersion dto);
 
-    public abstract MapVersion map(MapVersionFX mapVersionFX);
+    public abstract MapVersion map(MapVersionFX fxBean);
 
-    public abstract List<MapVersionFX> mapToFX(List<MapVersion> mapVersionList);
+    public abstract List<MapVersionFX> mapToFX(List<MapVersion> dtoList);
 
-    public abstract List<MapVersion> mapToDTO(List<MapVersionFX> mapVersionFXList);
+    public abstract List<MapVersion> mapToDTO(List<MapVersionFX> fxBeanList);
 }

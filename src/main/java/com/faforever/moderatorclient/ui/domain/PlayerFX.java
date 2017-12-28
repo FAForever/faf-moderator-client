@@ -1,12 +1,11 @@
 package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.mapstruct.JavaFXMapper;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.mapstruct.Mapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-@Mapper(uses = JavaFXMapper.class)
 public class PlayerFX extends AbstractEntityFX {
     private final StringProperty login;
     private final StringProperty email;
@@ -14,7 +13,9 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty steamId;
     private final StringProperty recentIpAddress;
     private final StringProperty representation;
-//    private final ListProperty<NameRecord> names;
+    private final ObservableList<NameRecordFX> names;
+    private final ObservableList<BanInfoFX> bans;
+    private final ObservableList<AvatarAssignmentFX> avatarAssignments;
 
     public PlayerFX() {
         login = new SimpleStringProperty();
@@ -25,6 +26,10 @@ public class PlayerFX extends AbstractEntityFX {
 
         representation = new SimpleStringProperty();
         representation.bind(Bindings.concat(login, " [id ", idProperty(), "]"));
+
+        names = FXCollections.observableArrayList();
+        bans = FXCollections.observableArrayList();
+        avatarAssignments = FXCollections.observableArrayList();
     }
 
 //    @Relationship("globalRating")
@@ -35,13 +40,6 @@ public class PlayerFX extends AbstractEntityFX {
 //
 //    @Relationship("lobbyGroup")
 //    private LobbyGroup lobbyGroup;
-//
-//    @Relationship("bans")
-//    private List<BanInfo> bans;
-//
-//    @Relationship("avatarAssignments")
-//    @JsonIgnore
-//    private List<AvatarAssignment> avatarAssignments;
 
 
     public String getLogin() {
@@ -106,5 +104,39 @@ public class PlayerFX extends AbstractEntityFX {
 
     public StringProperty representationProperty() {
         return representation;
+    }
+
+    public ObservableList<NameRecordFX> getNames() {
+        return names;
+    }
+
+    public void setNames(ObservableList<NameRecordFX> nameRecordFXObservableList) {
+        names.clear();
+        if (nameRecordFXObservableList != null) {
+            names.addAll(nameRecordFXObservableList);
+        }
+    }
+
+    public ObservableList<BanInfoFX> getBans() {
+        return bans;
+    }
+
+    public void setBans(ObservableList<BanInfoFX> banInfoFXObservableList) {
+        bans.clear();
+
+        if (banInfoFXObservableList != null) {
+            bans.addAll(banInfoFXObservableList);
+        }
+    }
+
+    public ObservableList<AvatarAssignmentFX> getAvatarAssignments() {
+        return avatarAssignments;
+    }
+
+    public void setAvatarAssignments(ObservableList<AvatarAssignmentFX> avatarAssignmentFXObservableList) {
+        avatarAssignments.clear();
+        if (avatarAssignmentFXObservableList != null) {
+            avatarAssignments.addAll(avatarAssignmentFXObservableList);
+        }
     }
 }

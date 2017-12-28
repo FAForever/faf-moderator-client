@@ -8,7 +8,6 @@ import javafx.beans.property.StringProperty;
 import java.time.OffsetDateTime;
 
 public abstract class AbstractEntityFX {
-    private boolean dirty;
     private final StringProperty id;
     private final ObjectProperty<OffsetDateTime> createTime;
     private final ObjectProperty<OffsetDateTime> updateTime;
@@ -24,7 +23,6 @@ public abstract class AbstractEntityFX {
     }
 
     public void setId(String id) {
-        dirty = true;
         this.id.set(id);
     }
 
@@ -37,7 +35,6 @@ public abstract class AbstractEntityFX {
     }
 
     public void setCreateTime(OffsetDateTime createTime) {
-        dirty = true;
         this.createTime.set(createTime);
     }
 
@@ -50,7 +47,6 @@ public abstract class AbstractEntityFX {
     }
 
     public void setUpdateTime(OffsetDateTime updateTime) {
-        dirty = true;
         this.updateTime.set(updateTime);
     }
 

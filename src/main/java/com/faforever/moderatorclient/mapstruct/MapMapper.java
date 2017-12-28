@@ -8,9 +8,9 @@ import java.util.List;
 
 @Mapper(uses = {JavaFXMapper.class, MapVersionMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
 public abstract class MapMapper {
-    public abstract MapFX map(Map map);
+    public abstract MapFX map(Map dto);
 
-    public abstract Map map(MapFX mapFX);
+    public abstract Map map(MapFX fxBean);
 
-    public abstract List<MapFX> map(List<Map> mapList);
+    public abstract List<MapFX> map(List<Map> dtoList);
 }

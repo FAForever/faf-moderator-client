@@ -8,9 +8,9 @@ import java.util.List;
 
 @Mapper(uses = {JavaFXMapper.class, AvatarAssignmentMapper.class, CycleAvoidingMappingContext.class})
 public abstract class AvatarMapper {
-    public abstract AvatarFX map(Avatar avatar);
+    public abstract AvatarFX map(Avatar dto);
 
-    public abstract Avatar map(AvatarFX avatarFX);
+    public abstract Avatar map(AvatarFX fxBean);
 
-    public abstract List<AvatarFX> map(List<Avatar> avatarList);
+    public abstract List<AvatarFX> map(List<Avatar> dtoList);
 }

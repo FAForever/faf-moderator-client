@@ -8,9 +8,9 @@ import java.util.List;
 
 @Mapper(uses = {JavaFXMapper.class, PlayerMapper.class})
 public interface UserNoteMapper {
-    UserNoteFX map(UserNote userNote);
+    UserNoteFX map(UserNote dto);
 
-    UserNote map(UserNoteFX userNoteFX);
+    UserNote map(UserNoteFX fxBean);
 
-    List<UserNoteFX> map(List<UserNote> userNoteList);
+    List<UserNoteFX> map(List<UserNote> dtoList);
 }

@@ -8,9 +8,9 @@ import java.util.List;
 
 @Mapper(uses = JavaFXMapper.class)
 public interface FeaturedModMapper {
-    FeaturedModFX map(FeaturedMod featuredMod);
+    FeaturedModFX map(FeaturedMod dto);
 
-    FeaturedMod map(FeaturedModFX featuredModFX);
+    FeaturedMod map(FeaturedModFX fxBean);
 
-    List<FeaturedModFX> map(List<FeaturedMod> featuredMods);
+    List<FeaturedModFX> map(List<FeaturedMod> dtoList);
 }

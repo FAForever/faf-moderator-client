@@ -1,8 +1,12 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanStatus;
+import com.faforever.commons.api.dto.Map;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -124,130 +128,148 @@ public class ViewHelper {
 
     }
 
-    public static void buildBanTableView(TableView<BanInfo> tableView) {
-        TableColumn<BanInfo, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    public static void buildBanTableView(TableView<BanInfoFX> tableView, ObservableList<BanInfoFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<BanInfoFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<BanInfo, BanLevel> banLevelColumn = new TableColumn<>("Level");
-        banLevelColumn.setCellValueFactory(new PropertyValueFactory<>("level"));
+        TableColumn<BanInfoFX, BanLevel> banLevelColumn = new TableColumn<>("Level");
+        banLevelColumn.setCellValueFactory(o -> o.getValue().levelProperty());
         banLevelColumn.setMinWidth(80);
         tableView.getColumns().add(banLevelColumn);
 
-        TableColumn<BanInfo, BanStatus> banStatusColumn = new TableColumn<>("Status");
-        banStatusColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getBanStatus()));
+        TableColumn<BanInfoFX, BanStatus> banStatusColumn = new TableColumn<>("Status");
+        banStatusColumn.setCellValueFactory(o -> o.getValue().banStatusProperty());
         banStatusColumn.setMinWidth(100);
         tableView.getColumns().add(banStatusColumn);
 
-        TableColumn<BanInfo, BanDurationType> banDurationColumn = new TableColumn<>("Duration");
-        banDurationColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getDuration()));
+        TableColumn<BanInfoFX, BanDurationType> banDurationColumn = new TableColumn<>("Duration");
+        banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
         banDurationColumn.setMinWidth(100);
         tableView.getColumns().add(banDurationColumn);
 
-        TableColumn<BanInfo, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
-        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        TableColumn<BanInfoFX, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
+        expiresAtColumn.setCellValueFactory(o -> o.getValue().expiresAtProperty());
         expiresAtColumn.setMinWidth(180);
         tableView.getColumns().add(expiresAtColumn);
 
-        TableColumn<BanInfo, String> reasonColumn = new TableColumn<>("Reason");
-        reasonColumn.setCellValueFactory(new PropertyValueFactory<>("reason"));
+        TableColumn<BanInfoFX, String> reasonColumn = new TableColumn<>("Reason");
+        reasonColumn.setCellValueFactory(o -> o.getValue().reasonProperty());
         reasonColumn.setMinWidth(250);
         tableView.getColumns().add(reasonColumn);
 
-        TableColumn<BanInfo, Player> authorColumn = new TableColumn<>("Author");
-        authorColumn.setCellValueFactory(new PropertyValueFactory<>("author"));
+        TableColumn<BanInfoFX, String> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> o.getValue().authorProperty().get().representationProperty());
         authorColumn.setMinWidth(150);
         tableView.getColumns().add(authorColumn);
 
-        TableColumn<BanInfo, String> revokeReasonColumn = new TableColumn<>("Revocation Reason");
-        revokeReasonColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                Optional.ofNullable(param.getValue().getBanRevokeData())
-                        .map(BanRevokeData::getReason)
-                        .orElse(""))
-        );
+        TableColumn<BanInfoFX, String> revokeReasonColumn = new TableColumn<>("Revocation Reason");
+        revokeReasonColumn.setCellValueFactory(o -> {
+            ObjectProperty<BanRevokeDataFX> banRevokeProperty = o.getValue().banRevokeDataProperty();
+            return Bindings.createStringBinding(() -> {
+                        if (banRevokeProperty.get() != null) {
+                            return banRevokeProperty.get().reasonProperty().get();
+                        } else {
+                            return "";
+                        }
+                    },
+                    banRevokeProperty);
+        });
         revokeReasonColumn.setMinWidth(250);
         tableView.getColumns().add(revokeReasonColumn);
 
-        TableColumn<BanInfo, Player> revokeAuthorColumn = new TableColumn<>("Revocation Author");
-        revokeAuthorColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                Optional.ofNullable(param.getValue().getBanRevokeData())
-                        .map(BanRevokeData::getAuthor)
-                        .orElse(null))
+        TableColumn<BanInfoFX, String> revokeAuthorColumn = new TableColumn<>("Revocation Author");
+        revokeAuthorColumn.setCellValueFactory(o -> {
+                    BanRevokeDataFX banRevokeData = o.getValue().getBanRevokeData();
+                    if (banRevokeData != null) {
+                        return banRevokeData.getAuthor().representationProperty();
+                    } else {
+                        return null;
+                    }
+                }
         );
         revokeAuthorColumn.setMinWidth(150);
         tableView.getColumns().add(revokeAuthorColumn);
 
-        TableColumn<BanInfo, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created Time");
+        TableColumn<BanInfoFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created Time");
         changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         changeTimeColumn.setMinWidth(180);
         tableView.getColumns().add(changeTimeColumn);
 
-        TableColumn<BanInfo, OffsetDateTime> updateTimeColumn = new TableColumn<>("Update (Revoke) Time");
+        TableColumn<BanInfoFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Update (Revoke) Time");
         updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         updateTimeColumn.setMinWidth(180);
         tableView.getColumns().add(updateTimeColumn);
     }
 
-    public static void buildNameHistoryTableView(TableView<NameRecord> tableView) {
-        TableColumn<NameRecord, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    public static void buildNameHistoryTableView(TableView<NameRecordFX> tableView, ObservableList<NameRecordFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<NameRecordFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<NameRecord, OffsetDateTime> changeTimeColumn = new TableColumn<>("Change Time");
-        changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("changeTime"));
+        TableColumn<NameRecordFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Change Time");
+        changeTimeColumn.setCellValueFactory(o -> o.getValue().changeTimeProperty());
         changeTimeColumn.setMinWidth(180);
         tableView.getColumns().add(changeTimeColumn);
 
-        TableColumn<NameRecord, String> nameColumn = new TableColumn<>("Previous Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        TableColumn<NameRecordFX, String> nameColumn = new TableColumn<>("Previous Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().nameProperty());
         nameColumn.setMinWidth(200);
         tableView.getColumns().add(nameColumn);
     }
 
-    public static void buildTeamkillTableView(javafx.scene.control.TableView<Teamkill> tableView, boolean showKiller) {
-        TableColumn<Teamkill, String> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+    public static void buildTeamkillTableView(TableView<TeamkillFX> tableView, ObservableList<TeamkillFX> data, boolean showKiller) {
+        tableView.setItems(data);
+
+        TableColumn<TeamkillFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
 
         if (showKiller) {
-            TableColumn<Teamkill, Player> killerColumn = new TableColumn<>("Killer");
-            killerColumn.setCellValueFactory(new PropertyValueFactory<>("teamkiller"));
+            TableColumn<TeamkillFX, String> killerColumn = new TableColumn<>("Killer");
+            killerColumn.setCellValueFactory(o -> o.getValue().teamkillerProperty().get().representationProperty());
             killerColumn.setMinWidth(180);
             tableView.getColumns().add(killerColumn);
         }
 
-        TableColumn<Teamkill, Player> victimColumn = new TableColumn<>("Victim");
-        victimColumn.setCellValueFactory(new PropertyValueFactory<>("victim"));
+        TableColumn<TeamkillFX, String> victimColumn = new TableColumn<>("Victim");
+        victimColumn.setCellValueFactory(o -> o.getValue().victimProperty().get().representationProperty());
         victimColumn.setMinWidth(180);
         tableView.getColumns().add(victimColumn);
 
-        TableColumn<Teamkill, String> gameIdColumn = new TableColumn<>("Game ID");
-        gameIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getGame().getId()));
+        TableColumn<TeamkillFX, String> gameIdColumn = new TableColumn<>("Game ID");
+        gameIdColumn.setCellValueFactory(o -> o.getValue().gameProperty().get().idProperty());
         gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         gameIdColumn.setMinWidth(100);
         tableView.getColumns().add(gameIdColumn);
 
-        TableColumn<Teamkill, Long> gameTimeColumn = new TableColumn<>("Game Time");
-        gameTimeColumn.setCellValueFactory(new PropertyValueFactory<>("gameTime"));
+        TableColumn<TeamkillFX, Number> gameTimeColumn = new TableColumn<>("Game Time");
+        gameTimeColumn.setCellValueFactory(o -> o.getValue().gameTimeProperty());
         gameTimeColumn.setMinWidth(100);
         tableView.getColumns().add(gameTimeColumn);
 
-        TableColumn<Teamkill, Long> reportedAtColumn = new TableColumn<>("Reported At");
-        reportedAtColumn.setCellValueFactory(new PropertyValueFactory<>("reportedAt"));
+        TableColumn<TeamkillFX, OffsetDateTime> reportedAtColumn = new TableColumn<>("Reported At");
+        reportedAtColumn.setCellValueFactory(o -> o.getValue().reportedAtProperty());
         reportedAtColumn.setMinWidth(180);
         tableView.getColumns().add(reportedAtColumn);
     }
 
-    public static void buildUserTableView(TableView<Player> tableView) {
-        TableColumn<Player, Player> idColumn = new TableColumn<>("ID");
+    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-        idColumn.setCellFactory(param -> new TableCell<Player, Player>() {
+        idColumn.setCellFactory(param -> new TableCell<PlayerFX, PlayerFX>() {
             Tooltip tooltip = new Tooltip();
 
             {
@@ -256,7 +278,7 @@ public class ViewHelper {
             }
 
             @Override
-            protected void updateItem(Player item, boolean empty) {
+            protected void updateItem(PlayerFX item, boolean empty) {
                 super.updateItem(item, empty);
                 setTextFill(Color.BLACK);
 
@@ -293,81 +315,76 @@ public class ViewHelper {
         idColumn.setMinWidth(70);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<Player, String> nameColumn = new TableColumn<>("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("login"));
+        TableColumn<PlayerFX, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().loginProperty());
         nameColumn.setMinWidth(150);
         tableView.getColumns().add(nameColumn);
 
-        TableColumn<Player, String> emailColumn = new TableColumn<>("Email");
-        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        TableColumn<PlayerFX, String> emailColumn = new TableColumn<>("Email");
+        emailColumn.setCellValueFactory(o -> o.getValue().emailProperty());
         emailColumn.setMinWidth(250);
         tableView.getColumns().add(emailColumn);
 
-        TableColumn<Player, String> steamIdColumn = new TableColumn<>("Steam ID");
-        steamIdColumn.setCellValueFactory(new PropertyValueFactory<>("steamId"));
+        TableColumn<PlayerFX, String> steamIdColumn = new TableColumn<>("Steam ID");
+        steamIdColumn.setCellValueFactory(o -> o.getValue().steamIdProperty());
         steamIdColumn.setMinWidth(150);
         tableView.getColumns().add(steamIdColumn);
 
-        TableColumn<Player, String> ipColumn = new TableColumn<>("Recent IP Address");
-        ipColumn.setCellValueFactory(new PropertyValueFactory<>("recentIpAddress"));
+        TableColumn<PlayerFX, String> ipColumn = new TableColumn<>("Recent IP Address");
+        ipColumn.setCellValueFactory(o -> o.getValue().recentIpAddressProperty());
         ipColumn.setMinWidth(160);
         tableView.getColumns().add(ipColumn);
 
-        TableColumn<Player, OffsetDateTime> createTimeColumn = new TableColumn<>("Registration Date");
-        createTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
+        TableColumn<PlayerFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Registration Date");
+        createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         createTimeColumn.setMinWidth(160);
         tableView.getColumns().add(createTimeColumn);
 
-        TableColumn<Player, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last lobby login");
-        updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
+        TableColumn<PlayerFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last lobby login");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
 
-        TableColumn<Player, String> userAgentColumn = new TableColumn<>("User Agent");
-        userAgentColumn.setCellValueFactory(new PropertyValueFactory<>("userAgent"));
+        TableColumn<PlayerFX, String> userAgentColumn = new TableColumn<>("User Agent");
+        userAgentColumn.setCellValueFactory(o -> o.getValue().userAgentProperty());
         userAgentColumn.setMinWidth(200);
         tableView.getColumns().add(userAgentColumn);
     }
 
-    public static void buildUserAvatarsTableView(TableView<AvatarAssignment> tableView) {
-        TableColumn<AvatarAssignment, String> idColumn = new TableColumn<>("Assignment ID");
+    public static void buildUserAvatarsTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
+        tableView.setItems(data);
+
+        TableColumn<AvatarAssignmentFX, String> idColumn = new TableColumn<>("Assignment ID");
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setMinWidth(140);
         tableView.getColumns().add(idColumn);
 
-        TableColumn<AvatarAssignment, String> avatarIdColumn = new TableColumn<>("Avatar ID");
-        avatarIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                param.getValue().getAvatar().getId()
-        ));
+        TableColumn<AvatarAssignmentFX, String> avatarIdColumn = new TableColumn<>("Avatar ID");
+        avatarIdColumn.setCellValueFactory(o -> o.getValue().avatarProperty().get().idProperty());
         avatarIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         avatarIdColumn.setMinWidth(50);
         tableView.getColumns().add(avatarIdColumn);
 
-        TableColumn<AvatarAssignment, String> previewColumn = new TableColumn<>("Preview");
-        previewColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                param.getValue().getAvatar().getUrl()
-        ));
-
+        TableColumn<AvatarAssignmentFX, String> previewColumn = new TableColumn<>("Preview");
+        previewColumn.setCellValueFactory(o -> o.getValue().avatarProperty().get().urlProperty());
         previewColumn.setCellFactory(param -> new UrlImageViewTableCell<>());
         previewColumn.setMinWidth(50);
         tableView.getColumns().add(previewColumn);
 
-        TableColumn<AvatarAssignment, String> tooltipColumn = new TableColumn<>("Tooltip");
-        tooltipColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
-                param.getValue().getAvatar().getTooltip()
-        ));
+        TableColumn<AvatarAssignmentFX, String> tooltipColumn = new TableColumn<>("Tooltip");
+        tooltipColumn.setCellValueFactory(o -> o.getValue().avatarProperty().get().tooltipProperty());
         tooltipColumn.setMinWidth(100);
         tableView.getColumns().add(tooltipColumn);
 
-        TableColumn<AvatarAssignment, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(new PropertyValueFactory<>("selected"));
-//        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
+        TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
+        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
+        selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);
 
-        TableColumn<AvatarAssignment, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires At");
-        expiresAtColumn.setCellValueFactory(new PropertyValueFactory<>("expiresAt"));
+        TableColumn<AvatarAssignmentFX, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires At");
+        expiresAtColumn.setCellValueFactory(o -> o.getValue().expiresAtProperty());
         expiresAtColumn.setMinWidth(180);
         tableView.getColumns().add(expiresAtColumn);
     }
