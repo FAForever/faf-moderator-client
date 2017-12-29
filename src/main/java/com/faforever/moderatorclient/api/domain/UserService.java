@@ -146,13 +146,13 @@ public class UserService {
 
     public BanInfo patchBanInfo(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
-        log.debug("Patching BanInfo of id: ", banInfo.getId());
+        log.debug("Patching BanInfo of id: {}", banInfo.getId());
         return fafApi.patch(ElideRouteBuilder.of(BanInfo.class).id(banInfo.getId()), banInfo);
     }
 
     public BanRevokeData revokeBan(@NotNull BanRevokeDataFX banRevokeDataFX) {
         BanRevokeData banRevokeData = banRevokeDataMapper.map(banRevokeDataFX);
-        log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
+        log.debug("Revoking ban with id: {}", banRevokeData.getBan().getId());
         banRevokeData.setAuthor(fafApi.getSelfPlayer());
         ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
                 .id(banRevokeData.getBan().getId())
@@ -221,7 +221,7 @@ public class UserService {
     }
 
     public UserNoteFX patchUserNote(UserNote userNote) {
-        log.debug("Patching UserNote of id: ", userNote.getId());
+        log.debug("Patching UserNote of id: {}", userNote.getId());
         return userNoteMapper.map(fafApi.patch(ElideRouteBuilder.of(UserNote.class).id(userNote.getId()), userNote));
     }
 

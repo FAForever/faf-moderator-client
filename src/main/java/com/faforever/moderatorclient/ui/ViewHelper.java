@@ -680,4 +680,20 @@ public class ViewHelper {
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
     }
+
+    public static boolean confirmDialog(String title, String detail) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(detail);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.map(buttonType -> buttonType == ButtonType.OK).orElse(false);
+    }
+
+    public static void errorDialog(String detail) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(detail);
+        alert.showAndWait();
+    }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 
 @Service
@@ -58,5 +59,23 @@ public class AvatarService {
         List<Avatar> result = fafApi.getAll(routeBuilder);
         log.trace("found {} avatars", result.size());
         return result;
+    }
+
+    public void createAvatar(String name, File avatarImageFile) {
+        fafApi.uploadAvatar(name, avatarImageFile);
+    }
+
+    public void updateAvatar(String avatarId, String name, File avatarImageFile) {
+        if (avatarImageFile != null) {
+            fafApi.reuploadAvatar(avatarId, name, avatarImageFile);
+        } else {
+            fafApi.patch(ElideRouteBuilder.of(Avatar.class).id(avatarId),
+                    (Avatar) new Avatar().setTooltip(name).setId(avatarId));
+        }
+
+    }
+
+    public void deleteAvatar(String avatarId) {
+        fafApi.deleteAvatar(avatarId);
     }
 }
