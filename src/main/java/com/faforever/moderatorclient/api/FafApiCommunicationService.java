@@ -1,6 +1,5 @@
 package com.faforever.moderatorclient.api;
 
-import com.faforever.moderatorclient.api.dto.AvatarMetadata;
 import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.commons.api.dto.Player;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
@@ -8,15 +7,8 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -25,11 +17,9 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -216,42 +206,7 @@ public class FafApiCommunicationService {
                 params);
     }
 
-    public void uploadAvatar(String name, File avatarImageFile) {
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
-        final String route = "/avatars/upload";
-        log.debug("Sending API request: {}", route);
-        restOperations.exchange(route,
-                HttpMethod.POST,
-                requestEntity,
-                String.class
-        );
-    }
-
-    public void reuploadAvatar(String avatarId, String name, File avatarImageFile) {
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
-        final String route = "/avatars/{0}/upload";
-        log.debug("Sending API request: {}", route);
-        restOperations.exchange(route,
-                HttpMethod.POST,
-                requestEntity,
-                String.class,
-                avatarId
-        );
-    }
-
-    public void deleteAvatar(String avatarId) {
-        final String route = "/avatars/{0}";
-        log.debug("Sending API request: {}", route);
-        restOperations.delete(route, avatarId);
-    }
-
-    @NotNull
-    private HttpEntity<LinkedMultiValueMap<String, Object>> createAvatarMultipartRequest(String name, File avatarImageFile) {
-        LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
-        map.add("file", new FileSystemResource(avatarImageFile));
-        map.add("metadata", new AvatarMetadata().setName(name));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        return new HttpEntity<>(map, headers);
+    public RestOperations getRestOperations() {
+        return restOperations;
     }
 }
