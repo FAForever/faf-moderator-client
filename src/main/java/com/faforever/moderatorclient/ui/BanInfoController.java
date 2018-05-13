@@ -73,7 +73,6 @@ public class BanInfoController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        untilTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
     }
 
     public void setBanInfo(BanInfoFX banInfo) {
