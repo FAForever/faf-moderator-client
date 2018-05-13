@@ -4,9 +4,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import lombok.EqualsAndHashCode;
 
 import java.time.OffsetDateTime;
 
+@EqualsAndHashCode(of = "id")
 public abstract class AbstractEntityFX {
     private final StringProperty id;
     private final ObjectProperty<OffsetDateTime> createTime;
@@ -52,5 +54,13 @@ public abstract class AbstractEntityFX {
 
     public ObjectProperty<OffsetDateTime> updateTimeProperty() {
         return updateTime;
+    }
+
+    /**
+     * Supplement method for @EqualsAndHashCode
+     * overriding the default lombok implementation
+     */
+    protected boolean canEqual(Object other) {
+        return other instanceof AbstractEntityFX && this.getClass() == other.getClass();
     }
 }

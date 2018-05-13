@@ -18,11 +18,15 @@
  */
 package com.faforever.moderatorclient.mapstruct;
 
-import org.mapstruct.*;
+import org.mapstruct.BeforeMapping;
+import org.mapstruct.Context;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.TargetType;
 import org.springframework.stereotype.Component;
 
-import java.util.IdentityHashMap;
+import java.util.Collection;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * A type to be used as {@link Context} parameter to track cycles in graphs.
@@ -35,7 +39,7 @@ import java.util.Map;
  */
 @Component
 public class CycleAvoidingMappingContext {
-    private Map<Object, Object> knownInstances = new IdentityHashMap<>();
+    private Map<Object, Object> knownInstances = new WeakHashMap<>();
 
     @BeforeMapping
     public <T> T getMappedInstance(Object source, @TargetType Class<T> targetType) {
@@ -44,11 +48,10 @@ public class CycleAvoidingMappingContext {
 
     @BeforeMapping
     public void storeMappedInstance(Object source, @MappingTarget Object target) {
-        knownInstances.put(source, target);
-    }
+        if (source instanceof Collection) {
+            return;
+        }
 
-    @AfterMapping
-    public void cleanupKnownInstance(Object source) {
-        knownInstances.remove(source);
+        knownInstances.put(source, target);
     }
 }
