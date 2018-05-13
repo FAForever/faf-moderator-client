@@ -48,7 +48,7 @@ public class CycleAvoidingMappingContext {
     }
 
     @AfterMapping
-    public void cleanupKnownInstances() {
-//        knownInstances.clear();
+    public void cleanupKnownInstance(Object source) {
+        knownInstances.remove(source);
     }
 }
