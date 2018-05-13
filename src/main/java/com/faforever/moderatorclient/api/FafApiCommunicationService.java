@@ -2,6 +2,7 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.commons.api.dto.Player;
+import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class FafApiCommunicationService {
     private final ResourceConverter resourceConverter;
     @Getter
     private Player selfPlayer;
+    private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
     private final RestTemplateBuilder restTemplateBuilder;
     private final HttpComponentsClientHttpRequestFactory requestFactory;
     private final String apiClientId;
@@ -44,7 +46,7 @@ public class FafApiCommunicationService {
     private RestOperations restOperations;
 
 
-    public FafApiCommunicationService(ResourceConverter resourceConverter, RestTemplateBuilder restTemplateBuilder,
+    public FafApiCommunicationService(ResourceConverter resourceConverter, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler,
                                       @Value("${faforever.api.base-url}")
@@ -60,6 +62,7 @@ public class FafApiCommunicationService {
 
     ) {
         this.resourceConverter = resourceConverter;
+        this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.apiClientId = apiClientId;
         this.apiClientSecret = apiClientSecret;
         this.apiAccessTokenUrl = apiAccessTokenUrl;
@@ -106,24 +109,14 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public void post(ElideRouteBuilder<?> routeBuilder, Object request, boolean bufferRequestBody) {
-        authorizedLatch.await();
-        requestFactory.setBufferRequestBody(bufferRequestBody);
-
-        try {
-            // Don't use Void.class here, otherwise Spring won't even try to deserialize error messages in the body
-            restOperations.postForEntity(routeBuilder.build(), request, String.class);
-        } finally {
-            requestFactory.setBufferRequestBody(true);
-        }
-    }
-
-    @SneakyThrows
     public <T> T post(ElideRouteBuilder<T> routeBuilder, T object) {
         authorizedLatch.await();
         JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
         String dataString = new String(resourceConverter.writeDocument(data));
         ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+
+        cycleAvoidingMappingContext.clearCache();
+
         return entity.getBody();
     }
 
@@ -133,12 +126,16 @@ public class FafApiCommunicationService {
         JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
         String dataString = new String(resourceConverter.writeDocument(data));
         ResponseEntity<?> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+
+        cycleAvoidingMappingContext.clearCache();
+
         return entity.getBody();
     }
 
     @SneakyThrows
     public <T> T patch(ElideRouteBuilder<T> routeBuilder, T object) {
         authorizedLatch.await();
+        cycleAvoidingMappingContext.clearCache();
         return restOperations.patchForObject(routeBuilder.build(), object, routeBuilder.getDtoClass());
     }
 
@@ -161,6 +158,7 @@ public class FafApiCommunicationService {
     @SuppressWarnings("unchecked")
     @SneakyThrows
     public <T> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
+        cycleAvoidingMappingContext.clearCache();
         return restOperations.getForObject(endpointPath, type, params);
     }
 
@@ -199,6 +197,7 @@ public class FafApiCommunicationService {
                 .pageSize(pageSize)
                 .pageNumber(page)
                 .build();
+        cycleAvoidingMappingContext.clearCache();
         log.debug("Sending API request: {}", route);
         return (List<T>) restOperations.getForObject(
                 route,
