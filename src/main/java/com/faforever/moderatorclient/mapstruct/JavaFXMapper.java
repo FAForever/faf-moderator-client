@@ -42,7 +42,11 @@ public class JavaFXMapper {
     }
 
     public <T> ObservableList<T> map(List<T> value) {
-        return FXCollections.observableList(value);
+        if (value == null) {
+            return null;
+        } else {
+            return FXCollections.observableList(value);
+        }
     }
 
 //    public <T> ListProperty<T> mapListToListProperty (List<T> value) {
