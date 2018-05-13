@@ -1,7 +1,6 @@
 package com.faforever.moderatorclient.api;
 
-import com.faforever.moderatorclient.api.dto.Ladder1v1Map;
-import com.faforever.moderatorclient.api.rest.ElideRouteBuilder;
+import com.faforever.commons.api.dto.Ladder1v1Map;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

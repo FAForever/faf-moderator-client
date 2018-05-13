@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.fxml.FXML;
@@ -84,7 +84,10 @@ public class UserNoteController implements Controller<Pane> {
             log.debug("Creating userNote for player '{}'", userNoteFX.getPlayer().representationProperty().get());
             String newNoteId = userService.createUserNote(userNoteMapper.map(userNoteFX));
             UserNoteFX loadedUserNote = userService.getUserNoteById(newNoteId);
-            postedListener.accept(loadedUserNote);
+
+            if (postedListener != null) {
+                postedListener.accept(loadedUserNote);
+            }
         } else {
             log.debug("Updating userNote id '{}'", userNoteFX.getId());
             userService.patchUserNote(userNoteMapper.map(userNoteFX));

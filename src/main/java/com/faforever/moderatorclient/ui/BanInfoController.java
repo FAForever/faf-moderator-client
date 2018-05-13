@@ -1,11 +1,12 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.dto.BanDurationType;
-import com.faforever.moderatorclient.api.dto.BanInfo;
-import com.faforever.moderatorclient.api.dto.BanLevel;
-import com.faforever.moderatorclient.api.dto.BanRevokeData;
-import com.faforever.moderatorclient.api.rest.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.domain.UserService;
+import com.faforever.moderatorclient.mapstruct.PlayerMapper;
+import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.BanRevokeDataFX;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 public class BanInfoController implements Controller<Pane> {
     private final FafApiCommunicationService fafApi;
     private final UserService userService;
+    private final PlayerMapper playerMapper;
     public GridPane root;
     public TextField affectedUserTextField;
     public TextField banAuthorTextField;
@@ -50,11 +53,17 @@ public class BanInfoController implements Controller<Pane> {
     public RadioButton globalBanRadioButton;
     public Button revokeButton;
     @Getter
-    private BanInfo banInfo;
+    private BanInfoFX banInfo;
+    private Consumer<BanInfoFX> postedListener;
 
-    public BanInfoController(FafApiCommunicationService fafApi, UserService userService) {
+    public BanInfoController(FafApiCommunicationService fafApi, UserService userService, PlayerMapper playerMapper) {
         this.fafApi = fafApi;
         this.userService = userService;
+        this.playerMapper = playerMapper;
+    }
+
+    public void addPostedListener(Consumer<BanInfoFX> listener) {
+        this.postedListener = listener;
     }
 
     @Override
@@ -64,10 +73,9 @@ public class BanInfoController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        untilTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
     }
 
-    public void setBanInfo(BanInfo banInfo) {
+    public void setBanInfo(BanInfoFX banInfo) {
         this.banInfo = banInfo;
 
         if (banInfo.getId() != null) {
@@ -108,7 +116,11 @@ public class BanInfoController implements Controller<Pane> {
 
         if (banInfo.getId() == null) {
             log.debug("Creating ban for player '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
-            userService.createBan(banInfo);
+            String newBanId = userService.createBan(banInfo);
+            BanInfoFX loadedBanInfo = userService.getBanInfoById(newBanId);
+            if (postedListener != null) {
+                postedListener.accept(loadedBanInfo);
+            }
         } else {
             log.debug("Updating ban id '{}'", banInfo.getId());
             userService.patchBanInfo(banInfo);
@@ -167,10 +179,9 @@ public class BanInfoController implements Controller<Pane> {
 
         log.debug("Revoking ban id '{}' with reason: {}", banInfo.getId(), revocationReason);
 
-        BanRevokeData banRevokeData = new BanRevokeData()
-
+        BanRevokeDataFX banRevokeData = new BanRevokeDataFX()
                 .setBan(banInfo)
-                .setAuthor(fafApi.getSelfPlayer())
+                .setAuthor(playerMapper.map(fafApi.getSelfPlayer()))
                 .setReason(revocationReason);
 
         userService.revokeBan(banRevokeData);

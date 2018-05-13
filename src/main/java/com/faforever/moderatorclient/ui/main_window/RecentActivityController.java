@@ -1,10 +1,12 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import com.faforever.moderatorclient.api.dto.Player;
-import com.faforever.moderatorclient.api.dto.Teamkill;
-import com.faforever.moderatorclient.api.rest.domain.UserService;
+import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
@@ -15,13 +17,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecentActivityController implements Controller<VBox> {
     private final UserService userService;
+    private final ObservableList<PlayerFX> users;
+    private final ObservableList<TeamkillFX> teamkills;
 
     public VBox root;
-    public TableView<Player> userRegistrationFeedTableView;
-    public TableView<Teamkill> teamkillFeedTableView;
+    public TableView<PlayerFX> userRegistrationFeedTableView;
+    public TableView<TeamkillFX> teamkillFeedTableView;
 
     public RecentActivityController(UserService userService) {
         this.userService = userService;
+
+        users = FXCollections.observableArrayList();
+        teamkills = FXCollections.observableArrayList();
     }
 
     @Override
@@ -31,17 +38,17 @@ public class RecentActivityController implements Controller<VBox> {
 
     @FXML
     public void initialize() {
-        ViewHelper.buildUserTableView(userRegistrationFeedTableView);
-        ViewHelper.buildTeamkillTableView(teamkillFeedTableView, true);
+        ViewHelper.buildUserTableView(userRegistrationFeedTableView, users);
+        ViewHelper.buildTeamkillTableView(teamkillFeedTableView, teamkills, true);
     }
 
     public void refresh() {
-        userRegistrationFeedTableView.getItems().clear();
+        users.clear();
+        users.addAll(userService.findLatestRegistrations());
         userRegistrationFeedTableView.getSortOrder().clear();
-        userRegistrationFeedTableView.getItems().addAll(userService.findLatestRegistrations());
 
-        teamkillFeedTableView.getItems().clear();
+        teamkills.clear();
+        teamkills.addAll(userService.findLatestTeamkills());
         userRegistrationFeedTableView.getSortOrder().clear();
-        teamkillFeedTableView.getItems().addAll(userService.findLatestTeamkills());
     }
 }

@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.api.dto.Faction;
+import com.faforever.commons.api.dto.Faction;
 import javafx.beans.property.*;
 
 import java.time.OffsetDateTime;

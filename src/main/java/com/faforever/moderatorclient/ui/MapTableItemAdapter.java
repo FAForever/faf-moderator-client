@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.moderatorclient.api.dto.Map;
-import com.faforever.moderatorclient.api.dto.MapVersion;
+import com.faforever.commons.api.dto.Map;
+import com.faforever.commons.api.dto.MapVersion;
 import lombok.Getter;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 

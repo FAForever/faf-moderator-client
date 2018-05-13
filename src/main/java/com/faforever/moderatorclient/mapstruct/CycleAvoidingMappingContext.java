@@ -18,7 +18,10 @@
  */
 package com.faforever.moderatorclient.mapstruct;
 
-import org.mapstruct.*;
+import org.mapstruct.BeforeMapping;
+import org.mapstruct.Context;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.TargetType;
 import org.springframework.stereotype.Component;
 
 import java.util.IdentityHashMap;
@@ -47,8 +50,7 @@ public class CycleAvoidingMappingContext {
         knownInstances.put(source, target);
     }
 
-    @AfterMapping
-    public void cleanupKnownInstances() {
-//        knownInstances.clear();
+    public void clearCache() {
+        knownInstances.clear();
     }
 }
