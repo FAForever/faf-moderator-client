@@ -64,6 +64,7 @@ public class UserService {
     public List<PlayerFX> findLatestRegistrations() {
         log.debug("Searching for latest registrations");
         ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+                .addInclude("bans")
                 .sort("id", false)
                 .pageSize(50);
         addModeratorIncludes(routeBuilder);
@@ -124,6 +125,7 @@ public class UserService {
         log.debug("Searching for latest teamkills ");
         ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
                 .addInclude("teamkiller")
+                .addInclude("teamkiller.bans")
                 .addInclude("victim")
                 .sort("id", false);
 

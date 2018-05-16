@@ -1,5 +1,7 @@
 package com.faforever.moderatorclient.ui.domain;
 
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanStatus;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -138,5 +140,9 @@ public class PlayerFX extends AbstractEntityFX {
         if (avatarAssignmentFXObservableList != null) {
             avatarAssignments.addAll(avatarAssignmentFXObservableList);
         }
+    }
+
+    public boolean isBannedGlobally() {
+        return !bans.filtered(banInfoFX -> banInfoFX.getBanStatus() == BanStatus.BANNED && banInfoFX.getLevel() == BanLevel.GLOBAL).isEmpty();
     }
 }

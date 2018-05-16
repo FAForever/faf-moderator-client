@@ -79,8 +79,7 @@ public class BanInfoController implements Controller<Pane> {
         this.banInfo = banInfo;
 
         if (banInfo.getId() != null) {
-            affectedUserTextField.setText(banInfo.getPlayer().toString());
-            Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.toString()));
+            Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.representationProperty().get()));
             banReasonTextField.setText(banInfo.getReason());
 
             revocationReasonTextField.setDisable(false);
