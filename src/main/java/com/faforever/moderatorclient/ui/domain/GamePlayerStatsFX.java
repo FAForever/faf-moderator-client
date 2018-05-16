@@ -21,7 +21,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
     private final ObjectProperty<OffsetDateTime> scoreTime;
     private final ObjectProperty<GameFX> game;
     private final ObjectProperty<PlayerFX> player;
-    private final IntegerProperty ratingChange;
+    private final ObjectProperty<Number> ratingChange;
     private final IntegerProperty beforeRating;
     private final ObjectProperty<Integer> afterRating;
 
@@ -35,16 +35,17 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         startSpot = new SimpleObjectProperty<>();
         beforeMean = new SimpleFloatProperty();
         beforeDeviation = new SimpleFloatProperty();
-        afterMean = new SimpleObjectProperty<>(null);
-        afterDeviation = new SimpleObjectProperty<>(null);
+        afterMean = new SimpleObjectProperty<>();
+        afterDeviation = new SimpleObjectProperty<>();
         score = new SimpleObjectProperty<>();
         scoreTime = new SimpleObjectProperty<>();
         game = new SimpleObjectProperty<>();
         player = new SimpleObjectProperty<>();
-        ratingChange = new SimpleIntegerProperty();
+        ratingChange = new SimpleObjectProperty<>();
         beforeRating = new SimpleIntegerProperty();
-        afterRating = new SimpleObjectProperty<>(null);
+        afterRating = new SimpleObjectProperty<>();
         beforeRating.bind(beforeMean.subtract(beforeDeviation.multiply(3)));
+
         afterRating.bind(Bindings.createObjectBinding(() -> {
             Float afterDeviation = this.afterDeviation.get();
             Float afterMean = this.afterMean.get();
@@ -54,13 +55,13 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
             }
             return null;
         }, afterMean, afterDeviation));
-        ratingChange.bind(Bindings.createIntegerBinding(() -> {
+        ratingChange.bind(Bindings.createObjectBinding(() -> {
             Integer after = afterRating.get();
             Integer before = beforeRating.get();
             if (after != null) {
                 return after - before;
             } else {
-                return 0;
+                return null;
             }
         }, afterRating, beforeRating));
     }
@@ -89,7 +90,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         return afterRating;
     }
 
-    public int getRatingChange() {
+    public Number getRatingChange() {
         return ratingChange.get();
     }
 
@@ -97,7 +98,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         this.ratingChange.set(ratingChange);
     }
 
-    public IntegerProperty ratingChangeProperty() {
+    public ObjectProperty<Number> ratingChangeProperty() {
         return ratingChange;
     }
 
