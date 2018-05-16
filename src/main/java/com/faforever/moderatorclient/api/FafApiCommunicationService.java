@@ -204,4 +204,8 @@ public class FafApiCommunicationService {
                 List.class,
                 params);
     }
+
+    public RestOperations getRestOperations() {
+        return restOperations;
+    }
 }
