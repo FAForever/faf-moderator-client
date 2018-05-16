@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui.domain;
 
 import com.faforever.commons.api.dto.Faction;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 
 import java.time.OffsetDateTime;
@@ -14,15 +15,15 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
     private final ObjectProperty<Byte> startSpot;
     private final FloatProperty beforeMean;
     private final FloatProperty beforeDeviation;
-    private final FloatProperty afterMean;
-    private final FloatProperty afterDeviation;
+    private final ObjectProperty<Float> afterMean;
+    private final ObjectProperty<Float> afterDeviation;
     private final ObjectProperty<Byte> score;
     private final ObjectProperty<OffsetDateTime> scoreTime;
     private final ObjectProperty<GameFX> game;
     private final ObjectProperty<PlayerFX> player;
     private final IntegerProperty ratingChange;
     private final IntegerProperty beforeRating;
-    private final IntegerProperty afterRating;
+    private final ObjectProperty<Integer> afterRating;
 
 
     public GamePlayerStatsFX() {
@@ -34,18 +35,34 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         startSpot = new SimpleObjectProperty<>();
         beforeMean = new SimpleFloatProperty();
         beforeDeviation = new SimpleFloatProperty();
-        afterMean = new SimpleFloatProperty();
-        afterDeviation = new SimpleFloatProperty();
+        afterMean = new SimpleObjectProperty<>(null);
+        afterDeviation = new SimpleObjectProperty<>(null);
         score = new SimpleObjectProperty<>();
         scoreTime = new SimpleObjectProperty<>();
         game = new SimpleObjectProperty<>();
         player = new SimpleObjectProperty<>();
         ratingChange = new SimpleIntegerProperty();
         beforeRating = new SimpleIntegerProperty();
-        afterRating = new SimpleIntegerProperty();
+        afterRating = new SimpleObjectProperty<>(null);
         beforeRating.bind(beforeMean.subtract(beforeDeviation.multiply(3)));
-        afterRating.bind(afterMean.subtract(afterDeviation.multiply(3)));
-        ratingChange.bind(afterRating.subtract(beforeRating));
+        afterRating.bind(Bindings.createObjectBinding(() -> {
+            Float afterDeviation = this.afterDeviation.get();
+            Float afterMean = this.afterMean.get();
+
+            if (afterDeviation != null && afterMean != null) {
+                return (int) (afterMean - 3 * afterDeviation);
+            }
+            return null;
+        }, afterMean, afterDeviation));
+        ratingChange.bind(Bindings.createIntegerBinding(() -> {
+            Integer after = afterRating.get();
+            Integer before = beforeRating.get();
+            if (after != null) {
+                return after - before;
+            } else {
+                return 0;
+            }
+        }, afterRating, beforeRating));
     }
 
     public int getBeforeRating() {
@@ -68,7 +85,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         this.afterRating.set(afterRating);
     }
 
-    public IntegerProperty afterRatingProperty() {
+    public ObjectProperty<Integer> afterRatingProperty() {
         return afterRating;
     }
 
@@ -190,7 +207,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         this.afterMean.set(afterMean);
     }
 
-    public FloatProperty afterMeanProperty() {
+    public ObjectProperty<Float> afterMeanProperty() {
         return afterMean;
     }
 
@@ -202,7 +219,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         this.afterDeviation.set(afterDeviation);
     }
 
-    public FloatProperty afterDeviationProperty() {
+    public ObjectProperty<Float> afterDeviationProperty() {
         return afterDeviation;
     }
 
