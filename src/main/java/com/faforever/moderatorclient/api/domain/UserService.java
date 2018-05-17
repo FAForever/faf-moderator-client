@@ -3,8 +3,14 @@ package com.faforever.moderatorclient.api.domain;
 import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.ElideRouteBuilder;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.mapstruct.*;
-import com.faforever.moderatorclient.ui.domain.*;
+import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
+import com.faforever.moderatorclient.mapstruct.PlayerMapper;
+import com.faforever.moderatorclient.mapstruct.TeamkillMapper;
+import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
+import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -18,20 +24,14 @@ import java.util.stream.Collectors;
 public class UserService {
     private final FafApiCommunicationService fafApi;
     private final PlayerMapper playerMapper;
-    private final BanInfoMapper banInfoMapper;
-    private final BanRevokeDataMapper banRevokeDataMapper;
-    private final GamePlayerStatsMapper gamePlayerStatsMapper;
     private final FeaturedModMapper featuredModMapper;
     private final UserNoteMapper userNoteMapper;
     private final TeamkillMapper teamkillMapper;
 
 
-    public UserService(FafApiCommunicationService fafApi, PlayerMapper playerMapper, BanInfoMapper banInfoMapper, BanRevokeDataMapper banRevokeDataMapper, GamePlayerStatsMapper gamePlayerStatsMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper, TeamkillMapper teamkillMapper) {
+    public UserService(FafApiCommunicationService fafApi, PlayerMapper playerMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper, TeamkillMapper teamkillMapper) {
         this.fafApi = fafApi;
         this.playerMapper = playerMapper;
-        this.banInfoMapper = banInfoMapper;
-        this.banRevokeDataMapper = banRevokeDataMapper;
-        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
         this.featuredModMapper = featuredModMapper;
         this.userNoteMapper = userNoteMapper;
         this.teamkillMapper = teamkillMapper;
@@ -64,6 +64,7 @@ public class UserService {
     public List<PlayerFX> findLatestRegistrations() {
         log.debug("Searching for latest registrations");
         ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+                .addInclude("bans")
                 .sort("id", false)
                 .pageSize(50);
         addModeratorIncludes(routeBuilder);
@@ -124,6 +125,7 @@ public class UserService {
         log.debug("Searching for latest teamkills ");
         ElideRouteBuilder<Teamkill> routeBuilder = ElideRouteBuilder.of(Teamkill.class)
                 .addInclude("teamkiller")
+                .addInclude("teamkiller.bans")
                 .addInclude("victim")
                 .sort("id", false);
 
@@ -142,30 +144,6 @@ public class UserService {
         List<Teamkill> result = fafApi.getAll(routeBuilder);
         log.trace("found {} teamkills", result.size());
         return teamkillMapper.map(result);
-    }
-
-    public BanInfo patchBanInfo(@NotNull BanInfoFX banInfoFX) {
-        BanInfo banInfo = banInfoMapper.map(banInfoFX);
-        log.debug("Patching BanInfo of id: ", banInfo.getId());
-        return fafApi.patch(ElideRouteBuilder.of(BanInfo.class).id(banInfo.getId()), banInfo);
-    }
-
-    public BanRevokeData revokeBan(@NotNull BanRevokeDataFX banRevokeDataFX) {
-        BanRevokeData banRevokeData = banRevokeDataMapper.map(banRevokeDataFX);
-        log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
-        banRevokeData.setAuthor(fafApi.getSelfPlayer());
-        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
-                .id(banRevokeData.getBan().getId())
-                .relationship("banRevokeData");
-
-        return (BanRevokeData) fafApi.postRelationship(routeBuilder, banRevokeData);
-    }
-
-    public String createBan(@NotNull BanInfoFX banInfoFX) {
-        BanInfo banInfo = banInfoMapper.map(banInfoFX);
-        log.debug("Creating ban");
-        banInfo.setAuthor(fafApi.getSelfPlayer());
-        return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo).getId();
     }
 
     public List<GamePlayerStats> getLastHundredPlayedGamesByFeaturedMod(@NotNull String userId, int page, FeaturedModFX featuredModFX) {
@@ -223,14 +201,5 @@ public class UserService {
     public UserNoteFX patchUserNote(UserNote userNote) {
         log.debug("Patching UserNote of id: ", userNote.getId());
         return userNoteMapper.map(fafApi.patch(ElideRouteBuilder.of(UserNote.class).id(userNote.getId()), userNote));
-    }
-
-    public BanInfoFX getBanInfoById(String banInfoId) {
-        log.debug("Search for ban id: " + banInfoId);
-        ElideRouteBuilder<BanInfo> routeBuilder = ElideRouteBuilder.of(BanInfo.class)
-                .id(banInfoId)
-                .addInclude("player")
-                .addInclude("author");
-        return banInfoMapper.map(fafApi.getOne(routeBuilder));
     }
 }

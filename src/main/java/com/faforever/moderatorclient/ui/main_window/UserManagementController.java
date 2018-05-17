@@ -86,10 +86,10 @@ public class UserManagementController implements Controller<SplitPane> {
 
     @FXML
     public void initialize() {
-        ViewHelper.buildUserTableView(userSearchTableView, users);
+        ViewHelper.buildUserTableView(userSearchTableView, users, null);
         ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
-        ViewHelper.buildBanTableView(userBansTableView, bans);
+        ViewHelper.buildBanTableView(userBansTableView, bans, false);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
 
         addNoteButton.disableProperty().bind(userSearchTableView.getSelectionModel().selectedItemProperty().isNull());
@@ -120,7 +120,7 @@ public class UserManagementController implements Controller<SplitPane> {
         CompletableFuture.supplyAsync(userService::getFeaturedMods)
                 .thenAccept(featuredMods -> Platform.runLater(() -> featuredModFilterChoiceBox.getItems().addAll(featuredMods)));
 
-        ViewHelper.buildTeamkillTableView(userTeamkillsTableView, teamkills, false);
+        ViewHelper.buildTeamkillTableView(userTeamkillsTableView, teamkills, false, null);
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView, avatarAssignments);
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);

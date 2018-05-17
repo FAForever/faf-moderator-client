@@ -21,7 +21,7 @@
         <RowConstraints fillHeight="false"/>
     </rowConstraints>
     <children>
-        <Label text="Affected User"/>
+        <Label text="Affected User" fx:id="userLabel"/>
         <Label text="Banned by" GridPane.rowIndex="1"/>
         <Label text="Reason" GridPane.rowIndex="2"/>
         <Label text="Duration" GridPane.rowIndex="3" GridPane.valignment="TOP">

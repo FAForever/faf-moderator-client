@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class ViewHelper {
@@ -128,7 +129,7 @@ public class ViewHelper {
 
     }
 
-    public static void buildBanTableView(TableView<BanInfoFX> tableView, ObservableList<BanInfoFX> data) {
+    public static void buildBanTableView(TableView<BanInfoFX> tableView, ObservableList<BanInfoFX> data, boolean showAffectedPlayerInfo) {
         tableView.setItems(data);
 
         TableColumn<BanInfoFX, String> idColumn = new TableColumn<>("ID");
@@ -151,6 +152,13 @@ public class ViewHelper {
         banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
         banDurationColumn.setMinWidth(100);
         tableView.getColumns().add(banDurationColumn);
+
+        if (showAffectedPlayerInfo) {
+            TableColumn<BanInfoFX, String> affectedPlayerColumn = new TableColumn<>("Affected Player");
+            affectedPlayerColumn.setCellValueFactory(o -> o.getValue().getPlayer().representationProperty());
+            affectedPlayerColumn.setMinWidth(100);
+            tableView.getColumns().add(affectedPlayerColumn);
+        }
 
         TableColumn<BanInfoFX, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
         expiresAtColumn.setCellValueFactory(o -> o.getValue().expiresAtProperty());
@@ -226,7 +234,13 @@ public class ViewHelper {
         tableView.getColumns().add(nameColumn);
     }
 
-    public static void buildTeamkillTableView(TableView<TeamkillFX> tableView, ObservableList<TeamkillFX> data, boolean showKiller) {
+    /**
+     * @param tableView  The tableView to be populated
+     * @param data       data to be put in the tableView
+     * @param showKiller whether to show the killer
+     * @param onAddBan   if not null shows a ban button which triggers this consumer
+     */
+    public static void buildTeamkillTableView(TableView<TeamkillFX> tableView, ObservableList<TeamkillFX> data, boolean showKiller, Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
 
         TableColumn<TeamkillFX, String> idColumn = new TableColumn<>("ID");
@@ -262,9 +276,38 @@ public class ViewHelper {
         reportedAtColumn.setCellValueFactory(o -> o.getValue().reportedAtProperty());
         reportedAtColumn.setMinWidth(180);
         tableView.getColumns().add(reportedAtColumn);
+
+        if (onAddBan != null) {
+            TableColumn<TeamkillFX, TeamkillFX> banOptionColumn = new TableColumn<>("Ban");
+            banOptionColumn.setMinWidth(150);
+            banOptionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            banOptionColumn.setCellFactory(param -> new TableCell<TeamkillFX, TeamkillFX>() {
+
+                @Override
+                protected void updateItem(TeamkillFX item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        PlayerFX teamkiller = item.getTeamkiller();
+                        if (!teamkiller.isBannedGlobally()) {
+                            Button button = new Button("Add ban to killer");
+                            button.setOnMouseClicked(event -> onAddBan.accept(teamkiller));
+                            setGraphic(button);
+                            return;
+                        }
+                    }
+                    setGraphic(null);
+                }
+            });
+            tableView.getColumns().add(banOptionColumn);
+        }
     }
 
-    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data) {
+    /**
+     * @param tableView The tableview to be populated
+     * @param data      data to be put in the tableView
+     * @param onAddBan  if not null shows a ban button which triggers this consumer
+     */
+    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
 
         TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
@@ -349,6 +392,28 @@ public class ViewHelper {
         userAgentColumn.setCellValueFactory(o -> o.getValue().userAgentProperty());
         userAgentColumn.setMinWidth(200);
         tableView.getColumns().add(userAgentColumn);
+
+        if (onAddBan != null) {
+            TableColumn<PlayerFX, PlayerFX> banOptionColumn = new TableColumn<>("Ban");
+            banOptionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            banOptionColumn.setCellFactory(param -> new TableCell<PlayerFX, PlayerFX>() {
+
+                @Override
+                protected void updateItem(PlayerFX item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        if (!item.isBannedGlobally()) {
+                            Button button = new Button("Add ban");
+                            button.setOnMouseClicked(event -> onAddBan.accept(item));
+                            setGraphic(button);
+                            return;
+                        }
+                    }
+                    setGraphic(null);
+                }
+            });
+            tableView.getColumns().add(banOptionColumn);
+        }
     }
 
     public static void buildUserAvatarsTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
