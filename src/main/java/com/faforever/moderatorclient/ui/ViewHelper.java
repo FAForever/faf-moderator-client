@@ -129,7 +129,7 @@ public class ViewHelper {
 
     }
 
-    public static void buildBanTableView(TableView<BanInfoFX> tableView, ObservableList<BanInfoFX> data) {
+    public static void buildBanTableView(TableView<BanInfoFX> tableView, ObservableList<BanInfoFX> data, boolean showAffectedPlayerInfo) {
         tableView.setItems(data);
 
         TableColumn<BanInfoFX, String> idColumn = new TableColumn<>("ID");
@@ -152,6 +152,13 @@ public class ViewHelper {
         banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
         banDurationColumn.setMinWidth(100);
         tableView.getColumns().add(banDurationColumn);
+
+        if (showAffectedPlayerInfo) {
+            TableColumn<BanInfoFX, String> affectedPlayerColumn = new TableColumn<>("Affected Player");
+            affectedPlayerColumn.setCellValueFactory(o -> o.getValue().getPlayer().representationProperty());
+            affectedPlayerColumn.setMinWidth(100);
+            tableView.getColumns().add(affectedPlayerColumn);
+        }
 
         TableColumn<BanInfoFX, OffsetDateTime> expiresAtColumn = new TableColumn<>("Expires at");
         expiresAtColumn.setCellValueFactory(o -> o.getValue().expiresAtProperty());

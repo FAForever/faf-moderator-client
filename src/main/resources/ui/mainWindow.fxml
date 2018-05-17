@@ -12,6 +12,10 @@
         <Tab fx:id="modVaultTab" closable="false" disable="true" text="Mod vault"/>
         <Tab fx:id="avatarsTab" closable="false" text="Avatars"/>
         <Tab fx:id="recentActivityTab" closable="false" text="Recent activity"/>
-        <Tab fx:id="domainBlacklistTab" text="Domain Blacklist" closable="false"/>
+        <Tab fx:id="domainBlacklistTab" text="Domain Blacklist"/>
+        <Tab closable="false" text="Bans">
+            <fx:include source="main_window/bans.fxml"/>
+        </Tab>
+
     </tabs>
 </TabPane>
