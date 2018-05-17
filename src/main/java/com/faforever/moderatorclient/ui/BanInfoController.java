@@ -3,10 +3,11 @@ package com.faforever.moderatorclient.ui;
 import com.faforever.commons.api.dto.BanDurationType;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.domain.UserService;
+import com.faforever.moderatorclient.api.domain.BanService;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.faforever.moderatorclient.ui.domain.BanRevokeDataFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BanInfoController implements Controller<Pane> {
     private final FafApiCommunicationService fafApi;
-    private final UserService userService;
+    private final BanService banService;
     private final PlayerMapper playerMapper;
     public GridPane root;
     public TextField affectedUserTextField;
@@ -52,13 +53,14 @@ public class BanInfoController implements Controller<Pane> {
     public RadioButton chatOnlyBanRadioButton;
     public RadioButton globalBanRadioButton;
     public Button revokeButton;
+    public Label userLabel;
     @Getter
     private BanInfoFX banInfo;
     private Consumer<BanInfoFX> postedListener;
 
-    public BanInfoController(FafApiCommunicationService fafApi, UserService userService, PlayerMapper playerMapper) {
+    public BanInfoController(FafApiCommunicationService fafApi, BanService banService, PlayerMapper playerMapper) {
         this.fafApi = fafApi;
-        this.userService = userService;
+        this.banService = banService;
         this.playerMapper = playerMapper;
     }
 
@@ -79,6 +81,7 @@ public class BanInfoController implements Controller<Pane> {
         this.banInfo = banInfo;
 
         if (banInfo.getId() != null) {
+            affectedUserTextField.setText(banInfo.getPlayer().representationProperty().get());
             Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.representationProperty().get()));
             banReasonTextField.setText(banInfo.getReason());
 
@@ -96,7 +99,15 @@ public class BanInfoController implements Controller<Pane> {
 
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
-
+        } else {
+            PlayerFX player = banInfo.getPlayer();
+            if (player != null) {
+                affectedUserTextField.setText(player.representationProperty().get());
+            } else {
+                affectedUserTextField.setEditable(true);
+                affectedUserTextField.setDisable(false);
+                userLabel.setText("Affected User ID");
+            }
         }
     }
 
@@ -107,6 +118,11 @@ public class BanInfoController implements Controller<Pane> {
             return;
         }
         ZoneId zoneId = ZoneOffset.systemDefault();
+        if (banInfo.getPlayer() == null) {
+            PlayerFX playerFX = new PlayerFX();
+            playerFX.setId(affectedUserTextField.getText());
+            banInfo.setPlayer(playerFX);
+        }
 
         banInfo.setReason(banReasonTextField.getText());
         banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
@@ -115,20 +131,28 @@ public class BanInfoController implements Controller<Pane> {
 
         if (banInfo.getId() == null) {
             log.debug("Creating ban for player '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
-            String newBanId = userService.createBan(banInfo);
-            BanInfoFX loadedBanInfo = userService.getBanInfoById(newBanId);
+            String newBanId = banService.createBan(banInfo);
+            BanInfoFX loadedBanInfo = banService.getBanInfoById(newBanId);
             if (postedListener != null) {
                 postedListener.accept(loadedBanInfo);
             }
         } else {
             log.debug("Updating ban id '{}'", banInfo.getId());
-            userService.patchBanInfo(banInfo);
+            banService.patchBanInfo(banInfo);
         }
         close();
     }
 
     private boolean validate() {
         List<String> validationErrors = new ArrayList<>();
+
+        if (banInfo.getPlayer() == null) {
+            try {
+                Integer.parseInt(affectedUserTextField.getText());
+            } catch (Exception e) {
+                validationErrors.add("You must specify an affected user");
+            }
+        }
 
         if (StringUtils.isBlank(banReasonTextField.getText())) {
             validationErrors.add("No ban reason is given.");
@@ -183,7 +207,7 @@ public class BanInfoController implements Controller<Pane> {
                 .setAuthor(playerMapper.map(fafApi.getSelfPlayer()))
                 .setReason(revocationReason);
 
-        userService.revokeBan(banRevokeData);
+        banService.revokeBan(banRevokeData);
         close();
     }
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<HBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
+      maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/8.0.141"
+      fx:controller="com.faforever.moderatorclient.ui.BansController">
+    <children>
+        <VBox minWidth="200.0">
+            <children>
+                <fx:define>
+                    <ToggleGroup fx:id="filterGroup"/>
+                </fx:define>
+                <RadioButton fx:id="playerRadioButton" selected="true" mnemonicParsing="false" text="Player Name"
+                             toggleGroup="$filterGroup">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </RadioButton>
+                <RadioButton fx:id="banIdRadioButton" mnemonicParsing="false" text="Ban ID" toggleGroup="$filterGroup">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </RadioButton>
+                <TextField fx:id="filter" promptText="Filter value">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </TextField>
+                <CheckBox text="Only active bans" selected="true" fx:id="onlyActiveCheckBox">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </CheckBox>
+                <Separator prefWidth="200.0"/>
+                <Button mnemonicParsing="false" onAction="#onRefreshBans" text="Refresh">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </Button>
+                <Button mnemonicParsing="false" onAction="#editBan" text="Edit Ban">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </Button>
+                <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addBan" text="Add Ban">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </Button>
+            </children>
+            <HBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+            </HBox.margin>
+        </VBox>
+        <TableView fx:id="banTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                   HBox.hgrow="ALWAYS"/>
+    </children>
+</HBox>

@@ -89,7 +89,7 @@ public class UserManagementController implements Controller<SplitPane> {
         ViewHelper.buildUserTableView(userSearchTableView, users, null);
         ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
-        ViewHelper.buildBanTableView(userBansTableView, bans);
+        ViewHelper.buildBanTableView(userBansTableView, bans, false);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
 
         addNoteButton.disableProperty().bind(userSearchTableView.getSelectionModel().selectedItemProperty().isNull());
