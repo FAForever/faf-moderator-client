@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.141"
+          fx:controller="com.faforever.moderatorclient.ui.VotingChoiceAddController">
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" prefWidth="240.0"/>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
+    </columnConstraints>
+    <children>
+        <Label text="Choice text  message key"/>
+        <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
+        <Label text="Ordinal(enter 0 for no order)" GridPane.rowIndex="2"/>
+        <Label text="Voting question ID" GridPane.rowIndex="3"/>
+        <TextField fx:id="choiceKeyTextField" GridPane.columnIndex="1"/>
+        <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="ordinalTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="questionTextField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <Label fx:id="errorLabel" text="&lt;error&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT"
+               GridPane.rowIndex="4"/>
+        <Button mnemonicParsing="false" onAction="#onSave" text="Save" GridPane.columnIndex="1"
+                GridPane.halignment="RIGHT" GridPane.rowIndex="5"/>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</GridPane>

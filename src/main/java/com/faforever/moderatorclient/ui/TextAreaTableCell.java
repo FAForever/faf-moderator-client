@@ -1,5 +1,6 @@
 package com.faforever.moderatorclient.ui;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -73,8 +74,10 @@ public class TextAreaTableCell<S, T> extends TableCell<S, T> {
     }
 
     private static <T> void cancelEdit(Cell<T> cell, final StringConverter<T> converter) {
-        cell.setText(getItemText(cell, converter));
-        cell.setGraphic(null);
+        Platform.runLater(() -> {
+            cell.setText(getItemText(cell, converter));
+            cell.setGraphic(null);
+        });
     }
 
     private void startEdit(final Cell<T> cell, final StringConverter<T> converter) {

@@ -1,0 +1,157 @@
+package com.faforever.moderatorclient.api.domain;
+
+import com.faforever.commons.api.dto.VotingChoice;
+import com.faforever.commons.api.dto.VotingQuestion;
+import com.faforever.commons.api.dto.VotingSubject;
+import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.mapstruct.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+@Service
+@Slf4j
+public class VotingService {
+    private final FafApiCommunicationService fafApi;
+    private final VotingSubjectMapper subjectMapper;
+    private final VotingQuestionMapper questionMapper;
+    private final VotingChoiceMapper votingChoiceMapper;
+
+    @Inject
+    public VotingService(FafApiCommunicationService fafApi, VotingSubjectMapper subjectMapper, VotingQuestionMapper questionMapper, VotingChoiceMapper votingChoiceMapper) {
+        this.fafApi = fafApi;
+        this.subjectMapper = subjectMapper;
+        this.questionMapper = questionMapper;
+        this.votingChoiceMapper = votingChoiceMapper;
+    }
+
+    //region subjects
+    public List<VotingSubject> getAllSubjectsFromApi() {
+        log.debug("Retrieving all subjects");
+        List<VotingSubject> result = fafApi.getAll(ElideRouteBuilder.of(VotingSubject.class));
+        log.trace("found {} subjects", result.size());
+        return result;
+    }
+
+
+    public CompletableFuture<List<VotingSubjectFX>> getAllSubjects() {
+        return CompletableFuture.supplyAsync(() -> subjectMapper.mapToFx(getAllSubjectsFromApi()));
+    }
+
+    public void updateSubject(VotingSubjectFX rowValue) {
+        update(subjectMapper.map(rowValue));
+    }
+
+    public void deleteSubject(VotingSubjectFX subjectFX) {
+        deleteSubject(subjectMapper.map(subjectFX));
+    }
+
+    public VotingSubject update(VotingSubject votingSubject) {
+        //Both are immutable
+        votingSubject.setBeginOfVoteTime(null);
+        votingSubject.setEndOfVoteTime(null);
+        log.debug("Patching subject of id: ", votingSubject.getId());
+        return fafApi.patch(ElideRouteBuilder.of(VotingSubject.class).id(votingSubject.getId()), votingSubject);
+    }
+
+    private void deleteSubject(VotingSubject votingSubject) {
+        log.debug("Deleting subject: {}", votingSubject);
+        fafApi.delete(ElideRouteBuilder.of(VotingSubject.class).id(votingSubject.getId()));
+    }
+
+    public VotingSubject create(VotingSubjectFX votingSubjectFX) {
+        return create(subjectMapper.map(votingSubjectFX));
+    }
+
+    private VotingSubject create(VotingSubject votingSubject) {
+        log.debug("Adding subject: {}", votingSubject);
+        return fafApi.post(ElideRouteBuilder.of(VotingSubject.class), votingSubject);
+    }
+    //endregion
+
+    //region questions
+    public List<VotingQuestion> getAllQuestionsFromApi() {
+        log.debug("Retrieving all questions");
+        List<VotingQuestion> result = fafApi.getAll(ElideRouteBuilder.of(VotingQuestion.class));
+        log.trace("found {} questions", result.size());
+        return result;
+    }
+
+
+    public CompletableFuture<List<VotingQuestionFX>> getAllQuestions() {
+        return CompletableFuture.supplyAsync(() -> questionMapper.mapToFx(getAllQuestionsFromApi()));
+    }
+
+    public void updateQuestion(VotingQuestionFX rowValue) {
+        update(questionMapper.map(rowValue));
+    }
+
+    public void deleteQuestion(VotingQuestionFX questionFX) {
+        deleteQuestion(questionMapper.map(questionFX));
+    }
+
+    public VotingQuestion update(VotingQuestion votingQuestion) {
+        log.debug("Patching Question of id: ", votingQuestion.getId());
+        return fafApi.patch(ElideRouteBuilder.of(VotingQuestion.class).id(votingQuestion.getId()), votingQuestion);
+    }
+
+    private void deleteQuestion(VotingQuestion votingQuestion) {
+        log.debug("Deleting question: {}", votingQuestion);
+        fafApi.delete(ElideRouteBuilder.of(VotingQuestion.class).id(votingQuestion.getId()));
+    }
+
+    public VotingQuestion create(VotingQuestionFX votingQuestionFX) {
+        return create(questionMapper.map(votingQuestionFX));
+    }
+
+    public VotingQuestion create(VotingQuestion votingQuestion) {
+        log.debug("Adding question: {}", votingQuestion);
+        return fafApi.post(ElideRouteBuilder.of(VotingQuestion.class), votingQuestion);
+    }
+    //endregion
+
+    //region choices
+    public List<VotingChoice> getAllChoicesFromApi() {
+        log.debug("Retrieving all choices");
+        List<VotingChoice> result = fafApi.getAll(ElideRouteBuilder.of(VotingChoice.class));
+        log.trace("found {} choices", result.size());
+        return result;
+    }
+
+
+    public CompletableFuture<List<VotingChoiceFX>> getAllChoices() {
+        return CompletableFuture.supplyAsync(() -> votingChoiceMapper.mapToFX(getAllChoicesFromApi()));
+    }
+
+    public void updateChoice(VotingChoiceFX rowValue) {
+        update(votingChoiceMapper.map(rowValue));
+    }
+
+    public void deleteChoice(VotingChoiceFX choiceFX) {
+        deleteChoice(votingChoiceMapper.map(choiceFX));
+    }
+
+    public VotingChoice update(VotingChoice votingChoice) {
+        log.debug("Patching Choice of id: ", votingChoice.getId());
+        return fafApi.patch(ElideRouteBuilder.of(VotingChoice.class).id(votingChoice.getId()), votingChoice);
+    }
+
+    private void deleteChoice(VotingChoice votingChoice) {
+        log.debug("Deleting choice: {}", votingChoice);
+        fafApi.delete(ElideRouteBuilder.of(VotingChoice.class).id(votingChoice.getId()));
+    }
+
+    public VotingChoice create(VotingChoiceFX votingChoiceFX) {
+        return create(votingChoiceMapper.map(votingChoiceFX));
+    }
+
+    public VotingChoice create(VotingChoice votingChoice) {
+        log.debug("Adding choice: {}", votingChoice);
+        return fafApi.post(ElideRouteBuilder.of(VotingChoice.class), votingChoice);
+    }
+    //endregion
+}

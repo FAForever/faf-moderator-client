@@ -1,9 +1,10 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.BanDurationType;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.BanStatus;
-import com.faforever.commons.api.dto.Map;
+import com.faforever.commons.api.dto.*;
+import com.faforever.moderatorclient.api.domain.VotingService;
+import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
+import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
+import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -18,7 +19,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.slf4j.Logger;
 
 import java.net.URL;
 import java.text.MessageFormat;
@@ -744,5 +748,312 @@ public class ViewHelper {
         updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
+    }
+
+    public static void buildSubjectTable(TableView<VotingSubjectFX> subjectTable, VotingService votingService, Logger log, Runnable refresh) {
+        subjectTable.setEditable(true);
+
+        TableColumn<VotingSubjectFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        subjectTable.getColumns().add(idColumn);
+
+        TableColumn<VotingSubjectFX, String> subjectKeyColumn = new TableColumn<>("Subject key");
+        subjectKeyColumn.setCellValueFactory(param -> param.getValue().subjectKeyProperty());
+        subjectKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        subjectKeyColumn.setEditable(true);
+        subjectKeyColumn.setMinWidth(100);
+        subjectTable.getColumns().add(subjectKeyColumn);
+        subjectKeyColumn.setOnEditCommit(event -> {
+            VotingSubjectFX rowValue = event.getRowValue();
+            VotingSubject votingSubject = new VotingSubject();
+            votingSubject.setId(rowValue.getId());
+            votingSubject.setSubjectKey(event.getNewValue());
+            votingService.update(votingSubject);
+            refresh.run();
+        });
+
+        TableColumn<VotingSubjectFX, String> subjectColumn = new TableColumn<>("Subject");
+        subjectColumn.setCellValueFactory(param -> param.getValue().subjectProperty());
+        subjectColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        subjectColumn.setEditable(false);
+        subjectColumn.setMinWidth(150);
+        subjectTable.getColumns().add(subjectColumn);
+
+
+        TableColumn<VotingSubjectFX, String> descriptionKeyColumn = new TableColumn<>("Description Key");
+        descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
+        descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.setMinWidth(150);
+        subjectTable.getColumns().add(descriptionKeyColumn);
+        descriptionKeyColumn.setOnEditCommit(event -> {
+            VotingSubjectFX rowValue = event.getRowValue();
+            VotingSubject votingSubject = new VotingSubject();
+            votingSubject.setId(rowValue.getId());
+            votingSubject.setDescriptionKey(event.getNewValue());
+            votingService.update(votingSubject);
+            refresh.run();
+        });
+
+        TableColumn<VotingSubjectFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        descriptionColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionColumn.setEditable(false);
+        descriptionColumn.setMinWidth(150);
+        subjectTable.getColumns().add(descriptionColumn);
+
+        TableColumn<VotingSubjectFX, Number> numberOfVotesColumn = new TableColumn<>("Number of votes");
+        numberOfVotesColumn.setCellValueFactory(param -> param.getValue().numberOfVotesProperty());
+        numberOfVotesColumn.setEditable(false);
+        numberOfVotesColumn.setMinWidth(150);
+        subjectTable.getColumns().add(numberOfVotesColumn);
+
+        TableColumn<VotingSubjectFX, String> topicUrlColumn = new TableColumn<>("Topic URL");
+        topicUrlColumn.setCellValueFactory(param -> param.getValue().topicUrlProperty());
+        topicUrlColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        topicUrlColumn.setEditable(true);
+        topicUrlColumn.setMinWidth(150);
+        subjectTable.getColumns().add(topicUrlColumn);
+        topicUrlColumn.setOnEditCommit(event -> {
+            VotingSubjectFX rowValue = event.getRowValue();
+            VotingSubject votingSubject = new VotingSubject();
+            votingSubject.setId(rowValue.getId());
+            votingSubject.setTopicUrl(event.getNewValue());
+            votingService.update(votingSubject);
+            refresh.run();
+        });
+
+        TableColumn<VotingSubjectFX, Boolean> revealColumn = new TableColumn<>("Results Revealed");
+        revealColumn.setCellValueFactory(param -> param.getValue().revealWinnerProperty());
+        Callback<TableColumn<VotingSubjectFX, Boolean>, TableCell<VotingSubjectFX, Boolean>> value = CheckBoxTableCell.forTableColumn(revealColumn);
+        revealColumn.setCellFactory(value);
+        revealColumn.setEditable(false);
+        revealColumn.setMinWidth(10);
+        subjectTable.getColumns().add(revealColumn);
+
+        TableColumn<VotingSubjectFX, String> endDateColumn = new TableColumn<>("End Date");
+        endDateColumn.setCellValueFactory(param -> param.getValue().endOfVoteTimeProperty().asString());
+        endDateColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        endDateColumn.setEditable(false);
+        endDateColumn.setMinWidth(150);
+        subjectTable.getColumns().add(endDateColumn);
+
+
+        TableColumn<VotingSubjectFX, String> beginnDateColumn = new TableColumn<>("Beginning Date");
+        beginnDateColumn.setCellValueFactory(param -> param.getValue().endOfVoteTimeProperty().asString());
+        beginnDateColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        beginnDateColumn.setEditable(false);
+        beginnDateColumn.setMinWidth(150);
+        subjectTable.getColumns().add(beginnDateColumn);
+
+        TableColumn<VotingSubjectFX, Number> minGamesToVoteColumn = new TableColumn<>("Min games to vote");
+        minGamesToVoteColumn.setCellValueFactory(param -> param.getValue().minGamesToVoteProperty());
+        setStringCellFactory(log, minGamesToVoteColumn);
+        minGamesToVoteColumn.setEditable(true);
+        minGamesToVoteColumn.setMinWidth(20);
+        subjectTable.getColumns().add(minGamesToVoteColumn);
+        minGamesToVoteColumn.setOnEditCommit(event -> {
+            VotingSubjectFX rowValue = event.getRowValue();
+            VotingSubject votingSubject = new VotingSubject();
+            votingSubject.setId(rowValue.getId());
+            votingSubject.setMinGamesToVote(event.getNewValue().intValue());
+            votingService.update(votingSubject);
+            refresh.run();
+        });
+
+    }
+
+    private static void setStringCellFactory(Logger log, TableColumn<?, Number> minGamesToVoteColumn) {
+        minGamesToVoteColumn.setCellFactory(TextAreaTableCell.forTableColumn(new StringConverter<Number>() {
+            @Override
+            public String toString(Number object) {
+                return String.valueOf(object);
+            }
+
+            @Override
+            public Number fromString(String string) {
+                try {
+                    int i = Integer.parseInt(string);
+                    return i;
+                } catch (Exception e) {
+                    log.error("Error parsing integer for tutorial ordinal", e);
+                }
+                return 0;
+            }
+        }));
+    }
+
+    public static void buildQuestionTable(TableView<VotingQuestionFX> questionTable, VotingService votingService, Logger log, Runnable refresh) {
+        questionTable.setEditable(true);
+
+        TableColumn<VotingQuestionFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        questionTable.getColumns().add(idColumn);
+
+        TableColumn<VotingQuestionFX, String> questionKeyColumn = new TableColumn<>("Question key");
+        questionKeyColumn.setCellValueFactory(param -> param.getValue().questionKeyProperty());
+        questionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        questionKeyColumn.setEditable(true);
+        questionKeyColumn.setMinWidth(100);
+        questionTable.getColumns().add(questionKeyColumn);
+        questionKeyColumn.setOnEditCommit(event -> {
+            VotingQuestionFX rowValue = event.getRowValue();
+            VotingQuestion votingQuestion = new VotingQuestion();
+            votingQuestion.setId(rowValue.getId());
+            votingQuestion.setQuestionKey(event.getNewValue());
+            votingService.update(votingQuestion);
+            refresh.run();
+        });
+
+        TableColumn<VotingQuestionFX, String> questionColumn = new TableColumn<>("Question");
+        questionColumn.setCellValueFactory(param -> param.getValue().questionProperty());
+        questionColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        questionColumn.setEditable(false);
+        questionColumn.setMinWidth(150);
+        questionTable.getColumns().add(questionColumn);
+
+        TableColumn<VotingQuestionFX, String> descriptionKeyColumn = new TableColumn<>("Description key");
+        descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
+        descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.setMinWidth(100);
+        questionTable.getColumns().add(descriptionKeyColumn);
+        descriptionKeyColumn.setOnEditCommit(event -> {
+            VotingQuestionFX rowValue = event.getRowValue();
+            VotingQuestion votingQuestion = new VotingQuestion();
+            votingQuestion.setId(rowValue.getId());
+            votingQuestion.setDescriptionKey(event.getNewValue());
+            votingService.update(votingQuestion);
+            refresh.run();
+        });
+
+        TableColumn<VotingQuestionFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        descriptionColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionColumn.setEditable(false);
+        descriptionColumn.setMinWidth(150);
+        questionTable.getColumns().add(descriptionColumn);
+
+        TableColumn<VotingQuestionFX, Boolean> launchColumn = new TableColumn<>("Alternative Question");
+        launchColumn.setCellValueFactory(param -> param.getValue().alternativeQuestionProperty());
+        Callback<TableColumn<VotingQuestionFX, Boolean>, TableCell<VotingQuestionFX, Boolean>> value = CheckBoxTableCell.forTableColumn(launchColumn);
+        launchColumn.setCellFactory(value);
+        launchColumn.setEditable(false);
+        launchColumn.setMinWidth(10);
+        questionTable.getColumns().add(launchColumn);
+
+        TableColumn<VotingQuestionFX, String> winnersColumn = new TableColumn<>("Winners");
+        winnersColumn.setCellValueFactory(param -> {
+            StringBuilder winnersString = new StringBuilder();
+            ObservableList<VotingChoiceFX> winners = param.getValue().getWinners();
+
+            for (int i = 0; i < winners.size(); i++) {
+                VotingChoiceFX winner = winners.get(i);
+                winnersString.append(winner);
+                if (i != (winners.size() - 1)) {
+                    winnersString.append(", ");
+                }
+            }
+
+            return new SimpleStringProperty(winnersString.toString());
+        });
+        winnersColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        winnersColumn.setEditable(false);
+        winnersColumn.setMinWidth(150);
+        questionTable.getColumns().add(winnersColumn);
+
+        TableColumn<VotingQuestionFX, Number> maxAnswersColumn = new TableColumn<>("Max Answers");
+        maxAnswersColumn.setCellValueFactory(param -> param.getValue().maxAnswersProperty());
+        setStringCellFactory(log, maxAnswersColumn);
+        maxAnswersColumn.setEditable(false);
+        maxAnswersColumn.setMinWidth(60);
+        questionTable.getColumns().add(maxAnswersColumn);
+
+        TableColumn<VotingQuestionFX, String> subjectColumn = new TableColumn<>("Subject");
+        subjectColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getVotingSubject().toString()));
+        subjectColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        subjectColumn.setEditable(false);
+        subjectColumn.setMinWidth(150);
+        questionTable.getColumns().add(subjectColumn);
+
+        TableColumn<VotingQuestionFX, Number> numberAnswersColumn = new TableColumn<>("Number of answers");
+        numberAnswersColumn.setCellValueFactory(param -> param.getValue().numberOfAnswersProperty());
+        setStringCellFactory(log, numberAnswersColumn);
+        numberAnswersColumn.setEditable(false);
+        numberAnswersColumn.setMinWidth(100);
+        questionTable.getColumns().add(numberAnswersColumn);
+    }
+
+    public static void buildChoiceTable(TableView<VotingChoiceFX> choiceTable, VotingService votingService, Logger log, Runnable refresh) {
+        choiceTable.setEditable(true);
+
+        TableColumn<VotingChoiceFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        choiceTable.getColumns().add(idColumn);
+
+        TableColumn<VotingChoiceFX, String> choiceKeyColumn = new TableColumn<>("Choice key");
+        choiceKeyColumn.setCellValueFactory(param -> param.getValue().choiceTextKeyProperty());
+        choiceKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        choiceKeyColumn.setEditable(true);
+        choiceKeyColumn.setMinWidth(100);
+        choiceTable.getColumns().add(choiceKeyColumn);
+        choiceKeyColumn.setOnEditCommit(event -> {
+            VotingChoiceFX rowValue = event.getRowValue();
+            VotingChoice votingChoice = new VotingChoice();
+            votingChoice.setId(rowValue.getId());
+            votingChoice.setChoiceTextKey(event.getNewValue());
+            votingService.update(votingChoice);
+            refresh.run();
+        });
+
+        TableColumn<VotingChoiceFX, String> choiceColumn = new TableColumn<>("Choice");
+        choiceColumn.setCellValueFactory(param -> param.getValue().choiceTextProperty());
+        choiceColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        choiceColumn.setEditable(false);
+        choiceColumn.setMinWidth(150);
+        choiceTable.getColumns().add(choiceColumn);
+
+        TableColumn<VotingChoiceFX, String> descriptionKeyColumn = new TableColumn<>("Description key");
+        descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
+        descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.setMinWidth(100);
+        choiceTable.getColumns().add(descriptionKeyColumn);
+        descriptionKeyColumn.setOnEditCommit(event -> {
+            VotingChoiceFX rowValue = event.getRowValue();
+            VotingChoice votingChoice = new VotingChoice();
+            votingChoice.setId(rowValue.getId());
+            votingChoice.setDescriptionKey(event.getNewValue());
+            votingService.update(votingChoice);
+            refresh.run();
+        });
+
+        TableColumn<VotingChoiceFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        descriptionColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionColumn.setEditable(false);
+        descriptionColumn.setMinWidth(150);
+        choiceTable.getColumns().add(descriptionColumn);
+
+        TableColumn<VotingChoiceFX, Number> numberAnswersColumn = new TableColumn<>("Number of answers");
+        numberAnswersColumn.setCellValueFactory(param -> param.getValue().numberOfAnswersProperty());
+        setStringCellFactory(log, numberAnswersColumn);
+        numberAnswersColumn.setEditable(false);
+        numberAnswersColumn.setMinWidth(100);
+        choiceTable.getColumns().add(numberAnswersColumn);
+
+        TableColumn<VotingChoiceFX, Number> ordinalCulumn = new TableColumn<>("Ordinal");
+        ordinalCulumn.setCellValueFactory(param -> param.getValue().ordinalProperty());
+        setStringCellFactory(log, ordinalCulumn);
+        ordinalCulumn.setEditable(false);
+        ordinalCulumn.setMinWidth(100);
+        choiceTable.getColumns().add(ordinalCulumn);
+
+        TableColumn<VotingChoiceFX, String> subjectColumn = new TableColumn<>("Question");
+        subjectColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getVotingQuestion().toString()));
+        subjectColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        subjectColumn.setEditable(false);
+        subjectColumn.setMinWidth(150);
+        choiceTable.getColumns().add(subjectColumn);
     }
 }
