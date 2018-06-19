@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.141"
+          fx:controller="com.faforever.moderatorclient.ui.VotingSubjectAddController">
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" prefWidth="240.0"/>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
+    </columnConstraints>
+    <children>
+        <Label text="Subject message key"/>
+        <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
+        <Label text="Topic Url" GridPane.rowIndex="2"/>
+        <Label text="Min games to vote" GridPane.rowIndex="3"/>
+        <Label text="Begin Time (YYYY-MM-DDThh:mm:ss)" GridPane.rowIndex="4"/>
+        <Label text="End Time (YYYY-MM-DDThh:mm:ss)" GridPane.rowIndex="5"/>
+        <TextField fx:id="subjectKeyTextField" GridPane.columnIndex="1"/>
+        <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="topicUrlTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="minGamesTextField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <TextField fx:id="beginTimeTextField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <TextField fx:id="endTimeTextField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+        <Label fx:id="errorLabel" text="&lt;error&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT"
+               GridPane.rowIndex="6"/>
+        <Button mnemonicParsing="false" onAction="#onSave" text="Save" GridPane.columnIndex="1"
+                GridPane.halignment="RIGHT" GridPane.rowIndex="7"/>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</GridPane>

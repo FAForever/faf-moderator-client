@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" maxHeight="1.7976931348623157E308"
+           orientation="VERTICAL" xmlns="http://javafx.com/javafx/8.0.141"
+           fx:controller="com.faforever.moderatorclient.ui.main_window.VotingController">
+    <items>
+        <HBox>
+            <children>
+                <VBox minWidth="230.0" HBox.hgrow="NEVER">
+                    <Button mnemonicParsing="false" onAction="#onRefreshSubjects" text="Refresh">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button mnemonicParsing="false" onAction="#deleteSubject" text="Delete selected subject">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addSubject"
+                            text="Add new subject">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button fx:id="revealResultsButton" mnemonicParsing="false" onAction="#revealWinner"
+                            text="Reveal Results for selected subject">
+                        <tooltip>
+                            <Tooltip text="Only possible if voting ended"/>
+                        </tooltip>
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                </VBox>
+                <TableView fx:id="subjectTable" HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+        <SplitPane dividerPositions="0.5">
+            <items>
+                <HBox>
+                    <children>
+                        <VBox minHeight="-Infinity" minWidth="180.0">
+                            <Button mnemonicParsing="false" onAction="#onRefreshQuestions" text="Refresh">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <Button mnemonicParsing="false" onAction="#deleteQuestion" text="Delete selected question">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addQuestion"
+                                    text="Add new question">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <CheckBox fx:id="filterQuestionsBySubject" selected="true"
+                                      text="filter questions by subject">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
+                        <TableView fx:id="questionTable" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+                <HBox prefHeight="100.0" prefWidth="200.0">
+                    <children>
+                        <VBox minWidth="180.0" HBox.hgrow="NEVER">
+                            <Button mnemonicParsing="false" onAction="#onRefreshChoices" text="Refresh">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <Button mnemonicParsing="false" onAction="#deleteChoice" text="Delete selected choice">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addChoice"
+                                    text="Add new choice">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Button>
+                            <CheckBox fx:id="filterChoicesByQuestion" selected="true" text="filter choices by question">
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
+                        <TableView fx:id="choiceTable" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+            </items>
+        </SplitPane>
+    </items>
+</SplitPane>
