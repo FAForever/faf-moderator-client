@@ -175,13 +175,10 @@ public class BanInfoController implements Controller<Pane> {
         }
 
         if (validationErrors.size() > 0) {
-            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Validation failed");
-            errorAlert.setContentText(
+            ViewHelper.errorDialog("Validation failed",
                     validationErrors.stream()
                             .collect(Collectors.joining("\n"))
             );
-            errorAlert.showAndWait();
 
             return false;
         }

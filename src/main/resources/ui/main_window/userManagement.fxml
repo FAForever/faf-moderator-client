@@ -170,7 +170,30 @@
                 </Tab>
                 <Tab text="Avatars">
                     <content>
-                        <TableView fx:id="userAvatarsTableView" prefHeight="200.0" prefWidth="200.0"/>
+                        <VBox>
+                            <children>
+                                <TableView fx:id="userAvatarsTableView" maxHeight="1.7976931348623157E308"
+                                           maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0"
+                                           VBox.vgrow="ALWAYS"/>
+                                <HBox alignment="CENTER" spacing="10.0">
+                                    <children>
+                                        <Button fx:id="giveAvatarButton" mnemonicParsing="false"
+                                                onAction="#onGiveAvatar"
+                                                text="Give selected avatar from main avatar tab"/>
+                                        <Separator orientation="VERTICAL"/>
+                                        <TextField fx:id="expiresAtTextfield" promptText="2018-12-31T23:59:59Z"/>
+                                        <Button fx:id="setExpiresAtButton" mnemonicParsing="false"
+                                                onAction="#onSetExpiresAt" text="Set expires at"/>
+                                        <Separator orientation="VERTICAL"/>
+                                        <Button fx:id="takeAvatarButton" mnemonicParsing="false"
+                                                onAction="#onTakeAvatar" text="Take avatar"/>
+                                    </children>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                </HBox>
+                            </children>
+                        </VBox>
                     </content>
                 </Tab>
             </tabs>

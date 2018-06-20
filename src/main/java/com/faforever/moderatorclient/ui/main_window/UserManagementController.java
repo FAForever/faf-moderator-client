@@ -1,11 +1,16 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.UserService;
+import com.faforever.moderatorclient.api.dto.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.*;
 import com.faforever.moderatorclient.ui.domain.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,19 +21,28 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
 public class UserManagementController implements Controller<SplitPane> {
+    private final ObjectMapper objectMapper;
     private final UiService uiService;
     private final PlatformService platformService;
     private final UserService userService;
+    private final AvatarService avatarService;
     private final GamePlayerStatsMapper gamePlayerStatsMapper;
 
     private final ObservableList<PlayerFX> users;
@@ -59,16 +73,25 @@ public class UserManagementController implements Controller<SplitPane> {
     public TableView<BanInfoFX> userBansTableView;
     public TableView<TeamkillFX> userTeamkillsTableView;
     public TableView<AvatarAssignmentFX> userAvatarsTableView;
+    public Button giveAvatarButton;
+    public Button takeAvatarButton;
+    public TextField expiresAtTextfield;
+    public Button setExpiresAtButton;
+
     public TableView<GamePlayerStatsFX> userLastGamesTable;
     public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
     public Button loadMoreGamesButton;
     private Runnable loadMoreGamesRunnable;
     private int userGamesPage = 1;
 
-    public UserManagementController(UiService uiService, PlatformService platformService, UserService userService, GamePlayerStatsMapper gamePlayerStatsMapper, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat) {
+    private ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
+
+    public UserManagementController(ObjectMapper objectMapper, UiService uiService, PlatformService platformService, UserService userService, AvatarService avatarService, GamePlayerStatsMapper gamePlayerStatsMapper, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat) {
+        this.objectMapper = objectMapper;
         this.uiService = uiService;
         this.platformService = platformService;
         this.userService = userService;
+        this.avatarService = avatarService;
         this.gamePlayerStatsMapper = gamePlayerStatsMapper;
         this.replayDownLoadFormat = replayDownLoadFormat;
         users = FXCollections.observableArrayList();
@@ -122,9 +145,20 @@ public class UserManagementController implements Controller<SplitPane> {
 
         ViewHelper.buildTeamkillTableView(userTeamkillsTableView, teamkills, false, null);
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView, avatarAssignments);
+        giveAvatarButton.disableProperty().bind(
+                Bindings.or(userSearchTableView.getSelectionModel().selectedItemProperty().isNull(),
+                        currentSelectedAvatar.isNull()));
+        expiresAtTextfield.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
+        setExpiresAtButton.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
+        takeAvatarButton.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
         editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
+    }
+
+    @EventListener
+    private void onAvatarSelected(AvatarFX avatarFX) {
+        currentSelectedAvatar.setValue(avatarFX);
     }
 
     private void onSelectedUser(ObservableValue<? extends PlayerFX> observable, PlayerFX oldValue, PlayerFX newValue) {
@@ -247,5 +281,51 @@ public class UserManagementController implements Controller<SplitPane> {
     public void loadMoreGames() {
         userGamesPage++;
         loadMoreGamesRunnable.run();
+    }
+
+    public void onGiveAvatar() {
+        PlayerFX selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedPlayer, "You need to select a player.");
+        Assert.notNull(currentSelectedAvatar.get(), "You need to select an avatar.");
+
+        UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
+
+        AvatarAssignmentFX avatarAssignmentFX = new AvatarAssignmentFX();
+        avatarAssignmentFX.setAvatar(currentSelectedAvatar.get());
+        avatarAssignmentFX.setPlayer(selectedPlayer);
+        avatarAssignmentFX.setSelected(false);
+
+        String id = avatarService.createAvatarAssignment(avatarAssignmentFX);
+        avatarAssignmentFX.setId(id);
+
+        selectedPlayer.getAvatarAssignments().add(avatarAssignmentFX);
+        userAvatarsTableView.getItems().add(avatarAssignmentFX);
+    }
+
+    public void onSetExpiresAt() {
+        AvatarAssignmentFX avatarAssignmentFX = userAvatarsTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(avatarAssignmentFX, "You need to select a user's avatar.");
+
+        try {
+            OffsetDateTime expiresAtODT = null;
+            if (!expiresAtTextfield.getText().isEmpty()) {
+                LocalDateTime dateTime = LocalDateTime.parse(expiresAtTextfield.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                expiresAtODT = OffsetDateTime.of(dateTime, ZoneOffset.UTC);
+            }
+            AvatarAssignmentUpdate update = new AvatarAssignmentUpdate(avatarAssignmentFX.getId(), null, Optional.ofNullable(expiresAtODT));
+            avatarService.patchAvatarAssignment(update);
+            avatarAssignmentFX.setExpiresAt(expiresAtODT);
+        } catch (DateTimeParseException e) {
+            ViewHelper.errorDialog("Validation failed", "Expiration date is invalid. Must be ISO code (i.e. 2018-12-31T23:59:59");
+        }
+    }
+
+    public void onTakeAvatar() {
+        AvatarAssignmentFX avatarAssignmentFX = userAvatarsTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(avatarAssignmentFX, "You need to select a user's avatar.");
+
+        avatarService.removeAvatarAssignment(avatarAssignmentFX);
+        userAvatarsTableView.getItems().remove(avatarAssignmentFX);
+        avatarAssignmentFX.getPlayer().getAvatarAssignments().remove(avatarAssignmentFX);
     }
 }

@@ -50,9 +50,21 @@
                                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                     </VBox.margin>
                                 </Button>
-                                <Button mnemonicParsing="false" text="delete selected avatar">
+                                <Button mnemonicParsing="false" onAction="#onAddAvatar" text="add avatar">
                                     <VBox.margin>
-                                        <Insets bottom="5.0" left="5.0" right="5.0" top="40.0"/>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="30.0"/>
+                                    </VBox.margin>
+                                </Button>
+                                <Button fx:id="editAvatarButton" mnemonicParsing="false" onAction="#onEditAvatar"
+                                        text="edit selected avatar">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </VBox.margin>
+                                </Button>
+                                <Button fx:id="deleteAvatarButton" mnemonicParsing="false" onAction="#onDeleteAvatar"
+                                        text="delete selected avatar">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                     </VBox.margin>
                                 </Button>
                             </children>
@@ -64,10 +76,6 @@
                     </children>
                 </HBox>
                 <HBox>
-                    <children>
-                        <TextField promptText="New avatar tooltip" HBox.hgrow="ALWAYS"/>
-                        <Button mnemonicParsing="false" text="choose file &amp; add"/>
-                    </children>
                     <VBox.margin>
                         <Insets top="10.0"/>
                     </VBox.margin>
