@@ -1,10 +1,11 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.voting;
 
 
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -19,6 +20,9 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype")
@@ -26,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 public class VotingSubjectAddController implements Controller<Pane> {
     private final VotingService votingService;
     public GridPane root;
-    public Label errorLabel;
     public TextField subjectKeyTextField;
     public TextField descriptionKeyTextFiled;
     public TextField topicUrlTextField;
@@ -48,8 +51,6 @@ public class VotingSubjectAddController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        errorLabel.managedProperty().bind(errorLabel.visibleProperty());
-        errorLabel.setVisible(false);
         beginTimeTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
         endTimeTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
 
@@ -74,11 +75,11 @@ public class VotingSubjectAddController implements Controller<Pane> {
 
         try {
             if (votingService.create(votingSubjectFX) == null) {
-                error("Not saved due to unknown error");
+                ViewHelper.errorDialog("Saving failed", "Not saved due to unknown error");
                 return;
             }
         } catch (Exception e) {
-            error(MessageFormat.format("Unable to save Subject error is:`{0}`", e.getMessage()));
+            ViewHelper.errorDialog("Saving failed", MessageFormat.format("Unable to save Subject error is:`{0}`", e.getMessage()));
             log.warn("Subject not saved", e);
             return;
         }
@@ -89,36 +90,42 @@ public class VotingSubjectAddController implements Controller<Pane> {
         }
     }
 
+    public void onAbort() {
+        close();
+    }
+
     private boolean validate() {
+        List<String> validationErrors = new ArrayList<>();
+
         if (subjectKeyTextField.getText().isEmpty()) {
-            return error("Subject can not be empty");
+            validationErrors.add("Subject can not be empty");
         }
         if (topicUrlTextField.getText().isEmpty()) {
-            return error("Topic url name must be set");
+            validationErrors.add("Topic url name must be set");
         }
         try {
             Integer.parseInt(minGamesTextField.getText());
         } catch (Exception e) {
-            return error("Min games to vote invalid");
+            validationErrors.add("Min games to vote invalid");
         }
         try {
             OffsetDateTime.of(LocalDateTime.parse(endTimeTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC);
         } catch (Exception e) {
-            return error("Invalid End Time (valid example: 2011-12-30T10:15:30)");
+            validationErrors.add("Invalid End Time (valid example: 2011-12-30T10:15:30)");
         }
         try {
             OffsetDateTime.of(LocalDateTime.parse(beginTimeTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC);
         } catch (Exception e) {
-            return error("Invalid begin time (valid example: 2011-12-30T10:15:30)");
+            validationErrors.add("Invalid begin time (valid example: 2011-12-30T10:15:30)");
         }
-        return true;
-    }
 
-    private boolean error(String message) {
-        errorLabel.setVisible(true);
-        errorLabel.setText(message);
-        log.info("Could not save VotingSubject error: {}", message);
-        return false;
+        if (validationErrors.size() > 0) {
+            ViewHelper.errorDialog("Validation failed",
+                    validationErrors.stream().collect(Collectors.joining("\n")));
+            return false;
+        }
+
+        return true;
     }
 
     private void close() {

@@ -1,11 +1,12 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.voting;
 
 
 import com.faforever.commons.api.dto.VotingChoice;
 import com.faforever.commons.api.dto.VotingQuestion;
 import com.faforever.moderatorclient.api.domain.VotingService;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype")
@@ -23,7 +27,6 @@ import java.text.MessageFormat;
 public class VotingChoiceAddController implements Controller<Pane> {
     private final VotingService votingService;
     public GridPane root;
-    public Label errorLabel;
     public TextField choiceKeyTextField;
     public TextField descriptionKeyTextFiled;
     public TextField ordinalTextField;
@@ -44,8 +47,6 @@ public class VotingChoiceAddController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        errorLabel.managedProperty().bind(errorLabel.visibleProperty());
-        errorLabel.setVisible(false);
     }
 
     public void onSave() {
@@ -63,11 +64,11 @@ public class VotingChoiceAddController implements Controller<Pane> {
 
         try {
             if (votingService.create(votingChoice) == null) {
-                error("Not saved due to unknown error");
+                ViewHelper.errorDialog("Saving failed", "Could not saved due to unknown error");
                 return;
             }
         } catch (Exception e) {
-            error(MessageFormat.format("Unable to save choice error is:`{0}`", e.getMessage()));
+            ViewHelper.errorDialog("Saving failed", MessageFormat.format("Unable to save choice showError is:`{0}`", e.getMessage()));
             log.warn("Question not saved", e);
             return;
         }
@@ -78,29 +79,36 @@ public class VotingChoiceAddController implements Controller<Pane> {
         }
     }
 
+    public void onAbort() {
+        close();
+    }
+
     private boolean validate() {
+        List<String> validationErrors = new ArrayList<>();
+
         if (choiceKeyTextField.getText().isEmpty()) {
-            return error("Choice Text key can not be empty");
+            validationErrors.add("Choice Text key can not be empty");
         }
+
         try {
             Integer.parseInt(ordinalTextField.getText());
         } catch (Exception e) {
-            return error("Invalid ordinal");
+            validationErrors.add("Invalid ordinal");
         }
 
         try {
             Integer.parseInt(questionTextField.getText());
         } catch (Exception e) {
-            return error("Invalid voting question ID");
+            validationErrors.add("Invalid voting question ID");
         }
-        return true;
-    }
 
-    private boolean error(String message) {
-        errorLabel.setVisible(true);
-        errorLabel.setText(message);
-        log.info("Could not save VotingChoice error: {}", message);
-        return false;
+        if (validationErrors.size() > 0) {
+            ViewHelper.errorDialog("Validation failed",
+                    validationErrors.stream().collect(Collectors.joining("\n")));
+            return false;
+        }
+
+        return true;
     }
 
     private void close() {

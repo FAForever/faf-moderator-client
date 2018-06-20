@@ -3,11 +3,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
-          maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.141"
-          fx:controller="com.faforever.moderatorclient.ui.VotingSubjectAddController">
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" hgap="10.0" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.111"
+          fx:controller="com.faforever.moderatorclient.ui.voting.VotingSubjectAddController">
     <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
         <RowConstraints minHeight="10.0" prefHeight="30.0"/>
         <RowConstraints minHeight="10.0" prefHeight="30.0"/>
         <RowConstraints minHeight="10.0" prefHeight="30.0"/>
@@ -33,11 +32,16 @@
         <TextField fx:id="minGamesTextField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         <TextField fx:id="beginTimeTextField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         <TextField fx:id="endTimeTextField" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
-
-        <Label fx:id="errorLabel" text="&lt;error&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT"
-               GridPane.rowIndex="6"/>
-        <Button mnemonicParsing="false" onAction="#onSave" text="Save" GridPane.columnIndex="1"
-                GridPane.halignment="RIGHT" GridPane.rowIndex="7"/>
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+            <children>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes"/>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onAbort" text="Abort editing">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
     </children>
     <padding>
         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
