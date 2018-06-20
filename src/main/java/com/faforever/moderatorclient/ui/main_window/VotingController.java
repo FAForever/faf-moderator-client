@@ -4,7 +4,11 @@ import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.voting.VotingChoiceAddController;
+import com.faforever.moderatorclient.ui.voting.VotingQuestionAddController;
+import com.faforever.moderatorclient.ui.voting.VotingSubjectAddController;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -111,7 +115,7 @@ public class VotingController {
     }
 
     public void addSubject() {
-        VotingSubjectAddController votingSubjectAddController = uiService.loadFxml("ui/voting_subject_add.fxml");
+        VotingSubjectAddController votingSubjectAddController = uiService.loadFxml("ui/voting/voting_subject_add.fxml");
         votingSubjectAddController.setOnSave(this::onRefreshSubjects);
         Stage newCategoryDialog = new Stage();
         newCategoryDialog.setTitle("Add new subject");
@@ -151,7 +155,7 @@ public class VotingController {
     }
 
     public void addQuestion() {
-        VotingQuestionAddController votingQuestionAddController = uiService.loadFxml("ui/voting_question_add.fxml");
+        VotingQuestionAddController votingQuestionAddController = uiService.loadFxml("ui/voting/voting_question_add.fxml");
         votingQuestionAddController.setOnSave(this::onRefreshQuestions);
         Stage newCategoryDialog = new Stage();
         newCategoryDialog.setTitle("Add new question");
@@ -187,7 +191,7 @@ public class VotingController {
     }
 
     public void addChoice() {
-        VotingChoiceAddController votingChoiceAddController = uiService.loadFxml("ui/voting_choice_add.fxml");
+        VotingChoiceAddController votingChoiceAddController = uiService.loadFxml("ui/voting/voting_choice_add.fxml");
         votingChoiceAddController.setOnSave(this::onRefreshChoices);
         Stage newCategoryDialog = new Stage();
         newCategoryDialog.setTitle("Add new choice");

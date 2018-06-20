@@ -1,11 +1,12 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.voting;
 
 import com.faforever.commons.api.dto.VotingQuestion;
 import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.VotingService;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Scope("prototype")
@@ -23,7 +27,6 @@ import java.text.MessageFormat;
 public class VotingQuestionAddController implements Controller<Pane> {
     private final VotingService votingService;
     public GridPane root;
-    public Label errorLabel;
     public TextField questionMessageKeyTextField;
     public TextField descriptionKeyTextFiled;
     public TextField maxAnswersTextField;
@@ -44,8 +47,6 @@ public class VotingQuestionAddController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        errorLabel.managedProperty().bind(errorLabel.visibleProperty());
-        errorLabel.setVisible(false);
     }
 
     public void onSave() {
@@ -66,11 +67,11 @@ public class VotingQuestionAddController implements Controller<Pane> {
 
         try {
             if (votingService.create(votingQuestion) == null) {
-                error("Not saved due to unknown error");
+                ViewHelper.errorDialog("Saving failed", "Not saved due to unknown error");
                 return;
             }
         } catch (Exception e) {
-            error(MessageFormat.format("Unable to save question error is:`{0}`", e.getMessage()));
+            ViewHelper.errorDialog("Saving failed", MessageFormat.format("Unable to save question error is:`{0}`", e.getMessage()));
             log.warn("Question not saved", e);
             return;
         }
@@ -81,30 +82,36 @@ public class VotingQuestionAddController implements Controller<Pane> {
         }
     }
 
+    public void onAbort() {
+        close();
+    }
+
     private boolean validate() {
+        List<String> validationErrors = new ArrayList<>();
+
         if (questionMessageKeyTextField.getText().isEmpty()) {
-            return error("Question key can not be empty");
+            validationErrors.add("Question key can not be empty");
         }
         if (!maxAnswersTextField.getText().isEmpty()) {
             try {
                 Integer.parseInt(maxAnswersTextField.getText());
             } catch (Exception e) {
-                return error("Invalid max answers");
+                validationErrors.add("Invalid max answers");
             }
         }
         try {
             Integer.parseInt(votingSubjectIdTextField.getText());
         } catch (Exception e) {
-            return error("Invalid voting subject ID");
+            validationErrors.add("Invalid voting subject ID");
         }
-        return true;
-    }
 
-    private boolean error(String message) {
-        errorLabel.setVisible(true);
-        errorLabel.setText(message);
-        log.info("Could not save VotingQuestion error: {}", message);
-        return false;
+        if (validationErrors.size() > 0) {
+            ViewHelper.errorDialog("Validation failed",
+                    validationErrors.stream().collect(Collectors.joining("\n")));
+            return false;
+        }
+
+        return true;
     }
 
     private void close() {
