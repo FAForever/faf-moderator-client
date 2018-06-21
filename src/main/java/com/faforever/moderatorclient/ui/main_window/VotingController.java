@@ -17,24 +17,22 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
-import java.util.function.Predicate;
+import java.util.Objects;
 
 @Slf4j
 @Component
 public class VotingController {
     private final VotingService votingService;
     private final SortedList<VotingSubjectFX> sortedSubjects;
-    private final FilteredList<VotingSubjectFX> filteredSubjects;
     private final ObservableList<VotingSubjectFX> rawSubjects;
-    private final SortedList<VotingQuestionFX> sortedQuestions;
     private final FilteredList<VotingQuestionFX> filteredQuestions;
+    private final SortedList<VotingQuestionFX> sortedQuestions;
     private final ObservableList<VotingQuestionFX> rawQuestions;
     private final SortedList<VotingChoiceFX> sortedChoices;
     private final FilteredList<VotingChoiceFX> filteredChoices;
@@ -42,26 +40,30 @@ public class VotingController {
     private final UiService uiService;
     public TableView<VotingSubjectFX> subjectTable;
     public TableView<VotingQuestionFX> questionTable;
-    public CheckBox filterQuestionsBySubject;
     public TableView<VotingChoiceFX> choiceTable;
-    public CheckBox filterChoicesByQuestion;
     public Button revealResultsButton;
+    public Button deleteSubjectButton;
+    public Button deleteQuestionButton;
+    public Button addQuestionButton;
+    public Button deleteChoiceButton;
+    public Button addChoiceButton;
 
     public VotingController(VotingService votingService, UiService uiService) {
         this.votingService = votingService;
         this.uiService = uiService;
 
         rawSubjects = FXCollections.observableArrayList();
-        filteredSubjects = new FilteredList<>(rawSubjects);
-        sortedSubjects = new SortedList<>(filteredSubjects);
+        sortedSubjects = new SortedList<>(rawSubjects);
 
         rawQuestions = FXCollections.observableArrayList();
-        filteredQuestions = new FilteredList<>(rawQuestions);
-        sortedQuestions = new SortedList<>(filteredQuestions);
+        sortedQuestions = new SortedList<>(rawQuestions);
+        filteredQuestions = new FilteredList<>(sortedQuestions);
+        filteredQuestions.setPredicate(votingQuestionFX -> false);
 
         rawChoices = FXCollections.observableArrayList();
-        filteredChoices = new FilteredList<>(rawChoices);
-        sortedChoices = new SortedList<>(filteredChoices);
+        sortedChoices = new SortedList<>(rawChoices);
+        filteredChoices = new FilteredList<>(sortedChoices);
+        filteredChoices.setPredicate(votingChoiceFX -> false);
     }
 
     @FXML
@@ -70,30 +72,34 @@ public class VotingController {
         sortedSubjects.comparatorProperty().bind(subjectTable.comparatorProperty());
         ViewHelper.buildSubjectTable(subjectTable, votingService, log, this::onRefreshSubjects);
         subjectTable.setItems(sortedSubjects);
+        subjectTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                filteredQuestions.setPredicate(votingQuestionFX -> Objects.equals(votingQuestionFX.getVotingSubject(), newValue)));
+
         revealResultsButton.disableProperty()
                 .bind(Bindings.createBooleanBinding(() -> {
                     VotingSubjectFX selectedItem = subjectTable.getSelectionModel().getSelectedItem();
                     return !(selectedItem != null && selectedItem.getEndOfVoteTime().isBefore(OffsetDateTime.now()) && !selectedItem.getRevealWinner());
                 }, subjectTable.getSelectionModel().selectedItemProperty()));
         onRefreshSubjects();
+        deleteSubjectButton.disableProperty().bind(subjectTable.getSelectionModel().selectedItemProperty().isNull());
+
         //Questions
+        questionTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                filteredChoices.setPredicate(votingChoiceFX -> Objects.equals(votingChoiceFX.getVotingQuestion(), newValue)));
+        addQuestionButton.disableProperty().bind(subjectTable.getSelectionModel().selectedItemProperty().isNull());
+        deleteQuestionButton.disableProperty().bind(questionTable.getSelectionModel().selectedItemProperty().isNull());
         sortedQuestions.comparatorProperty().bind(questionTable.comparatorProperty());
         ViewHelper.buildQuestionTable(questionTable, votingService, log, this::onRefreshQuestions);
-        questionTable.setItems(sortedQuestions);
+        questionTable.setItems(filteredQuestions);
         onRefreshQuestions();
-        filteredQuestions.predicateProperty().bind(Bindings.createObjectBinding(() ->
-                        (Predicate<VotingQuestionFX>) question -> evaluteQuestion(question)
-                , subjectTable.getSelectionModel().selectedItemProperty()
-                , filterQuestionsBySubject.selectedProperty()));
+
         //Choices
+        addChoiceButton.disableProperty().bind(questionTable.getSelectionModel().selectedItemProperty().isNull());
+        deleteChoiceButton.disableProperty().bind(choiceTable.getSelectionModel().selectedItemProperty().isNull());
         sortedChoices.comparatorProperty().bind(choiceTable.comparatorProperty());
         ViewHelper.buildChoiceTable(choiceTable, votingService, log, this::onRefreshChoices);
-        choiceTable.setItems(sortedChoices);
+        choiceTable.setItems(filteredChoices);
         onRefreshChoices();
-        filteredChoices.predicateProperty().bind(Bindings.createObjectBinding(() ->
-                        (Predicate<VotingChoiceFX>) choice -> evaluteChoice(choice)
-                , questionTable.getSelectionModel().selectedItemProperty()
-                , filterChoicesByQuestion.selectedProperty()));
     }
 
     //region subjects
@@ -162,14 +168,6 @@ public class VotingController {
         newCategoryDialog.setScene(new Scene(votingQuestionAddController.getRoot()));
         newCategoryDialog.showAndWait();
     }
-
-    private boolean evaluteQuestion(VotingQuestionFX question) {
-        if (!filterQuestionsBySubject.isSelected()) {
-            return true;
-        }
-        VotingSubjectFX selectedItem = subjectTable.getSelectionModel().getSelectedItem();
-        return selectedItem != null && question.getVotingSubject() != null && selectedItem.equals(question.getVotingSubject());
-    }
     //endregion
 
     //region choices
@@ -197,14 +195,6 @@ public class VotingController {
         newCategoryDialog.setTitle("Add new choice");
         newCategoryDialog.setScene(new Scene(votingChoiceAddController.getRoot()));
         newCategoryDialog.showAndWait();
-    }
-
-    private boolean evaluteChoice(VotingChoiceFX choice) {
-        if (!filterChoicesByQuestion.isSelected()) {
-            return true;
-        }
-        VotingQuestionFX selectedItem = questionTable.getSelectionModel().getSelectedItem();
-        return selectedItem != null && choice.getVotingQuestion() != null && selectedItem.equals(choice.getVotingQuestion());
     }
     //endregion
 }
