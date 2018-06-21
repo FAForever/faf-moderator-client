@@ -4,6 +4,7 @@ import com.faforever.moderatorclient.ui.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,7 +25,7 @@ public class FafModeratorClientApplication extends Application {
     }
 
     @Override
-    public void init() throws Exception {
+    public void init() {
         SpringApplication app = new SpringApplication(FafModeratorClientApplication.class);
         app.setWebEnvironment(false);
         applicationContext = app.run();
@@ -32,7 +33,9 @@ public class FafModeratorClientApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
+        Font.loadFont(getClass().getResource("/style/NotoEmoji-Regular.ttf").toExternalForm(), 12);
+
         StageHolder.setStage(primaryStage);
         primaryStage.setTitle("FAF Moderator Client");
 
@@ -40,7 +43,9 @@ public class FafModeratorClientApplication extends Application {
         MainController mainController = uiService.loadFxml("ui/mainWindow.fxml");
         mainController.display();
         primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
-        primaryStage.setScene(new Scene(mainController.getRoot()));
+        Scene scene = new Scene(mainController.getRoot());
+        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 

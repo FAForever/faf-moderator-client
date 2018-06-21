@@ -757,10 +757,11 @@ public class ViewHelper {
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         subjectTable.getColumns().add(idColumn);
 
-        TableColumn<VotingSubjectFX, String> subjectKeyColumn = new TableColumn<>("Subject key");
+        TableColumn<VotingSubjectFX, String> subjectKeyColumn = new TableColumn<>("Subject key ✏");
         subjectKeyColumn.setCellValueFactory(param -> param.getValue().subjectKeyProperty());
         subjectKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         subjectKeyColumn.setEditable(true);
+        subjectKeyColumn.getStyleClass().add("editable");
         subjectKeyColumn.setMinWidth(100);
         subjectTable.getColumns().add(subjectKeyColumn);
         subjectKeyColumn.setOnEditCommit(event -> {
@@ -780,11 +781,12 @@ public class ViewHelper {
         subjectTable.getColumns().add(subjectColumn);
 
 
-        TableColumn<VotingSubjectFX, String> descriptionKeyColumn = new TableColumn<>("Description Key");
+        TableColumn<VotingSubjectFX, String> descriptionKeyColumn = new TableColumn<>("Description Key ✏");
         descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
         descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         descriptionKeyColumn.setEditable(true);
         descriptionKeyColumn.setMinWidth(150);
+        descriptionKeyColumn.getStyleClass().add("editable");
         subjectTable.getColumns().add(descriptionKeyColumn);
         descriptionKeyColumn.setOnEditCommit(event -> {
             VotingSubjectFX rowValue = event.getRowValue();
@@ -846,10 +848,11 @@ public class ViewHelper {
         beginnDateColumn.setMinWidth(150);
         subjectTable.getColumns().add(beginnDateColumn);
 
-        TableColumn<VotingSubjectFX, Number> minGamesToVoteColumn = new TableColumn<>("Min games to vote");
+        TableColumn<VotingSubjectFX, Number> minGamesToVoteColumn = new TableColumn<>("Min games to vote ✏");
         minGamesToVoteColumn.setCellValueFactory(param -> param.getValue().minGamesToVoteProperty());
         setStringCellFactory(log, minGamesToVoteColumn);
         minGamesToVoteColumn.setEditable(true);
+        minGamesToVoteColumn.getStyleClass().add("editable");
         minGamesToVoteColumn.setMinWidth(20);
         subjectTable.getColumns().add(minGamesToVoteColumn);
         minGamesToVoteColumn.setOnEditCommit(event -> {
@@ -890,10 +893,11 @@ public class ViewHelper {
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         questionTable.getColumns().add(idColumn);
 
-        TableColumn<VotingQuestionFX, String> questionKeyColumn = new TableColumn<>("Question key");
+        TableColumn<VotingQuestionFX, String> questionKeyColumn = new TableColumn<>("Question key ✏");
         questionKeyColumn.setCellValueFactory(param -> param.getValue().questionKeyProperty());
         questionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         questionKeyColumn.setEditable(true);
+        questionKeyColumn.getStyleClass().add("editable");
         questionKeyColumn.setMinWidth(100);
         questionTable.getColumns().add(questionKeyColumn);
         questionKeyColumn.setOnEditCommit(event -> {
@@ -912,10 +916,11 @@ public class ViewHelper {
         questionColumn.setMinWidth(150);
         questionTable.getColumns().add(questionColumn);
 
-        TableColumn<VotingQuestionFX, String> descriptionKeyColumn = new TableColumn<>("Description key");
+        TableColumn<VotingQuestionFX, String> descriptionKeyColumn = new TableColumn<>("Description key ✏");
         descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
         descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.getStyleClass().add("editable");
         descriptionKeyColumn.setMinWidth(100);
         questionTable.getColumns().add(descriptionKeyColumn);
         descriptionKeyColumn.setOnEditCommit(event -> {
@@ -991,10 +996,11 @@ public class ViewHelper {
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         choiceTable.getColumns().add(idColumn);
 
-        TableColumn<VotingChoiceFX, String> choiceKeyColumn = new TableColumn<>("Choice key");
+        TableColumn<VotingChoiceFX, String> choiceKeyColumn = new TableColumn<>("Choice key ✏");
         choiceKeyColumn.setCellValueFactory(param -> param.getValue().choiceTextKeyProperty());
         choiceKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         choiceKeyColumn.setEditable(true);
+        choiceKeyColumn.getStyleClass().add("editable");
         choiceKeyColumn.setMinWidth(100);
         choiceTable.getColumns().add(choiceKeyColumn);
         choiceKeyColumn.setOnEditCommit(event -> {
@@ -1013,10 +1019,11 @@ public class ViewHelper {
         choiceColumn.setMinWidth(150);
         choiceTable.getColumns().add(choiceColumn);
 
-        TableColumn<VotingChoiceFX, String> descriptionKeyColumn = new TableColumn<>("Description key");
+        TableColumn<VotingChoiceFX, String> descriptionKeyColumn = new TableColumn<>("Description key ✏");
         descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
         descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.getStyleClass().add("editable");
         descriptionKeyColumn.setMinWidth(100);
         choiceTable.getColumns().add(descriptionKeyColumn);
         descriptionKeyColumn.setOnEditCommit(event -> {
