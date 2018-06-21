@@ -3,19 +3,23 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.5" maxHeight="1.7976931348623157E308"
-           orientation="VERTICAL" xmlns="http://javafx.com/javafx/8.0.141"
+<?import javafx.scene.text.Font?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.33" minWidth="800.0" orientation="VERTICAL"
+           xmlns="http://javafx.com/javafx/8.0.111"
            fx:controller="com.faforever.moderatorclient.ui.main_window.VotingController">
     <items>
-        <HBox>
+        <HBox prefHeight="100.0">
             <children>
-                <VBox minWidth="230.0" HBox.hgrow="NEVER">
-                    <Button mnemonicParsing="false" onAction="#onRefreshSubjects" text="Refresh">
+                <VBox minWidth="220.0" HBox.hgrow="NEVER">
+                    <Label text="Voting subjects">
                         <VBox.margin>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </VBox.margin>
-                    </Button>
-                    <Button mnemonicParsing="false" onAction="#deleteSubject" text="Delete selected subject">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Label>
+                    <Button mnemonicParsing="false" onAction="#onRefreshSubjects" text="Refresh">
                         <VBox.margin>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </VBox.margin>
@@ -35,67 +39,89 @@
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </VBox.margin>
                     </Button>
+                    <Button fx:id="deleteSubjectButton" mnemonicParsing="false" onAction="#deleteSubject"
+                            text="Delete selected subject">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </HBox.margin>
                 </VBox>
-                <TableView fx:id="subjectTable" HBox.hgrow="ALWAYS"/>
+                <TableView fx:id="subjectTable" minHeight="0.0" minWidth="0.0" HBox.hgrow="ALWAYS"/>
             </children>
         </HBox>
-        <SplitPane dividerPositions="0.5">
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL">
             <items>
-                <HBox>
+                <HBox prefHeight="100.0">
                     <children>
-                        <VBox minHeight="-Infinity" minWidth="180.0">
+                        <VBox minWidth="220.0" HBox.hgrow="NEVER">
+                            <Label text="Voting questions">
+                                <font>
+                                    <Font name="System Bold" size="14.0"/>
+                                </font>
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Label>
                             <Button mnemonicParsing="false" onAction="#onRefreshQuestions" text="Refresh">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <Button mnemonicParsing="false" onAction="#deleteQuestion" text="Delete selected question">
+                            <Button fx:id="addQuestionButton" layoutX="15.0" layoutY="50.0" mnemonicParsing="false"
+                                    onAction="#addQuestion" text="Add new question">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addQuestion"
-                                    text="Add new question">
+                            <Button fx:id="deleteQuestionButton" mnemonicParsing="false" onAction="#deleteQuestion"
+                                    text="Delete selected question">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <CheckBox fx:id="filterQuestionsBySubject" selected="true"
-                                      text="filter questions by subject">
-                                <VBox.margin>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                </VBox.margin>
-                            </CheckBox>
+                            <HBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </HBox.margin>
                         </VBox>
-                        <TableView fx:id="questionTable" HBox.hgrow="ALWAYS"/>
+                        <TableView fx:id="questionTable" minHeight="0.0" minWidth="0.0" HBox.hgrow="ALWAYS"/>
                     </children>
                 </HBox>
-                <HBox prefHeight="100.0" prefWidth="200.0">
+                <HBox prefHeight="100.0">
                     <children>
-                        <VBox minWidth="180.0" HBox.hgrow="NEVER">
+                        <VBox minWidth="220.0" HBox.hgrow="NEVER">
+                            <Label text="Voting choices">
+                                <font>
+                                    <Font name="System Bold" size="14.0"/>
+                                </font>
+                                <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                </VBox.margin>
+                            </Label>
                             <Button mnemonicParsing="false" onAction="#onRefreshChoices" text="Refresh">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <Button mnemonicParsing="false" onAction="#deleteChoice" text="Delete selected choice">
+                            <Button fx:id="addChoiceButton" layoutX="15.0" layoutY="50.0" mnemonicParsing="false"
+                                    onAction="#addChoice" text="Add new choice">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addChoice"
-                                    text="Add new choice">
+                            <Button fx:id="deleteChoiceButton" mnemonicParsing="false" onAction="#deleteChoice"
+                                    text="Delete selected choice">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
                             </Button>
-                            <CheckBox fx:id="filterChoicesByQuestion" selected="true" text="filter choices by question">
-                                <VBox.margin>
-                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                                </VBox.margin>
-                            </CheckBox>
+                            <HBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                            </HBox.margin>
                         </VBox>
-                        <TableView fx:id="choiceTable" HBox.hgrow="ALWAYS"/>
+                        <TableView fx:id="choiceTable" minHeight="0.0" minWidth="0.0" HBox.hgrow="ALWAYS"/>
                     </children>
                 </HBox>
             </items>
