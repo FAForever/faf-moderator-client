@@ -88,7 +88,9 @@ public class MainController implements Controller<TabPane> {
         loginDialog.setOnCloseRequest(event -> System.exit(0));
         loginDialog.setAlwaysOnTop(true);
         loginDialog.setTitle("FAF Moderator Client");
-        loginDialog.setScene(new Scene(loginController.getRoot()));
+        Scene scene = new Scene(loginController.getRoot());
+        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+        loginDialog.setScene(scene);
         loginDialog.initStyle(StageStyle.UTILITY);
         loginDialog.showAndWait();
 
