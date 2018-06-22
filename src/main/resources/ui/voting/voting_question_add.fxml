@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" hgap="10.0" maxHeight="1.7976931348623157E308"
+          maxWidth="1.7976931348623157E308" vgap="10.0" xmlns="http://javafx.com/javafx/8.0.111"
+          fx:controller="com.faforever.moderatorclient.ui.voting.VotingQuestionAddController">
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" prefWidth="240.0"/>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
+    </columnConstraints>
+    <children>
+        <Label text="Question message key" GridPane.rowIndex="4"/>
+        <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
+        <Label text="Max answers" GridPane.rowIndex="2"/>
+        <Label text="Alternative question" GridPane.rowIndex="3"/>
+        <Label text="Voting subject ID"/>
+        <TextField fx:id="questionMessageKeyTextField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="maxAnswersTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <CheckBox fx:id="alternativeQuestionCheckBox" mnemonicParsing="false" text="is alternative question"
+                  GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <TextField fx:id="votingSubjectIdTextField" GridPane.columnIndex="1" disable="true"/>
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+            <GridPane.margin>
+                <Insets/>
+            </GridPane.margin>
+            <children>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes">
+                    <HBox.margin>
+                        <Insets/>
+                    </HBox.margin>
+                </Button>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onAbort" text="Abort editing">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</GridPane>

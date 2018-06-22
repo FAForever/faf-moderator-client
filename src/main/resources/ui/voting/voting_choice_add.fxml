@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" hgap="10.0" vgap="10.0"
+          xmlns="http://javafx.com/javafx/8.0.111"
+          fx:controller="com.faforever.moderatorclient.ui.voting.VotingChoiceAddController">
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
+    </rowConstraints>
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" prefWidth="240.0"/>
+        <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
+    </columnConstraints>
+    <children>
+        <Label text="Choice text  message key" GridPane.rowIndex="3"/>
+        <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
+        <Label text="Ordinal(enter 0 for no order)" GridPane.rowIndex="2"/>
+        <Label text="Voting question ID"/>
+        <TextField fx:id="choiceKeyTextField" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <TextField fx:id="ordinalTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <TextField fx:id="questionIdField" GridPane.columnIndex="1" disable="true"/>
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+            <children>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes"/>
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#onAbort" text="Abort editing">
+                    <HBox.margin>
+                        <Insets left="10.0"/>
+                    </HBox.margin>
+                </Button>
+            </children>
+            <GridPane.margin>
+                <Insets/>
+            </GridPane.margin>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</GridPane>
