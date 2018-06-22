@@ -19,17 +19,17 @@
         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
     </columnConstraints>
     <children>
-        <Label text="Question message key"/>
+        <Label text="Question message key" GridPane.rowIndex="4"/>
         <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
         <Label text="Max answers" GridPane.rowIndex="2"/>
         <Label text="Alternative question" GridPane.rowIndex="3"/>
-        <Label text="Voting subject ID" GridPane.rowIndex="4"/>
-        <TextField fx:id="questionMessageKeyTextField" GridPane.columnIndex="1"/>
+        <Label text="Voting subject ID"/>
+        <TextField fx:id="questionMessageKeyTextField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
         <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
         <TextField fx:id="maxAnswersTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
         <CheckBox fx:id="alternativeQuestionCheckBox" mnemonicParsing="false" text="is alternative question"
                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-        <TextField fx:id="votingSubjectIdTextField" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <TextField fx:id="votingSubjectIdTextField" GridPane.columnIndex="1" disable="true"/>
         <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
             <GridPane.margin>
                 <Insets/>

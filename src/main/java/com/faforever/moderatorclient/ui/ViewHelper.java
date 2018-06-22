@@ -810,10 +810,11 @@ public class ViewHelper {
         numberOfVotesColumn.setMinWidth(150);
         subjectTable.getColumns().add(numberOfVotesColumn);
 
-        TableColumn<VotingSubjectFX, String> topicUrlColumn = new TableColumn<>("Topic URL");
+        TableColumn<VotingSubjectFX, String> topicUrlColumn = new TableColumn<>("Topic URL ✏");
         topicUrlColumn.setCellValueFactory(param -> param.getValue().topicUrlProperty());
         topicUrlColumn.setCellFactory(TextAreaTableCell.forTableColumn());
         topicUrlColumn.setEditable(true);
+        topicUrlColumn.getStyleClass().add("editable");
         topicUrlColumn.setMinWidth(150);
         subjectTable.getColumns().add(topicUrlColumn);
         topicUrlColumn.setOnEditCommit(event -> {
@@ -1062,5 +1063,21 @@ public class ViewHelper {
         subjectColumn.setEditable(false);
         subjectColumn.setMinWidth(150);
         choiceTable.getColumns().add(subjectColumn);
+    }
+
+    public static boolean confirmDialog(String title, String detail) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(detail);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.map(buttonType -> buttonType == ButtonType.OK).orElse(false);
+    }
+
+    public static void errorDialog(String title, String detail) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setContentText(detail);
+        alert.showAndWait();
     }
 }

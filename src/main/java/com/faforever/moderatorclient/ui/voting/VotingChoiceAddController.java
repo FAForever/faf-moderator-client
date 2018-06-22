@@ -30,7 +30,7 @@ public class VotingChoiceAddController implements Controller<Pane> {
     public TextField choiceKeyTextField;
     public TextField descriptionKeyTextFiled;
     public TextField ordinalTextField;
-    public TextField questionTextField;
+    public TextField questionIdField;
 
 
     private Runnable onSaveRunnable;
@@ -59,7 +59,7 @@ public class VotingChoiceAddController implements Controller<Pane> {
         votingChoice.setOrdinal(Integer.parseInt(ordinalTextField.getText()));
 
         VotingQuestion votingQuestion = new VotingQuestion();
-        votingQuestion.setId(questionTextField.getText());
+        votingQuestion.setId(questionIdField.getText());
         votingChoice.setVotingQuestion(votingQuestion);
 
         try {
@@ -96,12 +96,6 @@ public class VotingChoiceAddController implements Controller<Pane> {
             validationErrors.add("Invalid ordinal");
         }
 
-        try {
-            Integer.parseInt(questionTextField.getText());
-        } catch (Exception e) {
-            validationErrors.add("Invalid voting question ID");
-        }
-
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
                     validationErrors.stream().collect(Collectors.joining("\n")));
@@ -118,5 +112,9 @@ public class VotingChoiceAddController implements Controller<Pane> {
 
     public void setOnSave(Runnable onSaveRunnable) {
         this.onSaveRunnable = onSaveRunnable;
+    }
+
+    public void setVotingQuestionId(String id) {
+        questionIdField.setText(id);
     }
 }
