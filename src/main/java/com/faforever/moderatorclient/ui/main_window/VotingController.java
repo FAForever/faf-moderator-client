@@ -162,6 +162,9 @@ public class VotingController {
 
     public void addQuestion() {
         VotingQuestionAddController votingQuestionAddController = uiService.loadFxml("ui/voting/voting_question_add.fxml");
+        VotingSubjectFX selectedItem = subjectTable.getSelectionModel().getSelectedItem();
+        String id = selectedItem.getId();
+        votingQuestionAddController.setVotingSubjectId(id);
         votingQuestionAddController.setOnSave(this::onRefreshQuestions);
         Stage newCategoryDialog = new Stage();
         newCategoryDialog.setTitle("Add new question");
@@ -191,6 +194,9 @@ public class VotingController {
     public void addChoice() {
         VotingChoiceAddController votingChoiceAddController = uiService.loadFxml("ui/voting/voting_choice_add.fxml");
         votingChoiceAddController.setOnSave(this::onRefreshChoices);
+        VotingQuestionFX selectedItem = questionTable.getSelectionModel().getSelectedItem();
+        String id = selectedItem.getId();
+        votingChoiceAddController.setVotingQuestionId(id);
         Stage newCategoryDialog = new Stage();
         newCategoryDialog.setTitle("Add new choice");
         newCategoryDialog.setScene(new Scene(votingChoiceAddController.getRoot()));

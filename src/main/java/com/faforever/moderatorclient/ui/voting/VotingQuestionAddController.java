@@ -49,6 +49,10 @@ public class VotingQuestionAddController implements Controller<Pane> {
     public void initialize() {
     }
 
+    public void setVotingSubjectId(String id) {
+        votingSubjectIdTextField.setText(id);
+    }
+
     public void onSave() {
         if (!validate()) {
             return;
@@ -98,11 +102,6 @@ public class VotingQuestionAddController implements Controller<Pane> {
             } catch (Exception e) {
                 validationErrors.add("Invalid max answers");
             }
-        }
-        try {
-            Integer.parseInt(votingSubjectIdTextField.getText());
-        } catch (Exception e) {
-            validationErrors.add("Invalid voting subject ID");
         }
 
         if (validationErrors.size() > 0) {
