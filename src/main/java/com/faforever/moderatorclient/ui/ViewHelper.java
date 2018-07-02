@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.Map;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
@@ -17,6 +18,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
@@ -29,10 +32,7 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -247,6 +247,18 @@ public class ViewHelper {
     public static void buildTeamkillTableView(TableView<TeamkillFX> tableView, ObservableList<TeamkillFX> data, boolean showKiller, Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
 
+        //Add context menu to copy username and ip
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem copyUsername = new MenuItem("Copy killer name");
+        copyUsername.setOnAction(event -> {
+            TeamkillFX teamkillFX = tableView.getSelectionModel().getSelectedItem();
+            if (teamkillFX == null) return;
+            toClipBoard(teamkillFX.getTeamkiller().getLogin());
+        });
+
+        contextMenu.getItems().add(copyUsername);
+        tableView.setContextMenu(contextMenu);
+
         TableColumn<TeamkillFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -313,6 +325,23 @@ public class ViewHelper {
      */
     public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
+
+        //Add context menu to copy username and ip
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem copyUsername = new MenuItem("Copy username");
+        copyUsername.setOnAction(event -> {
+            PlayerFX selectedItem = tableView.getSelectionModel().getSelectedItem();
+            if (selectedItem == null) return;
+            toClipBoard(selectedItem.getLogin());
+        });
+        MenuItem copyIp = new MenuItem("Copy ip");
+        copyIp.setOnAction(event -> {
+            PlayerFX selectedItem = tableView.getSelectionModel().getSelectedItem();
+            if (selectedItem == null) return;
+            toClipBoard(selectedItem.getRecentIpAddress());
+        });
+        contextMenu.getItems().addAll(Arrays.asList(copyUsername, copyIp));
+        tableView.setContextMenu(contextMenu);
 
         TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
@@ -418,6 +447,13 @@ public class ViewHelper {
             });
             tableView.getColumns().add(banOptionColumn);
         }
+    }
+
+    private static void toClipBoard(String contentString) {
+        final Clipboard clipboard = Clipboard.getSystemClipboard();
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(contentString);
+        clipboard.setContent(content);
     }
 
     public static void buildUserAvatarsTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
