@@ -5,7 +5,7 @@
 
     <groupId>com.faforever</groupId>
     <artifactId>faf-moderator-client</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <packaging>jar</packaging>
 
     <name>faf-moderator-client</name>
@@ -29,7 +29,7 @@
         <jitpack.jasminb.jsonapi-converter.version>0.8</jitpack.jasminb.jsonapi-converter.version>
         <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>
         <org.apache.httpcomponents.httpclient.version>4.5.3</org.apache.httpcomponents.httpclient.version>
-        <com.fasterxml.jackson.datatype.version>2.8.8</com.fasterxml.jackson.datatype.version>
+        <jackson.version>2.9.2</jackson.version>
         <org.jetbrains.annotations.version>13.0</org.jetbrains.annotations.version>
         <javax.inject.version>1</javax.inject.version>
     </properties>
@@ -63,7 +63,12 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${com.fasterxml.jackson.datatype.version}</version>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.jasminb</groupId>

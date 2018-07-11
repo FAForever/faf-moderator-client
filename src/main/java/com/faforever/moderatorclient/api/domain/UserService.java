@@ -199,7 +199,7 @@ public class UserService {
     }
 
     public UserNoteFX patchUserNote(UserNote userNote) {
-        log.debug("Patching UserNote of id: ", userNote.getId());
+        log.debug("Patching UserNote of id: " + userNote.getId());
         return userNoteMapper.map(fafApi.patch(ElideRouteBuilder.of(UserNote.class).id(userNote.getId()), userNote));
     }
 }

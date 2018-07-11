@@ -2,6 +2,7 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.commons.api.dto.Player;
+import com.faforever.moderatorclient.api.dto.UpdateDto;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
@@ -10,6 +11,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -75,6 +78,10 @@ public class FafApiCommunicationService {
                 .rootUri(apiBaseUrl);
     }
 
+    public RestOperations getRestOperations() {
+        return restOperations;
+    }
+
     @SneakyThrows
     private void authorize(String username, String password) {
         log.debug("Configuring OAuth2 login with player = '{}', password=[hidden]", username);
@@ -130,6 +137,13 @@ public class FafApiCommunicationService {
         cycleAvoidingMappingContext.clearCache();
 
         return entity.getBody();
+    }
+
+    @SneakyThrows
+    public <T> T patch(ElideRouteBuilder<T> routeBuilder, UpdateDto<T> object) {
+        authorizedLatch.await();
+        cycleAvoidingMappingContext.clearCache();
+        return restOperations.exchange(routeBuilder.build(), HttpMethod.PATCH, new HttpEntity<>(object), routeBuilder.getDtoClass()).getBody();
     }
 
     @SneakyThrows

@@ -9,8 +9,8 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.github.nocatch.NoCatch.noCatch;
 import static java.lang.Class.forName;
@@ -21,15 +21,18 @@ public class JsonApiConfig {
     @Bean
     public ResourceConverter resourceConverter(ObjectMapper objectMapper) {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.commons.api.dto"));
+        return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto", "com.faforever.commons.api.dto"));
     }
 
-    private Class<?>[] findJsonApiTypes(String scanPackage) {
-        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AnnotationTypeFilter(Type.class));
-        List<Class> classes = provider.findCandidateComponents(scanPackage).stream()
-                .map(beanDefinition -> noCatch(() -> (Class) forName(beanDefinition.getBeanClassName())))
-                .collect(Collectors.toList());
+    private Class<?>[] findJsonApiTypes(String... scanPackages) {
+        List<Class<?>> classes = new ArrayList<>();
+        for (String packageName : scanPackages) {
+            ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+            provider.addIncludeFilter(new AnnotationTypeFilter(Type.class));
+            provider.findCandidateComponents(packageName).stream()
+                    .map(beanDefinition -> noCatch(() -> (Class) forName(beanDefinition.getBeanClassName())))
+                    .forEach(classes::add);
+        }
         return classes.toArray(new Class<?>[classes.size()]);
     }
 }
