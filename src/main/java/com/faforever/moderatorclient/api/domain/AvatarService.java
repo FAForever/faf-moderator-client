@@ -63,11 +63,12 @@ public class AvatarService {
 
     public List<Avatar> findAvatarsByAssignedUser(@NotNull String pattern) {
         log.debug("Searching for avatars by assigned player with pattern: {}", pattern);
+        boolean isNumeric = pattern.matches("^[0-9]+$");
+
         ElideRouteBuilder<Avatar> routeBuilder = ElideRouteBuilder.of(Avatar.class)
                 .addInclude("assignments")
                 .addInclude("assignments.player")
-                .filter(ElideRouteBuilder.qBuilder().string("assignments.player.id").eq(pattern)
-                        .or().string("assignments.player.login").eq(pattern));
+                .filter(ElideRouteBuilder.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
 
         List<Avatar> result = fafApi.getAll(routeBuilder);
         log.trace("found {} avatars", result.size());
