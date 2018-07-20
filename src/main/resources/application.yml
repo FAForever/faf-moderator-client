@@ -5,6 +5,7 @@ faforever:
     client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
     access-token-uri: ${faforever.api.base-url}/oauth/token
     max-page-size: 10_000
+    max-result-size: 1_000_000
   vault:
     base-url: http://content.faforever.com
     replayDownloadUrlFormat: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s

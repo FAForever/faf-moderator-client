@@ -4,8 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" dividerPositions="0.33" minWidth="800.0" orientation="VERTICAL"
-           xmlns="http://javafx.com/javafx/8.0.111"
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.33" minWidth="800.0"
+           orientation="VERTICAL" xmlns="http://javafx.com/javafx/8.0.111"
            fx:controller="com.faforever.moderatorclient.ui.main_window.VotingController">
     <items>
         <HBox prefHeight="100.0">

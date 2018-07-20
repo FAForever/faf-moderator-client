@@ -47,6 +47,7 @@ public class FafApiCommunicationService {
     private final String apiClientSecret;
     private final String apiAccessTokenUrl;
     private final int apiMaxPageSize;
+    private final int apiMaxResultSize;
     private CountDownLatch authorizedLatch;
     private RestOperations restOperations;
 
@@ -63,9 +64,9 @@ public class FafApiCommunicationService {
                                       @Value("${faforever.api.access-token-uri}")
                                               String apiAccessTokenUrl,
                                       @Value("${faforever.api.max-page-size}")
-                                              int apiMaxPageSize
-
-    ) {
+                                              int apiMaxPageSize,
+                                      @Value("${faforever.api.max-result-size}")
+                                              int apiMaxResultSize) {
         this.resourceConverter = resourceConverter;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
@@ -73,6 +74,7 @@ public class FafApiCommunicationService {
         this.apiClientSecret = apiClientSecret;
         this.apiAccessTokenUrl = apiAccessTokenUrl;
         this.apiMaxPageSize = apiMaxPageSize;
+        this.apiMaxResultSize = apiMaxResultSize;
         authorizedLatch = new CountDownLatch(1);
         this.restTemplateBuilder = restTemplateBuilder
                 .additionalMessageConverters(jsonApiMessageConverter)
@@ -225,7 +227,7 @@ public class FafApiCommunicationService {
     }
 
     public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder, java.util.Map<String, Serializable> params) {
-        return getMany(routeBuilder, apiMaxPageSize, params);
+        return getMany(routeBuilder, apiMaxResultSize, params);
     }
 
     @SneakyThrows
@@ -234,7 +236,7 @@ public class FafApiCommunicationService {
         List<T> current = null;
         int page = 1;
         while ((current == null || current.size() >= apiMaxPageSize) && result.size() < count) {
-            current = getPage(routeBuilder, count, page++, params);
+            current = getPage(routeBuilder, apiMaxPageSize, page++, params);
             result.addAll(current);
         }
         return result;

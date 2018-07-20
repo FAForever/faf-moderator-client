@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.ui.main_window.*;
-import javafx.fxml.FXML;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -25,7 +25,8 @@ public class MainController implements Controller<TabPane> {
     public Tab avatarsTab;
     public Tab recentActivityTab;
     public Tab domainBlacklistTab;
-
+    public Tab banTab;
+    public Tab votingTab;
 
     private final UiService uiService;
 
@@ -36,6 +37,8 @@ public class MainController implements Controller<TabPane> {
     private AvatarsController avatarsController;
     private RecentActivityController recentActivityController;
     private DomainBlacklistController domainBlacklistController;
+    private BansController bansController;
+    private VotingController votingController;
 
     public MainController(UiService uiService) {
         this.uiService = uiService;
@@ -46,15 +49,17 @@ public class MainController implements Controller<TabPane> {
         return root;
     }
 
-    @FXML
-    public void initialize() {
+    public void initializeAfterLogin() {
         initUserManagementTab();
         initLadderMapPoolTab();
         initMapVaultTab();
         initAvatarTab();
         initRecentActivityTab();
         initDomainBlacklistTab();
+        initBanTab();
+        initVotingTab();
     }
+
 
     private void initUserManagementTab() {
         userManagementController = uiService.loadFxml("ui/main_window/userManagement.fxml");
@@ -86,6 +91,16 @@ public class MainController implements Controller<TabPane> {
         domainBlacklistTab.setContent(domainBlacklistController.getRoot());
     }
 
+    private void initBanTab() {
+        bansController = uiService.loadFxml("ui/main_window/bans.fxml");
+        banTab.setContent(bansController.getRoot());
+    }
+
+    private void initVotingTab() {
+        votingController = uiService.loadFxml("ui/main_window/voting.fxml");
+        votingTab.setContent(votingController.getRoot());
+    }
+
     public void display() {
         LoginController loginController = uiService.loadFxml("ui/login.fxml");
 
@@ -99,10 +114,14 @@ public class MainController implements Controller<TabPane> {
         loginDialog.initStyle(StageStyle.UTILITY);
         loginDialog.showAndWait();
 
+        initializeAfterLogin();
+
         ladderMapPoolController.refresh();
         refreshAvatars();
         refreshRecentActivity();
         domainBlacklistController.refresh();
+        bansController.onRefreshBans();
+        votingController.onRefreshSubjects();
     }
 
 
@@ -112,7 +131,8 @@ public class MainController implements Controller<TabPane> {
 
     @EventListener
     public void onFafApiGetFailed(FafApiFailGetEvent event) {
-        ViewHelper.exceptionDialog("Querying data from API failed", MessageFormat.format("Something went wrong while fetching data of type '{0}' from the API. The related controls are shown empty instead now. You can proceed without causing any harm, but it is likely that some operations will not work and/or the error will pop up again.\n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl()));
+        Platform.runLater(() ->
+                ViewHelper.exceptionDialog("Querying data from API failed", MessageFormat.format("Something went wrong while fetching data of type ''{0}'' from the API. The related controls are shown empty instead now. You can proceed without causing any harm, but it is likely that some operations will not work and/or the error will pop up again.\n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
     }
 
     public void refreshRecentActivity() {
