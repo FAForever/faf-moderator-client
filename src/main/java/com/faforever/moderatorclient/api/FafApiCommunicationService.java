@@ -3,6 +3,8 @@ package com.faforever.moderatorclient.api;
 import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.commons.api.dto.Player;
 import com.faforever.moderatorclient.api.dto.UpdateDto;
+import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
+import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
@@ -11,10 +13,10 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -36,20 +38,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FafApiCommunicationService {
     private final ResourceConverter resourceConverter;
+    private final ApplicationEventPublisher applicationEventPublisher;
     @Getter
     private Player selfPlayer;
     private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
     private final RestTemplateBuilder restTemplateBuilder;
-    private final HttpComponentsClientHttpRequestFactory requestFactory;
     private final String apiClientId;
     private final String apiClientSecret;
     private final String apiAccessTokenUrl;
     private final int apiMaxPageSize;
+    private final int apiMaxResultSize;
     private CountDownLatch authorizedLatch;
     private RestOperations restOperations;
 
 
-    public FafApiCommunicationService(ResourceConverter resourceConverter, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
+    public FafApiCommunicationService(ResourceConverter resourceConverter, ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler,
                                       @Value("${faforever.api.base-url}")
@@ -61,17 +64,18 @@ public class FafApiCommunicationService {
                                       @Value("${faforever.api.access-token-uri}")
                                               String apiAccessTokenUrl,
                                       @Value("${faforever.api.max-page-size}")
-                                              int apiMaxPageSize
-
-    ) {
+                                              int apiMaxPageSize,
+                                      @Value("${faforever.api.max-result-size}")
+                                              int apiMaxResultSize) {
         this.resourceConverter = resourceConverter;
+        this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.apiClientId = apiClientId;
         this.apiClientSecret = apiClientSecret;
         this.apiAccessTokenUrl = apiAccessTokenUrl;
         this.apiMaxPageSize = apiMaxPageSize;
+        this.apiMaxResultSize = apiMaxResultSize;
         authorizedLatch = new CountDownLatch(1);
-        requestFactory = new HttpComponentsClientHttpRequestFactory();
         this.restTemplateBuilder = restTemplateBuilder
                 .additionalMessageConverters(jsonApiMessageConverter)
                 .errorHandler(jsonApiErrorHandler)
@@ -117,44 +121,81 @@ public class FafApiCommunicationService {
 
     @SneakyThrows
     public <T> T post(ElideRouteBuilder<T> routeBuilder, T object) {
-        authorizedLatch.await();
-        JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
-        String dataString = new String(resourceConverter.writeDocument(data));
-        ResponseEntity<T> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+        String url = routeBuilder.build();
 
-        cycleAvoidingMappingContext.clearCache();
+        try {
+            JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
+            String dataString = new String(resourceConverter.writeDocument(data));
+            authorizedLatch.await();
+            ResponseEntity<T> entity = restOperations.postForEntity(url, dataString, routeBuilder.getDtoClass());
 
-        return entity.getBody();
+            cycleAvoidingMappingContext.clearCache();
+
+            return entity.getBody();
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            throw t;
+        }
     }
 
     @SneakyThrows
     public Object postRelationship(ElideRouteBuilder<?> routeBuilder, Object object) {
-        authorizedLatch.await();
-        JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
-        String dataString = new String(resourceConverter.writeDocument(data));
-        ResponseEntity<?> entity = restOperations.postForEntity(routeBuilder.build(), dataString, routeBuilder.getDtoClass());
+        String url = routeBuilder.build();
 
-        cycleAvoidingMappingContext.clearCache();
+        try {
+            JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
+            String dataString = new String(resourceConverter.writeDocument(data));
+            authorizedLatch.await();
+            ResponseEntity<?> entity = restOperations.postForEntity(url, dataString, routeBuilder.getDtoClass());
+            cycleAvoidingMappingContext.clearCache();
 
-        return entity.getBody();
+            return entity.getBody();
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            throw t;
+        }
+
     }
 
     @SneakyThrows
     public <T> T patch(ElideRouteBuilder<T> routeBuilder, UpdateDto<T> object) {
-        authorizedLatch.await();
         cycleAvoidingMappingContext.clearCache();
-        return restOperations.exchange(routeBuilder.build(), HttpMethod.PATCH, new HttpEntity<>(object), routeBuilder.getDtoClass()).getBody();
+        String url = routeBuilder.build();
+
+        try {
+            authorizedLatch.await();
+            return restOperations.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object), routeBuilder.getDtoClass()).getBody();
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            throw t;
+        }
     }
 
     @SneakyThrows
     public <T> T patch(ElideRouteBuilder<T> routeBuilder, T object) {
-        authorizedLatch.await();
         cycleAvoidingMappingContext.clearCache();
-        return restOperations.patchForObject(routeBuilder.build(), object, routeBuilder.getDtoClass());
+        String url = routeBuilder.build();
+
+        try {
+            authorizedLatch.await();
+            return restOperations.patchForObject(url, object, routeBuilder.getDtoClass());
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            throw t;
+        }
     }
 
+    @SneakyThrows
     public void delete(ElideRouteBuilder<?> routeBuilder) {
-        restOperations.delete(routeBuilder.build());
+        String url = routeBuilder.build();
+
+        try {
+            authorizedLatch.await();
+            restOperations.delete(url);
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            throw t;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -173,7 +214,12 @@ public class FafApiCommunicationService {
     @SneakyThrows
     public <T> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
         cycleAvoidingMappingContext.clearCache();
-        return restOperations.getForObject(endpointPath, type, params);
+        try {
+            return restOperations.getForObject(endpointPath, type, params);
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, type, endpointPath));
+            throw t;
+        }
     }
 
     public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder) {
@@ -181,7 +227,7 @@ public class FafApiCommunicationService {
     }
 
     public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder, java.util.Map<String, Serializable> params) {
-        return getMany(routeBuilder, apiMaxPageSize, params);
+        return getMany(routeBuilder, apiMaxResultSize, params);
     }
 
     @SneakyThrows
@@ -190,7 +236,7 @@ public class FafApiCommunicationService {
         List<T> current = null;
         int page = 1;
         while ((current == null || current.size() >= apiMaxPageSize) && result.size() < count) {
-            current = getPage(routeBuilder, count, page++, params);
+            current = getPage(routeBuilder, apiMaxPageSize, page++, params);
             result.addAll(current);
         }
         return result;
@@ -213,9 +259,15 @@ public class FafApiCommunicationService {
                 .build();
         cycleAvoidingMappingContext.clearCache();
         log.debug("Sending API request: {}", route);
-        return (List<T>) restOperations.getForObject(
-                route,
-                List.class,
-                params);
+
+        try {
+            return (List<T>) restOperations.getForObject(
+                    route,
+                    List.class,
+                    params);
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, routeBuilder.getDtoClass(), route));
+            return Collections.emptyList();
+        }
     }
 }

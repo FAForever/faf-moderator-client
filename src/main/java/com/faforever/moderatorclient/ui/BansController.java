@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 
 @Component
 @Slf4j
-public class BansController {
+public class BansController implements Controller<HBox> {
     private final UiService uiService;
     private final BanService banService;
     public HBox root;
@@ -38,6 +38,11 @@ public class BansController {
     public BansController(UiService uiService, BanService banService) {
         this.uiService = uiService;
         this.banService = banService;
+    }
+
+    @Override
+    public HBox getRoot() {
+        return root;
     }
 
     @FXML

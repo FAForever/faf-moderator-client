@@ -4,6 +4,7 @@ import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.voting.VotingChoiceAddController;
@@ -17,6 +18,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,7 @@ import java.util.Objects;
 
 @Slf4j
 @Component
-public class VotingController {
+public class VotingController implements Controller<SplitPane> {
     private final VotingService votingService;
     private final SortedList<VotingSubjectFX> sortedSubjects;
     private final ObservableList<VotingSubjectFX> rawSubjects;
@@ -38,6 +40,7 @@ public class VotingController {
     private final FilteredList<VotingChoiceFX> filteredChoices;
     private final ObservableList<VotingChoiceFX> rawChoices;
     private final UiService uiService;
+    public SplitPane root;
     public TableView<VotingSubjectFX> subjectTable;
     public TableView<VotingQuestionFX> questionTable;
     public TableView<VotingChoiceFX> choiceTable;
@@ -64,6 +67,11 @@ public class VotingController {
         sortedChoices = new SortedList<>(rawChoices);
         filteredChoices = new FilteredList<>(sortedChoices);
         filteredChoices.setPredicate(votingChoiceFX -> false);
+    }
+
+    @Override
+    public SplitPane getRoot() {
+        return root;
     }
 
     @FXML
