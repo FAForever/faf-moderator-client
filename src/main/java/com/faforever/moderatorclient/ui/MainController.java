@@ -1,5 +1,6 @@
 package com.faforever.moderatorclient.ui;
 
+import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.ui.main_window.*;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
@@ -8,7 +9,11 @@ import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import java.text.MessageFormat;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -103,6 +108,11 @@ public class MainController implements Controller<TabPane> {
 
     public void refreshAvatars() {
         avatarsController.refresh();
+    }
+
+    @EventListener
+    public void onFafApiGetFailed(FafApiFailGetEvent event) {
+        ViewHelper.exceptionDialog("Querying data from API failed", MessageFormat.format("Something went wrong while fetching data of type '{0}' from the API. The related controls are shown empty instead now. You can proceed without causing any harm, but it is likely that some operations will not work and/or the error will pop up again.\n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl()));
     }
 
     public void refreshRecentActivity() {

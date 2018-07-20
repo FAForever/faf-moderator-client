@@ -20,6 +20,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
@@ -27,6 +29,8 @@ import javafx.util.StringConverter;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
@@ -1228,6 +1232,38 @@ public class ViewHelper {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setContentText(detail);
+        alert.showAndWait();
+    }
+
+    public static void exceptionDialog(String title, String detail, Throwable throwable, Optional<String> url) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setContentText(detail);
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        String exceptionText = stringWriter.toString();
+
+        Label label = new Label("The stacktrace was:");
+        TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expandableContent = new GridPane();
+        expandableContent.setMaxWidth(Double.MAX_VALUE);
+        expandableContent.add(label, 0, 0);
+        expandableContent.add(textArea, 0, 1);
+
+        alert.getDialogPane().setExpandableContent(expandableContent);
+
+        url.ifPresent(s -> textArea.setText(textArea.getText() + "\n\nThe called url was:\n" + s));
+
         alert.showAndWait();
     }
 }
