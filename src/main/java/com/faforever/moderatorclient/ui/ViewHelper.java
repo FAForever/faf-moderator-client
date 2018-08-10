@@ -344,7 +344,7 @@ public class ViewHelper {
         gameIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         gameIdColumn.setMinWidth(100);
         tableView.getColumns().add(gameIdColumn);
-        extractors.put(gameIdColumn, TeamkillFX::getGame);
+        extractors.put(gameIdColumn, teamkillFX -> teamkillFX.getGame().getId());
 
         TableColumn<TeamkillFX, Number> gameTimeColumn = new TableColumn<>("Game Time");
         gameTimeColumn.setCellValueFactory(o -> o.getValue().gameTimeProperty());
