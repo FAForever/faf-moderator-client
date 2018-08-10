@@ -95,7 +95,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         MapTableItemAdapter itemAdapter = ladderPoolView.getSelectionModel().getSelectedItem().getValue();
         Assert.isTrue(itemAdapter.isMapVersion(), "Only map version can be removed");
 
-        mapService.removeMapVersionFromLadderPool(itemAdapter.getMapVersion().getLadder1v1Map().getId());
+        mapService.removeMapVersionFromLadderPool(itemAdapter.getMapVersion());
         refresh();
     }
 
@@ -103,7 +103,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         MapTableItemAdapter itemAdapter = mapVaultView.getSelectionModel().getSelectedItem().getValue();
         Assert.isTrue(itemAdapter.isMapVersion(), "Only map version can be added");
 
-        mapService.addMapVersionToLadderPool(itemAdapter.getId());
+        mapService.addMapVersionToLadderPool(itemAdapter.getMapVersion());
         refresh();
     }
 }

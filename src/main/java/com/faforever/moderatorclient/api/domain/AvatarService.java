@@ -2,7 +2,9 @@ package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.Avatar;
 import com.faforever.commons.api.dto.AvatarAssignment;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
+import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
+import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.dto.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.dto.AvatarMetadata;
@@ -34,21 +36,23 @@ public class AvatarService {
 
     public List<Avatar> getAll() {
         log.debug("Retrieving all avatars");
-        List<Avatar> result = fafApi.getAll(ElideRouteBuilder.of(Avatar.class)
-                .addInclude("assignments")
-                .addInclude("assignments.player"));
+        List<Avatar> result = fafApi.getAll(ElideNavigator.of(Avatar.class)
+                .collection()
+                .addIncludeOnCollection("assignments")
+                .addIncludeOnCollection("assignments.player"));
         log.trace("found {} avatars", result.size());
         return result;
     }
 
     private List<Avatar> findAvatarsByAttribute(@NotNull String attribute, @NotNull String pattern) {
         log.debug("Searching for avatars by attribute '{}' with pattern: {}", attribute, pattern);
-        ElideRouteBuilder<Avatar> routeBuilder = ElideRouteBuilder.of(Avatar.class)
-                .addInclude("assignments")
-                .addInclude("assignments.player")
-                .filter(ElideRouteBuilder.qBuilder().string(attribute).eq(pattern));
+        ElideNavigatorOnCollection<Avatar> navigator = ElideNavigator.of(Avatar.class)
+                .collection()
+                .addIncludeOnCollection("assignments")
+                .addIncludeOnCollection("assignments.player")
+                .addFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
 
-        List<Avatar> result = fafApi.getAll(routeBuilder);
+        List<Avatar> result = fafApi.getAll(navigator);
         log.trace("found {} avatars", result.size());
         return result;
     }
@@ -65,12 +69,13 @@ public class AvatarService {
         log.debug("Searching for avatars by assigned player with pattern: {}", pattern);
         boolean isNumeric = pattern.matches("^[0-9]+$");
 
-        ElideRouteBuilder<Avatar> routeBuilder = ElideRouteBuilder.of(Avatar.class)
-                .addInclude("assignments")
-                .addInclude("assignments.player")
-                .filter(ElideRouteBuilder.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
+        ElideNavigatorOnCollection<Avatar> navigator = ElideNavigator.of(Avatar.class)
+                .collection()
+                .addIncludeOnCollection("assignments")
+                .addIncludeOnCollection("assignments.player")
+                .addFilter(ElideNavigator.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
 
-        List<Avatar> result = fafApi.getAll(routeBuilder);
+        List<Avatar> result = fafApi.getAll(navigator);
         log.trace("found {} avatars", result.size());
         return result;
     }
@@ -107,13 +112,14 @@ public class AvatarService {
     }
 
     public List<Avatar> getAllAvatarsWithPlayerAssignments() {
-        return fafApi.getAll(ElideRouteBuilder.of(Avatar.class)
-                .addInclude("assignments")
-                .addInclude("assignments.player"));
+        return fafApi.getAll(ElideNavigator.of(Avatar.class)
+                .collection()
+                .addIncludeOnCollection("assignments")
+                .addIncludeOnCollection("assignments.player"));
     }
 
     public void updateAvatarMetadata(String avatarId, String name) {
-        fafApi.patch(ElideRouteBuilder.of(Avatar.class).id(avatarId),
+        fafApi.patch(ElideNavigator.of(Avatar.class).id(avatarId),
                 (Avatar) new Avatar().setTooltip(name).setId(avatarId));
     }
 
@@ -133,7 +139,7 @@ public class AvatarService {
 
     private String createAvatarAssignment(AvatarAssignment avatarAssignment) {
         log.debug("Creating avatar assignment");
-        return fafApi.post(ElideRouteBuilder.of(AvatarAssignment.class), avatarAssignment).getId();
+        return fafApi.post(ElideNavigator.of(AvatarAssignment.class).collection(), avatarAssignment).getId();
     }
 
     public void patchAvatarAssignment(AvatarAssignmentFX avatarAssignmentFX) {
@@ -142,16 +148,16 @@ public class AvatarService {
 
     private void patchAvatarAssignment(AvatarAssignment avatarAssignment) {
         log.debug("Patching avatar assignmenet id: " + avatarAssignment.getId());
-        ElideRouteBuilder<AvatarAssignment> routeBuilder = ElideRouteBuilder.of(AvatarAssignment.class)
+        ElideNavigatorOnId<AvatarAssignment> navigator = ElideNavigator.of(AvatarAssignment.class)
                 .id(avatarAssignment.getId());
-        fafApi.patch(routeBuilder, avatarAssignment);
+        fafApi.patch(navigator, avatarAssignment);
     }
 
     public void patchAvatarAssignment(AvatarAssignmentUpdate avatarAssignmentUpdate) {
         log.debug("Patching avatar assignmenet id: " + avatarAssignmentUpdate.getId());
-        ElideRouteBuilder<AvatarAssignment> routeBuilder = ElideRouteBuilder.of(AvatarAssignment.class)
+        ElideNavigatorOnId<AvatarAssignment> navigator = ElideNavigator.of(AvatarAssignment.class)
                 .id(avatarAssignmentUpdate.getId());
-        fafApi.patch(routeBuilder, avatarAssignmentUpdate);
+        fafApi.patch(navigator, avatarAssignmentUpdate);
     }
 
     public void removeAvatarAssignment(AvatarAssignmentFX avatarAssignmentFX) {
@@ -160,8 +166,8 @@ public class AvatarService {
 
     public void removeAvatarAssignment(AvatarAssignment avatarAssignment) {
         log.debug("Removing avatar assignmenet id: " + avatarAssignment.getId());
-        ElideRouteBuilder<AvatarAssignment> routeBuilder = ElideRouteBuilder.of(AvatarAssignment.class)
+        ElideNavigatorOnId<AvatarAssignment> navigator = ElideNavigator.of(AvatarAssignment.class)
                 .id(avatarAssignment.getId());
-        fafApi.delete(routeBuilder);
+        fafApi.delete(navigator);
     }
 }

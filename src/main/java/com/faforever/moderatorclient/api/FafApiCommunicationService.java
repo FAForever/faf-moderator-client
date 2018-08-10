@@ -2,6 +2,10 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.commons.api.dto.Player;
+import com.faforever.commons.api.elide.ElideEntity;
+import com.faforever.commons.api.elide.ElideNavigator;
+import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
+import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.dto.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
@@ -120,45 +124,27 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public <T> T post(ElideRouteBuilder<T> routeBuilder, T object) {
-        String url = routeBuilder.build();
+    public <T extends ElideEntity> T post(ElideNavigatorOnCollection<T> navigator, T object) {
+        String url = navigator.build();
 
         try {
             JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
             String dataString = new String(resourceConverter.writeDocument(data));
             authorizedLatch.await();
-            ResponseEntity<T> entity = restOperations.postForEntity(url, dataString, routeBuilder.getDtoClass());
+            ResponseEntity<T> entity = restOperations.postForEntity(url, dataString, navigator.getDtoClass());
 
             cycleAvoidingMappingContext.clearCache();
 
             return entity.getBody();
         } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, navigator.getDtoClass(), url));
             throw t;
         }
     }
 
-    @SneakyThrows
-    public Object postRelationship(ElideRouteBuilder<?> routeBuilder, Object object) {
-        String url = routeBuilder.build();
-
-        try {
-            JSONAPIDocument<?> data = new JSONAPIDocument<>(object);
-            String dataString = new String(resourceConverter.writeDocument(data));
-            authorizedLatch.await();
-            ResponseEntity<?> entity = restOperations.postForEntity(url, dataString, routeBuilder.getDtoClass());
-            cycleAvoidingMappingContext.clearCache();
-
-            return entity.getBody();
-        } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
-            throw t;
-        }
-
-    }
 
     @SneakyThrows
-    public <T> T patch(ElideRouteBuilder<T> routeBuilder, UpdateDto<T> object) {
+    public <T extends ElideEntity> T patch(ElideNavigatorOnId<T> routeBuilder, UpdateDto<T> object) {
         cycleAvoidingMappingContext.clearCache();
         String url = routeBuilder.build();
 
@@ -172,7 +158,7 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    public <T> T patch(ElideRouteBuilder<T> routeBuilder, T object) {
+    public <T extends ElideEntity> T patch(ElideNavigatorOnId<T> routeBuilder, T object) {
         cycleAvoidingMappingContext.clearCache();
         String url = routeBuilder.build();
 
@@ -185,34 +171,38 @@ public class FafApiCommunicationService {
         }
     }
 
+    public <T extends ElideEntity> void delete(T entity) {
+        delete(ElideNavigator.of(entity));
+    }
+
     @SneakyThrows
-    public void delete(ElideRouteBuilder<?> routeBuilder) {
-        String url = routeBuilder.build();
+    public void delete(ElideNavigatorOnId<?> navigator) {
+        String url = navigator.build();
 
         try {
             authorizedLatch.await();
             restOperations.delete(url);
         } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, navigator.getDtoClass(), url));
             throw t;
         }
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T> T getOne(ElideRouteBuilder<T> routeBuilder) {
-        return getOne(routeBuilder.build(), routeBuilder.getDtoClass(), Collections.emptyMap());
+    public <T extends ElideEntity> T getOne(ElideNavigatorOnId<T> navigator) {
+        return getOne(navigator.build(), navigator.getDtoClass(), Collections.emptyMap());
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T> T getOne(String endpointPath, Class<T> type) {
+    public <T extends ElideEntity> T getOne(String endpointPath, Class<T> type) {
         return getOne(endpointPath, type, Collections.emptyMap());
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
         cycleAvoidingMappingContext.clearCache();
         try {
             return restOperations.getForObject(endpointPath, type, params);
@@ -222,16 +212,16 @@ public class FafApiCommunicationService {
         }
     }
 
-    public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder) {
+    public <T extends ElideEntity> List<T> getAll(ElideNavigatorOnCollection<T> routeBuilder) {
         return getAll(routeBuilder, Collections.emptyMap());
     }
 
-    public <T> List<T> getAll(ElideRouteBuilder<T> routeBuilder, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> List<T> getAll(ElideNavigatorOnCollection<T> routeBuilder, java.util.Map<String, Serializable> params) {
         return getMany(routeBuilder, apiMaxResultSize, params);
     }
 
     @SneakyThrows
-    public <T> List<T> getMany(ElideRouteBuilder<T> routeBuilder, int count, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> List<T> getMany(ElideNavigatorOnCollection<T> routeBuilder, int count, java.util.Map<String, Serializable> params) {
         List<T> result = new LinkedList<>();
         List<T> current = null;
         int page = 1;
@@ -242,7 +232,7 @@ public class FafApiCommunicationService {
         return result;
     }
 
-    public <T> List<T> getPage(ElideRouteBuilder<T> routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> List<T> getPage(ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
         java.util.Map<String, List<String>> multiValues = params.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> Collections.singletonList(String.valueOf(entry.getValue()))));
 
@@ -251,7 +241,7 @@ public class FafApiCommunicationService {
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T> List<T> getPage(ElideRouteBuilder<T> routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
+    public <T extends ElideEntity> List<T> getPage(ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
         authorizedLatch.await();
         String route = routeBuilder
                 .pageSize(pageSize)

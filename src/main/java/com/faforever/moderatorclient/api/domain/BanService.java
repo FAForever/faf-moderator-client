@@ -3,7 +3,9 @@ package com.faforever.moderatorclient.api.domain;
 import com.faforever.commons.api.dto.BanInfo;
 import com.faforever.commons.api.dto.BanRevokeData;
 import com.faforever.commons.api.dto.Player;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
+import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
+import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.BanInfoMapper;
 import com.faforever.moderatorclient.mapstruct.BanRevokeDataMapper;
@@ -34,34 +36,36 @@ public class BanService {
     public BanInfo patchBanInfo(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
         log.debug("Patching BanInfo of id: ", banInfo.getId());
-        return fafApi.patch(ElideRouteBuilder.of(BanInfo.class).id(banInfo.getId()), banInfo);
+        return fafApi.patch(ElideNavigator.of(BanInfo.class).id(banInfo.getId()), banInfo);
     }
 
     public BanRevokeData revokeBan(@NotNull BanRevokeDataFX banRevokeDataFX) {
         BanRevokeData banRevokeData = banRevokeDataMapper.map(banRevokeDataFX);
         log.debug("Revoking ban with id: ", banRevokeData.getBan().getId());
         banRevokeData.setAuthor(fafApi.getSelfPlayer());
-        ElideRouteBuilder<Player> routeBuilder = ElideRouteBuilder.of(Player.class)
+        ElideNavigatorOnCollection<BanRevokeData> navigator = ElideNavigator.of(Player.class)
                 .id(banRevokeData.getBan().getId())
-                .relationship("banRevokeData");
+                .navigateRelationship(BanRevokeData.class, "banRevokeData")
+                .collection();
 
-        return (BanRevokeData) fafApi.postRelationship(routeBuilder, banRevokeData);
+        return (BanRevokeData) fafApi.post(navigator, banRevokeData);
     }
 
     public String createBan(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
         log.debug("Creating ban");
         banInfo.setAuthor(fafApi.getSelfPlayer());
-        return fafApi.post(ElideRouteBuilder.of(BanInfo.class), banInfo).getId();
+        return fafApi.post(ElideNavigator.of(BanInfo.class).collection(), banInfo).getId();
     }
 
     public CompletableFuture<List<BanInfoFX>> getAllBans() {
         return CompletableFuture.supplyAsync(() -> {
-            List<BanInfo> banInfos = fafApi.getAll(ElideRouteBuilder.of(BanInfo.class)
-                    .addInclude("player")
-                    .addInclude("author")
-                    .addInclude("banRevokeData")
-                    .addInclude("banRevokeData.author")
+            List<BanInfo> banInfos = fafApi.getAll(ElideNavigator.of(BanInfo.class)
+                    .collection()
+                    .addIncludeOnCollection("player")
+                    .addIncludeOnCollection("author")
+                    .addIncludeOnCollection("banRevokeData")
+                    .addIncludeOnCollection("banRevokeData.author")
             );
             return banInfos.stream().map(banInfoMapper::map).collect(Collectors.toList());
         });
@@ -69,10 +73,10 @@ public class BanService {
 
     public BanInfoFX getBanInfoById(String banInfoId) {
         log.debug("Search for ban id: " + banInfoId);
-        ElideRouteBuilder<BanInfo> routeBuilder = ElideRouteBuilder.of(BanInfo.class)
+        ElideNavigatorOnId<BanInfo> navigator = ElideNavigator.of(BanInfo.class)
                 .id(banInfoId)
-                .addInclude("player")
-                .addInclude("author");
-        return banInfoMapper.map(fafApi.getOne(routeBuilder));
+                .addIncludeOnId("player")
+                .addIncludeOnId("author");
+        return banInfoMapper.map(fafApi.getOne(navigator));
     }
 }
