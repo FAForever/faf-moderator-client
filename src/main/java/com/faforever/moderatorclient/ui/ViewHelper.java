@@ -2,6 +2,8 @@ package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.*;
 import com.faforever.commons.api.dto.Map;
+import com.faforever.moderatorclient.api.domain.MessagesService;
+import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
@@ -26,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.util.converter.DefaultStringConverter;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
 
@@ -873,6 +876,288 @@ public class ViewHelper {
         });
     }
 
+    public static void buildCategoryTable(TableView<TutorialCategoryFX> categoryTableView, TutorialService tutorialService, Runnable refresh) {
+        categoryTableView.setEditable(true);
+        HashMap<TableColumn<TutorialCategoryFX, ?>, Function<TutorialCategoryFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<TutorialCategoryFX, Number> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        categoryTableView.getColumns().add(idColumn);
+        extractors.put(idColumn, TutorialCategoryFX::getId);
+
+        TableColumn<TutorialCategoryFX, String> categoryKeyColumn = new TableColumn<>("Category key  ✏");
+        categoryKeyColumn.getStyleClass().add("editable");
+        categoryKeyColumn.setCellValueFactory(param -> param.getValue().categoryKeyProperty());
+        categoryKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        categoryKeyColumn.setEditable(true);
+        categoryKeyColumn.setMinWidth(300);
+        categoryTableView.getColumns().add(categoryKeyColumn);
+        categoryKeyColumn.setOnEditCommit(event -> {
+            TutorialCategoryFX rowValue = event.getRowValue();
+            rowValue.setCategoryKey(event.getNewValue());
+            tutorialService.updateCategory(rowValue);
+            refresh.run();
+        });
+        extractors.put(categoryKeyColumn, TutorialCategoryFX::getCategoryKey);
+
+        TableColumn<TutorialCategoryFX, String> categoryColumn = new TableColumn<>("Category");
+        categoryColumn.setCellValueFactory(param -> param.getValue().categoryProperty());
+        categoryColumn.setEditable(false);
+        categoryColumn.setMinWidth(300);
+        categoryTableView.getColumns().add(categoryColumn);
+        extractors.put(categoryColumn, TutorialCategoryFX::getCategory);
+
+        applyCopyContextMenus(categoryTableView, extractors);
+    }
+
+    public static void buildTutorialTable(TableView<TutorialFx> tutorialTableView, TutorialService tutorialService, Logger log, Runnable refresh) {
+        tutorialTableView.setEditable(true);
+        HashMap<TableColumn<TutorialFx, ?>, Function<TutorialFx, ?>> extractors = new HashMap<>();
+
+        TableColumn<TutorialFx, Number> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        tutorialTableView.getColumns().add(idColumn);
+        extractors.put(idColumn, TutorialFx::getId);
+
+        TableColumn<TutorialFx, String> titleKeyColumn = new TableColumn<>("Title Key ✏");
+        titleKeyColumn.getStyleClass().add("editable");
+        titleKeyColumn.setCellValueFactory(param -> param.getValue().titleKeyProperty());
+        titleKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        titleKeyColumn.setEditable(true);
+        titleKeyColumn.setMinWidth(150);
+        tutorialTableView.getColumns().add(titleKeyColumn);
+        titleKeyColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setTitleKey(event.getNewValue());
+            tutorialService.updateTutorial(rowValue);
+            refresh.run();
+        });
+        extractors.put(titleKeyColumn, TutorialFx::getTitleKey);
+
+        TableColumn<TutorialFx, String> titleColumn = new TableColumn<>("Title");
+        titleColumn.setCellValueFactory(param -> param.getValue().titleProperty());
+        titleColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        titleColumn.setEditable(false);
+        titleColumn.setMinWidth(150);
+        tutorialTableView.getColumns().add(titleColumn);
+        extractors.put(titleColumn, TutorialFx::getTitle);
+
+        TableColumn<TutorialFx, String> descriptionKeyColumn = new TableColumn<>("Description Key ✏");
+        descriptionKeyColumn.getStyleClass().add("editable");
+        descriptionKeyColumn.setCellValueFactory(param -> param.getValue().descriptionKeyProperty());
+        descriptionKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionKeyColumn.setEditable(true);
+        descriptionKeyColumn.setMinWidth(200);
+        tutorialTableView.getColumns().add(descriptionKeyColumn);
+        descriptionKeyColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setDescriptionKey(event.getNewValue());
+            tutorialService.updateTutorial(rowValue);
+            refresh.run();
+        });
+        extractors.put(descriptionKeyColumn, TutorialFx::getDescriptionKey);
+
+        TableColumn<TutorialFx, String> descriptionColumn = new TableColumn<>("Description HTML");
+        descriptionColumn.setCellValueFactory(param -> param.getValue().descriptionProperty());
+        descriptionColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        descriptionColumn.setEditable(false);
+        descriptionColumn.setMinWidth(150);
+        tutorialTableView.getColumns().add(descriptionColumn);
+        extractors.put(descriptionColumn, TutorialFx::getDescription);
+
+        TableColumn<TutorialFx, String> imageColumn = new TableColumn<>("Image File Name ✏");
+        imageColumn.getStyleClass().add("editable");
+        imageColumn.setCellValueFactory(param -> param.getValue().imageProperty());
+        imageColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        imageColumn.setEditable(true);
+        imageColumn.setMinWidth(200);
+        tutorialTableView.getColumns().add(imageColumn);
+        imageColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setImage(event.getNewValue());
+            tutorialService.updateTutorial(rowValue);
+        });
+        extractors.put(imageColumn, TutorialFx::getImage);
+
+        TableColumn<TutorialFx, Number> categoryColumn = new TableColumn<>("Category ID ✏");
+        categoryColumn.getStyleClass().add("editable");
+        categoryColumn.setCellValueFactory(param -> param.getValue().getCategory().idProperty());
+        categoryColumn.setCellFactory(TextAreaTableCell.forTableColumn(new StringConverter<Number>() {
+            @Override
+            public String toString(Number object) {
+                return String.valueOf(object);
+            }
+
+            @Override
+            public Number fromString(String string) {
+                try {
+                    int i = Integer.parseInt(string);
+                    return i;
+                } catch (Exception e) {
+                    log.error("Error parsing integer for category", e);
+                }
+                return 0;
+            }
+        }));
+        categoryColumn.setEditable(true);
+        categoryColumn.setMinWidth(100);
+        tutorialTableView.getColumns().add(categoryColumn);
+        categoryColumn.setOnEditCommit(event -> {
+            Number newValue = event.getNewValue();
+            try {
+                TutorialFx rowValue = event.getRowValue();
+                TutorialCategoryFX tutorialCategoryFX = new TutorialCategoryFX();
+                tutorialCategoryFX.setId(newValue.intValue());
+                rowValue.setCategory(tutorialCategoryFX);
+                tutorialService.updateTutorial(rowValue);
+            } catch (Exception e) {
+                log.error("Failed to update category key", e);
+                ViewHelper.errorDialog("Category ID update failed", String.format("Update of category id to '%d' failed, did you check that this is a valid value?", newValue.intValue()));
+                throw e;
+            }
+        });
+        extractors.put(categoryColumn, tutorialFx -> tutorialFx.getCategory().toString());
+
+        TableColumn<TutorialFx, Number> ordinalColumn = new TableColumn<>("Ordinal ✏");
+        ordinalColumn.getStyleClass().add("editable");
+        ordinalColumn.setCellValueFactory(param -> param.getValue().ordinalProperty());
+        ordinalColumn.setCellFactory(TextAreaTableCell.forTableColumn(new StringConverter<Number>() {
+            @Override
+            public String toString(Number object) {
+                return String.valueOf(object);
+            }
+
+            @Override
+            public Number fromString(String string) {
+                try {
+                    int i = Integer.parseInt(string);
+                    return i;
+                } catch (Exception e) {
+                    log.error("Error parsing integer for tutorial ordinal", e);
+                }
+                return 0;
+            }
+        }));
+        ordinalColumn.setEditable(true);
+        ordinalColumn.setMinWidth(20);
+        tutorialTableView.getColumns().add(ordinalColumn);
+        ordinalColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setOrdinal(event.getNewValue().intValue());
+            tutorialService.updateTutorial(rowValue);
+        });
+        extractors.put(ordinalColumn, TutorialFx::getOrdinal);
+
+        TableColumn<TutorialFx, Boolean> launchColumn = new TableColumn<>("Launchable ✏");
+        launchColumn.getStyleClass().add("editable");
+        launchColumn.setCellValueFactory(param -> param.getValue().launchableProperty());
+        Callback<TableColumn<TutorialFx, Boolean>, TableCell<TutorialFx, Boolean>> value = CheckBoxTableCell.forTableColumn(launchColumn);
+        launchColumn.setCellFactory(value);
+        launchColumn.setEditable(true);
+        launchColumn.setMinWidth(10);
+        tutorialTableView.getColumns().add(launchColumn);
+
+        TableColumn<TutorialFx, String> mapColumn = new TableColumn<>("MapVersion id ✏");
+        mapColumn.getStyleClass().add("editable");
+        mapColumn.setCellValueFactory(param -> {
+            MapVersionFX mapVersion = param.getValue().getMapVersion();
+            return mapVersion == null ? new SimpleStringProperty("") : mapVersion.idProperty();
+        });
+        mapColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        mapColumn.setEditable(true);
+        mapColumn.setMinWidth(100);
+        tutorialTableView.getColumns().add(mapColumn);
+        mapColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            String newValue = event.getNewValue();
+            try {
+                if (!newValue.isEmpty()) {
+                    MapVersionFX mapVersionFX = new MapVersionFX();
+                    mapVersionFX.setId(newValue);
+                    rowValue.setMapVersion(mapVersionFX);
+                    tutorialService.updateTutorial(rowValue);
+                }
+            } catch (Exception e) {
+                log.error("Failed to update MapVersion ID", e);
+                ViewHelper.errorDialog("MapVersion ID update failed", String.format("Update of MapVersion ID to '%s' failed, did you check that this is a valid value?", newValue));
+                throw e;
+            }
+        });
+        extractors.put(mapColumn, tutorialFx -> tutorialFx.getMapVersion().toString());
+
+        applyCopyContextMenus(tutorialTableView, extractors);
+    }
+
+
+    public static void buildMessagesTable(TableView<MessageFx> messageTableView, MessagesService messagesService, Logger log) {
+        messageTableView.setEditable(true);
+        HashMap<TableColumn<MessageFx, ?>, Function<MessageFx, ?>> extractors = new HashMap<>();
+
+        TableColumn<MessageFx, Number> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        messageTableView.getColumns().add(idColumn);
+        extractors.put(idColumn, MessageFx::getId);
+
+        TableColumn<MessageFx, String> messageKeyColumn = new TableColumn<>("Key ✏");
+        messageKeyColumn.getStyleClass().add("editable");
+        messageKeyColumn.setCellValueFactory(param -> param.getValue().keyProperty());
+        messageKeyColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        messageKeyColumn.setEditable(true);
+        messageKeyColumn.setMinWidth(150);
+        messageTableView.getColumns().add(messageKeyColumn);
+        messageKeyColumn.setOnEditCommit(event -> {
+            MessageFx rowValue = event.getRowValue();
+            rowValue.setKey(event.getNewValue());
+            messagesService.updateMessage(rowValue);
+        });
+        extractors.put(messageKeyColumn, MessageFx::getKey);
+
+        TableColumn<MessageFx, String> languageColumn = new TableColumn<>("Language ✏");
+        languageColumn.getStyleClass().add("editable");
+        languageColumn.setCellValueFactory(param -> param.getValue().languageProperty());
+        languageColumn.setCellFactory(TextAreaTableCell.forTableColumn(new DefaultStringConverter(), 2));
+        languageColumn.setEditable(true);
+        languageColumn.setMinWidth(150);
+        messageTableView.getColumns().add(languageColumn);
+        languageColumn.setOnEditCommit(event -> {
+            MessageFx rowValue = event.getRowValue();
+            rowValue.setLanguage(event.getNewValue());
+            messagesService.updateMessage(rowValue);
+        });
+        extractors.put(languageColumn, MessageFx::getLanguage);
+
+        TableColumn<MessageFx, String> regionColumn = new TableColumn<>("Region ✏");
+        regionColumn.getStyleClass().add("editable");
+        regionColumn.setCellValueFactory(param -> param.getValue().regionProperty());
+        regionColumn.setCellFactory(TextAreaTableCell.forTableColumn(new DefaultStringConverter(), 2));
+        regionColumn.setEditable(true);
+        regionColumn.setMinWidth(150);
+        messageTableView.getColumns().add(regionColumn);
+        regionColumn.setOnEditCommit(event -> {
+            MessageFx rowValue = event.getRowValue();
+            rowValue.setRegion(event.getNewValue());
+            messagesService.updateMessage(rowValue);
+        });
+        extractors.put(regionColumn, MessageFx::getRegion);
+
+        TableColumn<MessageFx, String> valueColumn = new TableColumn<>("Value ✏");
+        valueColumn.setCellValueFactory(param -> param.getValue().valueProperty());
+        valueColumn.getStyleClass().add("editable");
+        valueColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        valueColumn.setEditable(true);
+        valueColumn.setMinWidth(150);
+        messageTableView.getColumns().add(valueColumn);
+        valueColumn.setOnEditCommit(event -> {
+            MessageFx rowValue = event.getRowValue();
+            rowValue.setValue(event.getNewValue());
+            messagesService.updateMessage(rowValue);
+        });
+        extractors.put(valueColumn, MessageFx::getValue);
+
+        applyCopyContextMenus(messageTableView, extractors);
+    }
+
+
     public static void buildSubjectTable(TableView<VotingSubjectFX> tableView, VotingService votingService, Logger log, Runnable refresh) {
         tableView.setEditable(true);
         HashMap<TableColumn<VotingSubjectFX, ?>, Function<VotingSubjectFX, ?>> extractors = new HashMap<>();
@@ -1123,7 +1408,7 @@ public class ViewHelper {
                     int i = Integer.parseInt(string);
                     return i;
                 } catch (Exception e) {
-                    log.error("Error parsing integer for tutorial ordinal", e);
+                    log.error("Error parsing integer", e);
                 }
                 return 0;
             }

@@ -21,24 +21,30 @@ import javafx.util.converter.DefaultStringConverter;
 @SuppressWarnings("WeakerAccess")
 public class TextAreaTableCell<S, T> extends TableCell<S, T> {
 
+    private Integer inputLimit;
     private TextArea textArea;
     private ObjectProperty<StringConverter<T>> converter = new SimpleObjectProperty<>(this, "converter");
 
     public TextAreaTableCell() {
-        this(null);
+        this(null, null);
     }
 
-    public TextAreaTableCell(StringConverter<T> converter) {
+    public TextAreaTableCell(StringConverter<T> converter, Integer inputLimit) {
         this.getStyleClass().add("text-area-table-cell");
         setConverter(converter);
+        this.inputLimit = inputLimit;
     }
 
     public static <S> Callback<TableColumn<S, String>, TableCell<S, String>> forTableColumn() {
-        return forTableColumn(new DefaultStringConverter());
+        return forTableColumn(new DefaultStringConverter(), null);
     }
 
     public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> forTableColumn(final StringConverter<T> converter) {
-        return list -> new TextAreaTableCell<>(converter);
+        return forTableColumn(converter, null);
+    }
+
+    public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> forTableColumn(final StringConverter<T> converter, Integer inputLimit) {
+        return list -> new TextAreaTableCell<>(converter, inputLimit);
     }
 
     private static <T> String getItemText(Cell<T> cell, StringConverter<T> converter) {
@@ -46,7 +52,7 @@ public class TextAreaTableCell<S, T> extends TableCell<S, T> {
                 .toString() : converter.toString(cell.getItem());
     }
 
-    private static <T> TextArea createTextArea(final Cell<T> cell, final StringConverter<T> converter) {
+    private static <T> TextArea createTextArea(final Cell<T> cell, final StringConverter<T> converter, Integer inputLimit) {
         TextArea textArea = new TextArea(getItemText(cell, converter));
         textArea.setWrapText(true);
         textArea.editableProperty().bind(cell.editableProperty());
@@ -64,6 +70,10 @@ public class TextAreaTableCell<S, T> extends TableCell<S, T> {
                             "Attempting to convert text input into Object, but provided "
                                     + "StringConverter is null. Be sure to set a StringConverter "
                                     + "in your cell factory.");
+                }
+                if (inputLimit != null && textArea.getText().length() > inputLimit) {
+                    ViewHelper.errorDialog("This text box has an input limit", String.format("You can not enter more than '%d' characters here.", inputLimit));
+                    return;
                 }
                 cell.commitEdit(converter.fromString(textArea.getText()));
                 t.consume();
@@ -140,7 +150,7 @@ public class TextAreaTableCell<S, T> extends TableCell<S, T> {
 
         if (isEditing()) {
             if (textArea == null) {
-                textArea = createTextArea(this, getConverter());
+                textArea = createTextArea(this, getConverter(), inputLimit);
             }
 
             startEdit(this, getConverter());

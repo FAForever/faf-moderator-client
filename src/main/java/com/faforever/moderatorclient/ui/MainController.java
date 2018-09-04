@@ -27,6 +27,9 @@ public class MainController implements Controller<TabPane> {
     public Tab domainBlacklistTab;
     public Tab banTab;
     public Tab votingTab;
+    public Tab tutorialTab;
+    public Tab messagesTab;
+
 
     private final UiService uiService;
 
@@ -39,6 +42,8 @@ public class MainController implements Controller<TabPane> {
     private DomainBlacklistController domainBlacklistController;
     private BansController bansController;
     private VotingController votingController;
+    private TutorialController tutorialController;
+    private MessagesController messagesController;
 
     public MainController(UiService uiService) {
         this.uiService = uiService;
@@ -58,6 +63,8 @@ public class MainController implements Controller<TabPane> {
         initDomainBlacklistTab();
         initBanTab();
         initVotingTab();
+        initMessagesTab();
+        initTutorialTab();
     }
 
 
@@ -96,6 +103,16 @@ public class MainController implements Controller<TabPane> {
         banTab.setContent(bansController.getRoot());
     }
 
+    private void initTutorialTab() {
+        tutorialController = uiService.loadFxml("ui/main_window/tutorial.fxml");
+        tutorialTab.setContent(tutorialController.getRoot());
+    }
+
+    private void initMessagesTab() {
+        messagesController = uiService.loadFxml("ui/main_window/messages.fxml");
+        messagesTab.setContent(messagesController.getRoot());
+    }
+
     private void initVotingTab() {
         votingController = uiService.loadFxml("ui/main_window/voting.fxml");
         votingTab.setContent(votingController.getRoot());
@@ -116,6 +133,8 @@ public class MainController implements Controller<TabPane> {
 
         initializeAfterLogin();
 
+        tutorialController.load();
+        messagesController.load();
         ladderMapPoolController.refresh();
         refreshAvatars();
         refreshRecentActivity();
