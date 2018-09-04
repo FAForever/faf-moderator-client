@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
+           xmlns="http://javafx.com/javafx/8.0.141"
+           fx:controller="com.faforever.moderatorclient.ui.main_window.TutorialController">
+    <HBox layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+        <children>
+            <VBox minWidth="200.0">
+                <children>
+                    <Button mnemonicParsing="false" onAction="#onRefreshCategorys" text="Refresh">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button mnemonicParsing="false" onAction="#deleteCategory" text="Delete selected category">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#addCategory"
+                            text="Add new category">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                </children>
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </HBox.margin>
+            </VBox>
+            <TableView fx:id="categoryTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                       HBox.hgrow="ALWAYS"/>
+        </children>
+    </HBox>
+    <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+        <children>
+            <VBox minWidth="200.0">
+                <children>
+                    <Button mnemonicParsing="false" onAction="#onRefreshTutorials" text="Refresh">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button mnemonicParsing="false" onAction="#deleteTutorial" text="Delete selected tutorial">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                    <Button fx:id="addTutorialButton" layoutX="15.0" layoutY="50.0" mnemonicParsing="false"
+                            onAction="#addTutorial"
+                            text="Add new Tutorial">
+                        <VBox.margin>
+                            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                        </VBox.margin>
+                    </Button>
+                </children>
+                <HBox.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                </HBox.margin>
+            </VBox>
+            <TableView fx:id="tutorialTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                       HBox.hgrow="ALWAYS"/>
+        </children>
+    </HBox>
+</SplitPane>

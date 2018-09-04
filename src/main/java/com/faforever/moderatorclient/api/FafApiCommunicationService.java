@@ -115,6 +115,7 @@ public class FafApiCommunicationService {
 
             return selfPlayer.getLobbyGroup().getAccessLevel();
         } catch (OAuth2AccessDeniedException e) {
+            log.error("login failed", e);
             return null;
         }
     }
@@ -217,7 +218,7 @@ public class FafApiCommunicationService {
         try {
             return restOperations.getForObject(endpointPath, type, params);
         } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, type, endpointPath));
+            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, endpointPath, type));
             throw t;
         }
     }
@@ -266,7 +267,7 @@ public class FafApiCommunicationService {
                     List.class,
                     params);
         } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, routeBuilder.getDtoClass(), route));
+            applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, route, routeBuilder.getDtoClass()));
             return Collections.emptyList();
         }
     }

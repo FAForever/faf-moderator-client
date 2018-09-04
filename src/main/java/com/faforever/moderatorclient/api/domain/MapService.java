@@ -116,4 +116,11 @@ public class MapService {
                         .setId(mapVersion.getId()
                         ));
     }
+
+    public boolean doesMapVersionExist(int id) {
+        log.debug("Requesting Mapversion with id: {}", id);
+        return !fafApi.getAll(ElideRouteBuilder.of(MapVersion.class)
+                .filter(ElideRouteBuilder.qBuilder().string("id").eq(String.valueOf(id))))
+                .isEmpty();
+    }
 }
