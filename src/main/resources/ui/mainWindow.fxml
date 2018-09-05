@@ -15,5 +15,7 @@
         <Tab fx:id="domainBlacklistTab" closable="false" text="Domain Blacklist"/>
         <Tab fx:id="banTab" closable="false" text="Bans"/>
         <Tab fx:id="votingTab" closable="false" text="Voting"/>
+        <Tab fx:id="tutorialTab" closable="false" text="Tutorials"/>
+        <Tab fx:id="messagesTab" closable="false" text="Messages"/>
     </tabs>
 </TabPane>
