@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.Tutorial;
 import com.faforever.commons.api.dto.TutorialCategory;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.TutorialCategoryMapper;
 import com.faforever.moderatorclient.mapstruct.TutorialMapper;
@@ -32,17 +32,19 @@ public class TutorialService {
 
     public List<Tutorial> getAllTutorialsFromApi() {
         log.debug("Retrieving all tutorials");
-        List<Tutorial> result = fafApi.getAll(ElideRouteBuilder.of(Tutorial.class)
-                .addInclude("mapVersion")
-                .addInclude("category"));
+        List<Tutorial> result = fafApi.getAll(ElideNavigator.of(Tutorial.class)
+                .collection()
+                .addIncludeOnCollection("mapVersion")
+                .addIncludeOnCollection("category"));
         log.trace("found {} tutorials", result.size());
         return result;
     }
 
     public List<TutorialCategory> getAllCategoriesFromApi() {
         log.debug("Retrieving all tutorial categories");
-        List<TutorialCategory> result = fafApi.getAll(ElideRouteBuilder.of(TutorialCategory.class)
-                .addInclude("tutorials"));
+        List<TutorialCategory> result = fafApi.getAll(ElideNavigator.of(TutorialCategory.class)
+                .collection()
+                .addIncludeOnCollection("tutorials"));
         log.trace("found {} tutorial categories", result.size());
         return result;
     }
@@ -61,12 +63,12 @@ public class TutorialService {
 
     private Tutorial update(Tutorial tutorial) {
         log.debug("Patching Tutorial of id: ", tutorial.getId());
-        return fafApi.patch(ElideRouteBuilder.of(Tutorial.class).id(tutorial.getId()), tutorial);
+        return fafApi.patch(ElideNavigator.of(Tutorial.class).id(tutorial.getId()), tutorial);
     }
 
     private void deleteTutorial(Tutorial tutorial) {
         log.debug("Deleting tutorial category: {}", tutorial);
-        fafApi.delete(ElideRouteBuilder.of(Tutorial.class).id(tutorial.getId()));
+        fafApi.delete(ElideNavigator.of(Tutorial.class).id(tutorial.getId()));
     }
 
     public Tutorial create(TutorialFx tutorialFx) {
@@ -75,7 +77,7 @@ public class TutorialService {
 
     private Tutorial create(Tutorial tutorial) {
         log.debug("Adding tutorial: {}", tutorial);
-        return fafApi.post(ElideRouteBuilder.of(Tutorial.class), tutorial);
+        return fafApi.post(ElideNavigator.of(Tutorial.class).collection(), tutorial);
     }
 
     public CompletionStage<List<TutorialCategoryFX>> getAllCategories() {
@@ -84,16 +86,16 @@ public class TutorialService {
 
     public void deleteCategory(TutorialCategoryFX selectedItem) {
         log.debug("Deleting tutorial category: {}", selectedItem);
-        fafApi.delete(ElideRouteBuilder.of(TutorialCategory.class).id(String.valueOf(selectedItem.getId())));
+        fafApi.delete(ElideNavigator.of(TutorialCategory.class).id(String.valueOf(selectedItem.getId())));
     }
 
     public void updateCategory(TutorialCategoryFX category) {
         log.debug("Updating tutorial category: {}", category);
-        fafApi.patch(ElideRouteBuilder.of(TutorialCategory.class).id(String.valueOf(category.getId())), tutorialCategoryMapper.map(category));
+        fafApi.patch(ElideNavigator.of(TutorialCategory.class).id(String.valueOf(category.getId())), tutorialCategoryMapper.map(category));
     }
 
     public TutorialCategory createCategory(TutorialCategory tutorialCategory) {
         log.debug("Adding tutorial category: {}", tutorialCategory);
-        return fafApi.post(ElideRouteBuilder.of(TutorialCategory.class), tutorialCategory);
+        return fafApi.post(ElideNavigator.of(TutorialCategory.class).collection(), tutorialCategory);
     }
 }

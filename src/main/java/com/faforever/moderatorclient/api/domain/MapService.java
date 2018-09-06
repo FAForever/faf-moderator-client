@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +84,7 @@ public class MapService {
         return result;
     }
 
-    public List<Map> findMapsInLadder1v1Pool() {
+    public Set<Map> findMapsInLadder1v1Pool() {
         log.debug("Searching for all ladder1v1 maps");
         List<Ladder1v1Map> ladder1v1Maps = fafApi.getAll(
                 ElideNavigator.of(Ladder1v1Map.class)
@@ -93,17 +94,25 @@ public class MapService {
 
         ladder1v1Maps.forEach(ladder1v1Map -> ladder1v1Map.getMapVersion().setLadder1v1Map(ladder1v1Map));
 
-        List<Map> result = ladder1v1Maps.stream()
+        List<MapVersion> ladder1v1MapVersions = ladder1v1Maps.stream()
                 .map(Ladder1v1Map::getMapVersion)
-                .map(MapVersion::getMap)
                 .collect(Collectors.toList());
+        Set<Map> result = ladder1v1MapVersions.stream()
+                .map(mapVersion -> {
+                    Map map = mapVersion.getMap();
+                    map.setVersions(map.getVersions().stream()
+                            .filter(ladder1v1MapVersions::contains)
+                            .collect(Collectors.toList()));
+                    return map;
+                })
+                .collect(Collectors.toSet());
         log.trace("found {} maps", result.size());
         return result;
     }
 
     public void removeMapVersionFromLadderPool(MapVersion mapVersion) {
         log.debug("Deleting mapVersion from ladder pool: {}", mapVersion.getId());
-        fafApi.delete(ElideNavigator.of(Ladder1v1Map.class).id(mapVersion.getId()));
+        fafApi.delete(ElideNavigator.of(Ladder1v1Map.class).id(mapVersion.getLadder1v1Map().getId()));
     }
 
     public void addMapVersionToLadderPool(MapVersion mapVersion) {
@@ -124,8 +133,9 @@ public class MapService {
 
     public boolean doesMapVersionExist(int id) {
         log.debug("Requesting Mapversion with id: {}", id);
-        return !fafApi.getAll(ElideRouteBuilder.of(MapVersion.class)
-                .filter(ElideRouteBuilder.qBuilder().string("id").eq(String.valueOf(id))))
+        return !fafApi.getAll(ElideNavigator.of(MapVersion.class)
+                .collection()
+                .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
     }
 }

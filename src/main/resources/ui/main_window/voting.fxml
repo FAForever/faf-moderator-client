@@ -40,7 +40,7 @@
                         </VBox.margin>
                     </Button>
                     <Button fx:id="deleteSubjectButton" mnemonicParsing="false" onAction="#deleteSubject"
-                            text="Delete selected subject">
+                            text="Delete selected subjects">
                         <VBox.margin>
                             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                         </VBox.margin>
@@ -77,7 +77,7 @@
                                 </VBox.margin>
                             </Button>
                             <Button fx:id="deleteQuestionButton" mnemonicParsing="false" onAction="#deleteQuestion"
-                                    text="Delete selected question">
+                                    text="Delete selected questions">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>
@@ -112,7 +112,7 @@
                                 </VBox.margin>
                             </Button>
                             <Button fx:id="deleteChoiceButton" mnemonicParsing="false" onAction="#deleteChoice"
-                                    text="Delete selected choice">
+                                    text="Delete selected choices">
                                 <VBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                 </VBox.margin>

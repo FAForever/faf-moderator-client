@@ -23,11 +23,11 @@ import java.util.function.Predicate;
 @Component
 @Slf4j
 public class MessagesController implements Controller<HBox> {
-    private final MessagesService messagesService;
-    private final UiService uiService;
     public HBox root;
     public ToggleGroup filterGroup;
     public TableView<MessageFx> messageTableView;
+    private final MessagesService messagesService;
+    private final UiService uiService;
     public TextField filter;
     public RadioButton valueRadioButton;
     public RadioButton keyRadioButton;
@@ -83,7 +83,7 @@ public class MessagesController implements Controller<HBox> {
             log.info("Could not delete message, there was no message selected");
             return;
         }
-        messagesService.deleteCategory(selectedItem);
+        messagesService.deleteMessage(selectedItem);
         onRefreshMessages();
     }
 

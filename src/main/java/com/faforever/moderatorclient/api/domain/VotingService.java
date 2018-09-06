@@ -67,7 +67,7 @@ public class VotingService {
         return create(subjectMapper.map(votingSubjectFX));
     }
 
-    private VotingSubject create(VotingSubject votingSubject) {
+    public VotingSubject create(VotingSubject votingSubject) {
         log.debug("Adding subject: {}", votingSubject);
         return fafApi.post(ElideNavigator.of(VotingSubject.class).collection(), votingSubject);
     }
@@ -76,7 +76,10 @@ public class VotingService {
     //region questions
     public List<VotingQuestion> getAllQuestionsFromApi() {
         log.debug("Retrieving all questions");
-        List<VotingQuestion> result = fafApi.getAll(ElideNavigator.of(VotingQuestion.class).collection());
+        List<VotingQuestion> result = fafApi.getAll(ElideNavigator.of(VotingQuestion.class)
+                .collection()
+                .addIncludeOnCollection("winners")
+                .addIncludeOnCollection("votingSubject"));
         log.trace("found {} questions", result.size());
         return result;
     }
@@ -117,7 +120,9 @@ public class VotingService {
     //region choices
     public List<VotingChoice> getAllChoicesFromApi() {
         log.debug("Retrieving all choices");
-        List<VotingChoice> result = fafApi.getAll(ElideNavigator.of(VotingChoice.class).collection());
+        List<VotingChoice> result = fafApi.getAll(ElideNavigator.of(VotingChoice.class)
+                .collection()
+                .addIncludeOnCollection("votingQuestion"));
         log.trace("found {} choices", result.size());
         return result;
     }
