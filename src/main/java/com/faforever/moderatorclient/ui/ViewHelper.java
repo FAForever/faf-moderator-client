@@ -11,6 +11,7 @@ import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -20,8 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -57,7 +57,7 @@ public class ViewHelper {
      * @param extractors contains a map of columns to copy along with a value extraction function
      */
     public static <T> void applyCopyContextMenus(TableView<T> tableView, java.util.Map<TableColumn<T, ?>, Function<T, ?>> extractors) {
-        ContextMenu contextMenu = new ContextMenu();
+        ContextMenu contextMenu = tableView.getContextMenu() == null ? new ContextMenu() : tableView.getContextMenu();
 
         for (TableColumn<?, ?> column : tableView.getColumns()) {
             if (extractors.containsKey(column)) {
@@ -1094,7 +1094,7 @@ public class ViewHelper {
         HashMap<TableColumn<MessageFx, ?>, Function<MessageFx, ?>> extractors = new HashMap<>();
 
         TableColumn<MessageFx, Number> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setCellValueFactory(o -> new SimpleIntegerProperty(o.getValue().getId()));
         messageTableView.getColumns().add(idColumn);
         extractors.put(idColumn, MessageFx::getId);
 
@@ -1161,6 +1161,8 @@ public class ViewHelper {
     public static void buildSubjectTable(TableView<VotingSubjectFX> tableView, VotingService votingService, Logger log, Runnable refresh) {
         tableView.setEditable(true);
         HashMap<TableColumn<VotingSubjectFX, ?>, Function<VotingSubjectFX, ?>> extractors = new HashMap<>();
+        makeTableCopyable(tableView, true);
+
 
         TableColumn<VotingSubjectFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
@@ -1289,6 +1291,8 @@ public class ViewHelper {
         tableView.setEditable(true);
         HashMap<TableColumn<VotingQuestionFX, ?>, Function<VotingQuestionFX, ?>> extractors = new HashMap<>();
 
+        makeTableCopyable(tableView, true);
+
         TableColumn<VotingQuestionFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         tableView.getColumns().add(idColumn);
@@ -1392,6 +1396,22 @@ public class ViewHelper {
         tableView.getColumns().add(numberAnswersColumn);
         extractors.put(numberAnswersColumn, VotingQuestionFX::getNumberOfAnswers);
 
+
+        Function<VotingQuestionFX, Float> averageOrdinalFunction = votingQuestionFX -> {
+            int averageSum = 0;
+            for (VotingChoiceFX choice : votingQuestionFX.getVotingChoices()) {
+                averageSum += choice.getOrdinal() * choice.getNumberOfAnswers();
+            }
+            return (float) (averageSum) / votingQuestionFX.getNumberOfAnswers();
+        };
+
+        TableColumn<VotingQuestionFX, Float> averageOrdinalColumn = new TableColumn<>("Average ordinal for answers");
+        averageOrdinalColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(averageOrdinalFunction.apply(param.getValue())));
+        averageOrdinalColumn.setEditable(false);
+        averageOrdinalColumn.setMinWidth(170);
+        tableView.getColumns().add(averageOrdinalColumn);
+        extractors.put(averageOrdinalColumn, averageOrdinalFunction);
+
         applyCopyContextMenus(tableView, extractors);
     }
 
@@ -1405,8 +1425,7 @@ public class ViewHelper {
             @Override
             public Number fromString(String string) {
                 try {
-                    int i = Integer.parseInt(string);
-                    return i;
+                    return Integer.parseInt(string);
                 } catch (Exception e) {
                     log.error("Error parsing integer", e);
                 }
@@ -1417,6 +1436,7 @@ public class ViewHelper {
 
     public static void buildChoiceTable(TableView<VotingChoiceFX> tableView, VotingService votingService, Logger log, Runnable refresh) {
         tableView.setEditable(true);
+        makeTableCopyable(tableView, true);
         HashMap<TableColumn<VotingChoiceFX, ?>, Function<VotingChoiceFX, ?>> extractors = new HashMap<>();
 
         TableColumn<VotingChoiceFX, String> idColumn = new TableColumn<>("ID");
@@ -1500,10 +1520,6 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    interface ColumnExtractor<T, R> {
-        R extract(TableColumn<T, R> column);
-    }
-
     public static boolean confirmDialog(String title, String detail) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -1551,4 +1567,51 @@ public class ViewHelper {
 
         alert.showAndWait();
     }
+
+    @SuppressWarnings("rawtypes")
+    public static void copySelectionToClipboard(final TableView<?> table) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : table.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        final StringBuilder strb = new StringBuilder();
+        boolean firstRow = true;
+        for (final Integer row : rows) {
+            if (!firstRow) {
+                strb.append('\n');
+            }
+            firstRow = false;
+            boolean firstCol = true;
+            for (final TableColumn<?, ?> column : table.getColumns()) {
+                if (!firstCol) {
+                    strb.append('\t');
+                }
+                firstCol = false;
+                final Object cellData = column.getCellData(row);
+                strb.append(cellData == null ? "" : cellData.toString());
+            }
+        }
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(strb.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+    }
+
+    public static void makeTableCopyable(final TableView<?> table, boolean allowControllC) {
+        if (allowControllC) {
+            final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY);
+            table.setOnKeyPressed(event -> {
+                if (keyCodeCopy.match(event)) {
+                    copySelectionToClipboard(table);
+                }
+            });
+        }
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        MenuItem item = new MenuItem("Copy Everything");
+        item.setOnAction(event ->
+                copySelectionToClipboard(table));
+        ContextMenu menu = table.getContextMenu() == null ? new ContextMenu() : table.getContextMenu();
+        menu.getItems().add(item);
+        table.setContextMenu(menu);
+    }
+
 }

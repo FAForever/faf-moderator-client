@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.Message;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.events.MessagesChangedEvent;
 import com.faforever.moderatorclient.mapstruct.MessagesMapper;
@@ -33,26 +33,44 @@ public class MessagesService {
     }
 
     private List<Message> getAllMessagesFromApi() {
-        return fafApi.getAll(ElideRouteBuilder.of(Message.class));
+        return fafApi.getAll(ElideNavigator.of(Message.class).collection());
     }
 
     public void updateMessage(MessageFx messageFx) {
         Message message = messagesMapper.map(messageFx);
-        fafApi.patch(ElideRouteBuilder.of(Message.class).id(message.getId()), message);
+        fafApi.patch(ElideNavigator.of(Message.class).id(message.getId()), message);
         applicationEventPublisher.publishEvent(new MessagesChangedEvent());
     }
 
-    public void deleteCategory(MessageFx selectedItem) {
+    public void deleteMessage(MessageFx selectedItem) {
         Message message = messagesMapper.map(selectedItem);
-        fafApi.delete(ElideRouteBuilder.of(Message.class).id(message.getId()));
+        fafApi.delete(ElideNavigator.of(Message.class).id(message.getId()));
         applicationEventPublisher.publishEvent(new MessagesChangedEvent());
 
     }
 
     public Message createMessage(MessageFx messageFx) {
         Message message = messagesMapper.map(messageFx);
-        Message result = fafApi.post(ElideRouteBuilder.of(Message.class), message);
+        Message result = fafApi.post(ElideNavigator.of(Message.class).collection(), message);
         applicationEventPublisher.publishEvent(new MessagesChangedEvent());
         return result;
     }
+
+    public Message putMessage(MessageFx messageFx) {
+        Message message = messagesMapper.map(messageFx);
+        List<Message> messages = fafApi.getAll(ElideNavigator.of(Message.class)
+                .collection()
+                .addFilter(ElideNavigator.qBuilder().string("region").eq(message.getRegion())
+                        .and().string("language").eq(message.getLanguage())
+                        .and().string("key").eq(message.getKey())));
+        if (messages.size() > 1) {
+            throw new IllegalStateException("message should be unique by region, language and key");
+        }
+        if (!messages.isEmpty()) {
+            log.info("deleting existing message ''{}''", message);
+            messages.forEach(messageFound -> deleteMessage(messagesMapper.map(messageFound)));
+        }
+        return createMessage(messageFx);
+    }
+
 }

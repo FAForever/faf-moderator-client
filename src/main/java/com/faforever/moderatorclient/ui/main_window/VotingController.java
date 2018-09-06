@@ -7,11 +7,13 @@ import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.events.VotingRefreshEvent;
 import com.faforever.moderatorclient.ui.voting.VotingChoiceAddController;
 import com.faforever.moderatorclient.ui.voting.VotingQuestionAddController;
 import com.faforever.moderatorclient.ui.voting.VotingSubjectAddController;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -22,10 +24,10 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
-import java.util.Objects;
 
 @Slf4j
 @Component
@@ -80,8 +82,8 @@ public class VotingController implements Controller<SplitPane> {
         sortedSubjects.comparatorProperty().bind(subjectTable.comparatorProperty());
         ViewHelper.buildSubjectTable(subjectTable, votingService, log, this::onRefreshSubjects);
         subjectTable.setItems(sortedSubjects);
-        subjectTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                filteredQuestions.setPredicate(votingQuestionFX -> Objects.equals(votingQuestionFX.getVotingSubject(), newValue)));
+        subjectTable.getSelectionModel().getSelectedItems()
+                .addListener((ListChangeListener<? super VotingSubjectFX>) selectedSubjects -> filteredQuestions.setPredicate(votingQuestionFX -> subjectTable.getSelectionModel().getSelectedItems().contains(votingQuestionFX.getVotingSubject())));
 
         revealResultsButton.disableProperty()
                 .bind(Bindings.createBooleanBinding(() -> {
@@ -92,8 +94,8 @@ public class VotingController implements Controller<SplitPane> {
         deleteSubjectButton.disableProperty().bind(subjectTable.getSelectionModel().selectedItemProperty().isNull());
 
         //Questions
-        questionTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-                filteredChoices.setPredicate(votingChoiceFX -> Objects.equals(votingChoiceFX.getVotingQuestion(), newValue)));
+        questionTable.getSelectionModel().getSelectedItems()
+                .addListener((ListChangeListener<? super VotingQuestionFX>) selectedQuestions -> filteredChoices.setPredicate(votingChoiceFX -> questionTable.getSelectionModel().getSelectedItems().contains(votingChoiceFX.getVotingQuestion())));
         addQuestionButton.disableProperty().bind(subjectTable.getSelectionModel().selectedItemProperty().isNull());
         deleteQuestionButton.disableProperty().bind(questionTable.getSelectionModel().selectedItemProperty().isNull());
         sortedQuestions.comparatorProperty().bind(questionTable.comparatorProperty());
@@ -138,12 +140,14 @@ public class VotingController implements Controller<SplitPane> {
     }
 
     public void revealWinner() {
+        VotingSubjectFX votingSubjectFX = new VotingSubjectFX();
         VotingSubjectFX selectedItem = subjectTable.getSelectionModel().getSelectedItem();
         if (selectedItem == null) {
             return;
         }
-        selectedItem.setRevealWinner(true);
-        votingService.updateSubject(selectedItem);
+        votingSubjectFX.setId(selectedItem.getId());
+        votingSubjectFX.setRevealWinner(true);
+        votingService.updateSubject(votingSubjectFX);
         onRefreshSubjects();
         onRefreshChoices();
         onRefreshQuestions();
@@ -211,4 +215,11 @@ public class VotingController implements Controller<SplitPane> {
         newCategoryDialog.showAndWait();
     }
     //endregion
+
+    @EventListener
+    public void onRefreshEvent(VotingRefreshEvent votingRefreshEvent) {
+        onRefreshQuestions();
+        onRefreshChoices();
+        onRefreshSubjects();
+    }
 }

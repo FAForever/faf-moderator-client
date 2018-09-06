@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
-           xmlns="http://javafx.com/javafx/8.0.111"
+           xmlns="http://javafx.com/javafx/8.0.141"
            fx:controller="com.faforever.moderatorclient.ui.main_window.LadderMapPoolController">
     <items>
         <VBox>
@@ -28,6 +28,8 @@
                 </HBox>
                 <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                     <children>
+                        <Button fx:id="ladderMapReview" mnemonicParsing="false" onAction="#generateLadderMapReviewVote"
+                                text="Generate ladder map review vote"/>
                         <Button fx:id="removeFromPoolButton" alignment="CENTER" disable="true" mnemonicParsing="false"
                                 onAction="#onRemoveFromLadderPool" text="remove selected map from pool"
                                 HBox.hgrow="ALWAYS">

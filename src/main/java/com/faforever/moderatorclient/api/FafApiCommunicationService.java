@@ -18,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -127,12 +125,16 @@ public class FafApiCommunicationService {
     @SneakyThrows
     public <T extends ElideEntity> T post(ElideNavigatorOnCollection<T> navigator, T object) {
         String url = navigator.build();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         try {
             JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
             String dataString = new String(resourceConverter.writeDocument(data));
             authorizedLatch.await();
-            ResponseEntity<T> entity = restOperations.postForEntity(url, dataString, navigator.getDtoClass());
+            HttpEntity<String> tHttpEntity = new HttpEntity<>(dataString, httpHeaders);
+            ResponseEntity<T> entity = restOperations.exchange(url, HttpMethod.POST, tHttpEntity, navigator.getDtoClass());
 
             cycleAvoidingMappingContext.clearCache();
 
@@ -149,9 +151,13 @@ public class FafApiCommunicationService {
         cycleAvoidingMappingContext.clearCache();
         String url = routeBuilder.build();
 
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
         try {
             authorizedLatch.await();
-            return restOperations.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object), routeBuilder.getDtoClass()).getBody();
+            return restOperations.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object, httpHeaders), routeBuilder.getDtoClass()).getBody();
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
             throw t;

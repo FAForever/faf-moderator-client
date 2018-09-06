@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
-        <jitpack.faf-java-commons.version>77492615a72d3b7847dc0f566826951d9243e7c0</jitpack.faf-java-commons.version>
+        <jitpack.faf-java-commons.version>6623f1f59c8bcb0d7c33423708cbf169e7c65638</jitpack.faf-java-commons.version>
         <jitpack.nocatch.version>1.1</jitpack.nocatch.version>
         <jitpack.q-builders.version>1.6</jitpack.q-builders.version>
         <jitpack.jasminb.jsonapi-converter.version>0.8</jitpack.jasminb.jsonapi-converter.version>
