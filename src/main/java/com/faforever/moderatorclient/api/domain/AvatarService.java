@@ -84,7 +84,7 @@ public class AvatarService {
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
         final String route = "/avatars/upload";
         log.debug("Sending API request: {}", route);
-        fafApi.getRestOperations().exchange(
+        fafApi.getRestTemplate().exchange(
                 route,
                 HttpMethod.POST,
                 requestEntity,
@@ -96,7 +96,7 @@ public class AvatarService {
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
         final String route = "/avatars/{0}/upload";
         log.debug("Sending API request: {}", route);
-        fafApi.getRestOperations().exchange(
+        fafApi.getRestTemplate().exchange(
                 route,
                 HttpMethod.POST,
                 requestEntity,
@@ -108,7 +108,7 @@ public class AvatarService {
     public void deleteAvatar(String avatarId) {
         final String route = "/avatars/{0}";
         log.debug("Sending API request: {}", route);
-        fafApi.getRestOperations().delete(route, avatarId);
+        fafApi.getRestTemplate().delete(route, avatarId);
     }
 
     public List<Avatar> getAllAvatarsWithPlayerAssignments() {

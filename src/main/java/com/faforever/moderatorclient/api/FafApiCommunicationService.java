@@ -18,7 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -27,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -51,7 +56,7 @@ public class FafApiCommunicationService {
     private final int apiMaxPageSize;
     private final int apiMaxResultSize;
     private CountDownLatch authorizedLatch;
-    private RestOperations restOperations;
+    private RestTemplate restTemplate;
 
 
     public FafApiCommunicationService(ResourceConverter resourceConverter, ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
@@ -84,8 +89,8 @@ public class FafApiCommunicationService {
                 .rootUri(apiBaseUrl);
     }
 
-    public RestOperations getRestOperations() {
-        return restOperations;
+    public RestOperations getRestTemplate() {
+        return restTemplate;
     }
 
     @SneakyThrows
@@ -99,7 +104,14 @@ public class FafApiCommunicationService {
         details.setUsername(username);
         details.setPassword(password);
 
-        restOperations = restTemplateBuilder.configure(new OAuth2RestTemplate(details));
+        restTemplate = restTemplateBuilder.configure(new OAuth2RestTemplate(details));
+        restTemplate.setInterceptors(Collections.singletonList(
+                (request, body, execution) -> {
+                    HttpHeaders headers = request.getHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    return execution.execute(request, body);
+                }
+        ));
 
         authorizedLatch.countDown();
     }
@@ -134,7 +146,7 @@ public class FafApiCommunicationService {
             String dataString = new String(resourceConverter.writeDocument(data));
             authorizedLatch.await();
             HttpEntity<String> tHttpEntity = new HttpEntity<>(dataString, httpHeaders);
-            ResponseEntity<T> entity = restOperations.exchange(url, HttpMethod.POST, tHttpEntity, navigator.getDtoClass());
+            ResponseEntity<T> entity = restTemplate.exchange(url, HttpMethod.POST, tHttpEntity, navigator.getDtoClass());
 
             cycleAvoidingMappingContext.clearCache();
 
@@ -157,7 +169,7 @@ public class FafApiCommunicationService {
 
         try {
             authorizedLatch.await();
-            return restOperations.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object, httpHeaders), routeBuilder.getDtoClass()).getBody();
+            return restTemplate.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object, httpHeaders), routeBuilder.getDtoClass()).getBody();
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
             throw t;
@@ -171,7 +183,7 @@ public class FafApiCommunicationService {
 
         try {
             authorizedLatch.await();
-            return restOperations.patchForObject(url, object, routeBuilder.getDtoClass());
+            return restTemplate.patchForObject(url, object, routeBuilder.getDtoClass());
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
             throw t;
@@ -188,7 +200,7 @@ public class FafApiCommunicationService {
 
         try {
             authorizedLatch.await();
-            restOperations.delete(url);
+            restTemplate.delete(url);
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, navigator.getDtoClass(), url));
             throw t;
@@ -212,7 +224,7 @@ public class FafApiCommunicationService {
     public <T extends ElideEntity> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
         cycleAvoidingMappingContext.clearCache();
         try {
-            return restOperations.getForObject(endpointPath, type, params);
+            return restTemplate.getForObject(endpointPath, type, params);
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailGetEvent(t, endpointPath, type));
             throw t;
@@ -258,7 +270,7 @@ public class FafApiCommunicationService {
         log.debug("Sending API request: {}", route);
 
         try {
-            return (List<T>) restOperations.getForObject(
+            return (List<T>) restTemplate.getForObject(
                     route,
                     List.class,
                     params);
