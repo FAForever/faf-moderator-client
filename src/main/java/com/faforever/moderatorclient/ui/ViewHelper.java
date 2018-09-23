@@ -1,7 +1,12 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
+import com.faforever.commons.api.dto.VotingChoice;
+import com.faforever.commons.api.dto.VotingQuestion;
+import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
@@ -21,7 +26,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -39,7 +48,13 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -475,16 +490,21 @@ public class ViewHelper {
         createTimeColumn.setMinWidth(160);
         tableView.getColumns().add(createTimeColumn);
 
-        TableColumn<PlayerFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last lobby login");
-        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
-        updateTimeColumn.setMinWidth(160);
-        tableView.getColumns().add(updateTimeColumn);
+        TableColumn<PlayerFX, OffsetDateTime> lastLoginColumn = new TableColumn<>("Last login");
+        lastLoginColumn.setCellValueFactory(o -> o.getValue().lastLoginProperty());
+        lastLoginColumn.setMinWidth(160);
+        tableView.getColumns().add(lastLoginColumn);
 
         TableColumn<PlayerFX, String> userAgentColumn = new TableColumn<>("User Agent");
         userAgentColumn.setCellValueFactory(o -> o.getValue().userAgentProperty());
         userAgentColumn.setMinWidth(200);
         tableView.getColumns().add(userAgentColumn);
         extractors.put(userAgentColumn, PlayerFX::getUserAgent);
+
+        TableColumn<PlayerFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Last update of record");
+        updateTimeColumn.setCellValueFactory(o -> o.getValue().updateTimeProperty());
+        updateTimeColumn.setMinWidth(160);
+        tableView.getColumns().add(updateTimeColumn);
 
         if (onAddBan != null) {
             TableColumn<PlayerFX, PlayerFX> banOptionColumn = new TableColumn<>("Ban");

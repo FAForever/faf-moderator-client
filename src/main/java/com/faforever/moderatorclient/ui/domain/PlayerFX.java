@@ -3,10 +3,14 @@ package com.faforever.moderatorclient.ui.domain;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.commons.api.dto.BanStatus;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import java.time.OffsetDateTime;
 
 public class PlayerFX extends AbstractEntityFX {
     private final StringProperty login;
@@ -15,6 +19,7 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty steamId;
     private final StringProperty recentIpAddress;
     private final StringProperty representation;
+    private final ObjectProperty<OffsetDateTime> lastLogin;
     private final ObservableList<NameRecordFX> names;
     private final ObservableList<BanInfoFX> bans;
     private final ObservableList<AvatarAssignmentFX> avatarAssignments;
@@ -25,6 +30,7 @@ public class PlayerFX extends AbstractEntityFX {
         userAgent = new SimpleStringProperty();
         steamId = new SimpleStringProperty();
         recentIpAddress = new SimpleStringProperty();
+        lastLogin = new SimpleObjectProperty<>();
 
         representation = new SimpleStringProperty();
         representation.bind(Bindings.concat(login, " [id ", idProperty(), "]"));
@@ -144,5 +150,17 @@ public class PlayerFX extends AbstractEntityFX {
 
     public boolean isBannedGlobally() {
         return !bans.filtered(banInfoFX -> banInfoFX.getBanStatus() == BanStatus.BANNED && banInfoFX.getLevel() == BanLevel.GLOBAL).isEmpty();
+    }
+
+    public OffsetDateTime getLastLogin() {
+        return lastLogin.get();
+    }
+
+    public void setLastLogin(OffsetDateTime lastLogin) {
+        this.lastLogin.set(lastLogin);
+    }
+
+    public ObjectProperty<OffsetDateTime> lastLoginProperty() {
+        return lastLogin;
     }
 }
