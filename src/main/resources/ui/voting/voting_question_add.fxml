@@ -19,6 +19,7 @@
         <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="300.0"/>
     </columnConstraints>
     <children>
+        <Label text="Ordinal" GridPane.rowIndex="5"/>
         <Label text="Question message key" GridPane.rowIndex="4"/>
         <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
         <Label text="Max answers" GridPane.rowIndex="2"/>
@@ -30,6 +31,8 @@
         <CheckBox fx:id="alternativeQuestionCheckBox" mnemonicParsing="false" text="is alternative question"
                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
         <TextField fx:id="votingSubjectIdTextField" GridPane.columnIndex="1" disable="true"/>
+        <TextField fx:id="votingSubjectOrdinal" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
         <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
             <GridPane.margin>
                 <Insets/>
