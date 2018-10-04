@@ -13,6 +13,7 @@ public class VotingQuestionFX extends AbstractEntityFX {
     private final StringProperty questionKey;
     private final StringProperty descriptionKey;
     private final IntegerProperty maxAnswers;
+    private final IntegerProperty ordinal;
     private final BooleanProperty alternativeQuestion;
     private final ObjectProperty<VotingSubjectFX> votingSubject;
     private final ObservableList<VotingChoiceFX> winners;
@@ -29,6 +30,7 @@ public class VotingQuestionFX extends AbstractEntityFX {
         this.votingSubject = new SimpleObjectProperty<>();
         this.winners = FXCollections.observableArrayList();
         this.votingChoices = FXCollections.observableArrayList();
+        this.ordinal = new SimpleIntegerProperty();
     }
 
     public static String getTypeName() {
@@ -137,6 +139,18 @@ public class VotingQuestionFX extends AbstractEntityFX {
 
     public ObservableList<VotingChoiceFX> getVotingChoices() {
         return votingChoices;
+    }
+
+    public int getOrdinal() {
+        return ordinal.get();
+    }
+
+    public void setOrdinal(int ordinal) {
+        this.ordinal.set(ordinal);
+    }
+
+    public IntegerProperty ordinalProperty() {
+        return ordinal;
     }
 
     @Override

@@ -32,6 +32,7 @@ public class VotingQuestionAddController implements Controller<Pane> {
     public TextField maxAnswersTextField;
     public TextField votingSubjectIdTextField;
     public CheckBox alternativeQuestionCheckBox;
+    public TextField votingSubjectOrdinal;
 
     private Runnable onSaveRunnable;
 
@@ -64,6 +65,7 @@ public class VotingQuestionAddController implements Controller<Pane> {
             votingQuestion.setMaxAnswers(Integer.parseInt(maxAnswersTextField.getText()));
         }
         votingQuestion.setAlternativeQuestion(alternativeQuestionCheckBox.isSelected());
+        votingQuestion.setOrdinal(Integer.valueOf(votingSubjectOrdinal.getText()));
 
         VotingSubject votingSubject = new VotingSubject();
         votingSubject.setId(votingSubjectIdTextField.getText());
@@ -103,11 +105,20 @@ public class VotingQuestionAddController implements Controller<Pane> {
                 validationErrors.add("Invalid max answers");
             }
         }
-
+        if (votingSubjectOrdinal.getText().isEmpty()) {
+            validationErrors.add("Ordinal must be set");
+        } else {
+            try {
+                Integer.parseInt(votingSubjectOrdinal.getText());
+            } catch (Exception e) {
+                validationErrors.add("Ordinal must be valid number");
+            }
+        }
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
                     validationErrors.stream().collect(Collectors.joining("\n")));
             return false;
+
         }
 
         return true;

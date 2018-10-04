@@ -5,7 +5,7 @@
 
     <groupId>com.faforever</groupId>
     <artifactId>faf-moderator-client</artifactId>
-    <version>0.4.2</version>
+    <version>0.5.0</version>
     <packaging>jar</packaging>
 
     <name>faf-moderator-client</name>
@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
-        <jitpack.faf-java-commons.version>36188f3</jitpack.faf-java-commons.version>
+        <jitpack.faf-java-commons.version>f33568ba22de6afc265efc73d2c6f310c88a79b3</jitpack.faf-java-commons.version>
         <jitpack.nocatch.version>1.1</jitpack.nocatch.version>
         <jitpack.q-builders.version>1.6</jitpack.q-builders.version>
         <jitpack.jasminb.jsonapi-converter.version>0.8</jitpack.jasminb.jsonapi-converter.version>

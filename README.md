@@ -1,4 +1,4 @@
-# FAF Moderator Client
+# FAF Moderator Client [![Build status](https://travis-ci.org/FAForever/faf-moderator-client.svg?branch=master)](https://travis-ci.org/FAForever/faf-moderator-client)
 This application enables faforever.com moderators to perform administrative actions. This involves:
 - managing of users
 - avatars

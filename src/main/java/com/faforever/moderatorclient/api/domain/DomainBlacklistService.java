@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.DomainBlacklist;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,19 +19,19 @@ public class DomainBlacklistService {
 
     public List<DomainBlacklist> getAll() {
         log.debug("Retrieving all domainBlacklists");
-        List<DomainBlacklist> result = fafApi.getAll(ElideRouteBuilder.of(DomainBlacklist.class));
+        List<DomainBlacklist> result = fafApi.getAll(ElideNavigator.of(DomainBlacklist.class).collection());
         log.trace("found {} avatars", result.size());
         return result;
     }
 
     public void remove(String domain) {
         log.debug("Deleting domainBlacklist: {}", domain);
-        fafApi.delete(ElideRouteBuilder.of(DomainBlacklist.class).id(domain));
+        fafApi.delete(ElideNavigator.of(DomainBlacklist.class).id(domain));
     }
 
     public void add(DomainBlacklist domainBlacklist) {
         log.debug("Adding domainBlacklist: {}", domainBlacklist.getDomain());
-        fafApi.post(ElideRouteBuilder.of(DomainBlacklist.class), domainBlacklist);
+        fafApi.post(ElideNavigator.of(DomainBlacklist.class).collection(), domainBlacklist);
     }
 
 }

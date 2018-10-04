@@ -3,7 +3,7 @@ package com.faforever.moderatorclient.api.domain;
 import com.faforever.commons.api.dto.VotingChoice;
 import com.faforever.commons.api.dto.VotingQuestion;
 import com.faforever.commons.api.dto.VotingSubject;
-import com.faforever.moderatorclient.api.ElideRouteBuilder;
+import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.*;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class VotingService {
     //region subjects
     public List<VotingSubject> getAllSubjectsFromApi() {
         log.debug("Retrieving all subjects");
-        List<VotingSubject> result = fafApi.getAll(ElideRouteBuilder.of(VotingSubject.class));
+        List<VotingSubject> result = fafApi.getAll(ElideNavigator.of(VotingSubject.class).collection());
         log.trace("found {} subjects", result.size());
         return result;
     }
@@ -55,28 +55,31 @@ public class VotingService {
         votingSubject.setBeginOfVoteTime(null);
         votingSubject.setEndOfVoteTime(null);
         log.debug("Patching subject of id: ", votingSubject.getId());
-        return fafApi.patch(ElideRouteBuilder.of(VotingSubject.class).id(votingSubject.getId()), votingSubject);
+        return fafApi.patch(ElideNavigator.of(VotingSubject.class).id(votingSubject.getId()), votingSubject);
     }
 
     private void deleteSubject(VotingSubject votingSubject) {
         log.debug("Deleting subject: {}", votingSubject);
-        fafApi.delete(ElideRouteBuilder.of(VotingSubject.class).id(votingSubject.getId()));
+        fafApi.delete(ElideNavigator.of(VotingSubject.class).id(votingSubject.getId()));
     }
 
     public VotingSubject create(VotingSubjectFX votingSubjectFX) {
         return create(subjectMapper.map(votingSubjectFX));
     }
 
-    private VotingSubject create(VotingSubject votingSubject) {
+    public VotingSubject create(VotingSubject votingSubject) {
         log.debug("Adding subject: {}", votingSubject);
-        return fafApi.post(ElideRouteBuilder.of(VotingSubject.class), votingSubject);
+        return fafApi.post(ElideNavigator.of(VotingSubject.class).collection(), votingSubject);
     }
     //endregion
 
     //region questions
     public List<VotingQuestion> getAllQuestionsFromApi() {
         log.debug("Retrieving all questions");
-        List<VotingQuestion> result = fafApi.getAll(ElideRouteBuilder.of(VotingQuestion.class));
+        List<VotingQuestion> result = fafApi.getAll(ElideNavigator.of(VotingQuestion.class)
+                .collection()
+                .addIncludeOnCollection("winners")
+                .addIncludeOnCollection("votingSubject"));
         log.trace("found {} questions", result.size());
         return result;
     }
@@ -96,12 +99,12 @@ public class VotingService {
 
     public VotingQuestion update(VotingQuestion votingQuestion) {
         log.debug("Patching Question of id: ", votingQuestion.getId());
-        return fafApi.patch(ElideRouteBuilder.of(VotingQuestion.class).id(votingQuestion.getId()), votingQuestion);
+        return fafApi.patch(ElideNavigator.of(VotingQuestion.class).id(votingQuestion.getId()), votingQuestion);
     }
 
     private void deleteQuestion(VotingQuestion votingQuestion) {
         log.debug("Deleting question: {}", votingQuestion);
-        fafApi.delete(ElideRouteBuilder.of(VotingQuestion.class).id(votingQuestion.getId()));
+        fafApi.delete(ElideNavigator.of(VotingQuestion.class).id(votingQuestion.getId()));
     }
 
     public VotingQuestion create(VotingQuestionFX votingQuestionFX) {
@@ -110,14 +113,16 @@ public class VotingService {
 
     public VotingQuestion create(VotingQuestion votingQuestion) {
         log.debug("Adding question: {}", votingQuestion);
-        return fafApi.post(ElideRouteBuilder.of(VotingQuestion.class), votingQuestion);
+        return fafApi.post(ElideNavigator.of(VotingQuestion.class).collection(), votingQuestion);
     }
     //endregion
 
     //region choices
     public List<VotingChoice> getAllChoicesFromApi() {
         log.debug("Retrieving all choices");
-        List<VotingChoice> result = fafApi.getAll(ElideRouteBuilder.of(VotingChoice.class));
+        List<VotingChoice> result = fafApi.getAll(ElideNavigator.of(VotingChoice.class)
+                .collection()
+                .addIncludeOnCollection("votingQuestion"));
         log.trace("found {} choices", result.size());
         return result;
     }
@@ -137,12 +142,12 @@ public class VotingService {
 
     public VotingChoice update(VotingChoice votingChoice) {
         log.debug("Patching Choice of id: ", votingChoice.getId());
-        return fafApi.patch(ElideRouteBuilder.of(VotingChoice.class).id(votingChoice.getId()), votingChoice);
+        return fafApi.patch(ElideNavigator.of(VotingChoice.class).id(votingChoice.getId()), votingChoice);
     }
 
     private void deleteChoice(VotingChoice votingChoice) {
         log.debug("Deleting choice: {}", votingChoice);
-        fafApi.delete(ElideRouteBuilder.of(VotingChoice.class).id(votingChoice.getId()));
+        fafApi.delete(ElideNavigator.of(VotingChoice.class).id(votingChoice.getId()));
     }
 
     public VotingChoice create(VotingChoiceFX votingChoiceFX) {
@@ -151,7 +156,7 @@ public class VotingService {
 
     public VotingChoice create(VotingChoice votingChoice) {
         log.debug("Adding choice: {}", votingChoice);
-        return fafApi.post(ElideRouteBuilder.of(VotingChoice.class), votingChoice);
+        return fafApi.post(ElideNavigator.of(VotingChoice.class).collection(), votingChoice);
     }
     //endregion
 }
