@@ -171,7 +171,7 @@ public class LadderMapVoteGenerationFormController implements Controller<Node> {
     private String generateMapDescriptionHTML(MapVersion mapVersion) {
         String formattedHtml;
         try {
-            URL resource = getClass().getResource("/media/map_description_template.html");
+            URL resource = getClass().getClassLoader().getResource("media/map_description_template.html");
             String htmlTemplate = new String(Files.readAllBytes(Paths.get(resource.toURI())));
 
             formattedHtml = htmlTemplate.replaceAll("\\{map-player-count}", String.valueOf(mapVersion.getMaxPlayers()));
