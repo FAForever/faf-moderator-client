@@ -1104,6 +1104,21 @@ public class ViewHelper {
             }
         });
         extractors.put(mapColumn, tutorialFx -> tutorialFx.getMapVersion().toString());
+        
+        TableColumn<TutorialFx, String> technicalNameColumn = new TableColumn<>("Technical Name ✏");
+        technicalNameColumn.getStyleClass().add("editable");
+        technicalNameColumn.setCellValueFactory(param -> param.getValue().technicalNameProperty());
+        technicalNameColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        technicalNameColumn.setEditable(true);
+        technicalNameColumn.setMinWidth(200);
+        tutorialTableView.getColumns().add(technicalNameColumn);
+        technicalNameColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setTechnicalName(event.getNewValue());
+            tutorialService.updateTutorial(rowValue);
+            refresh.run();
+        });
+        extractors.put(technicalNameColumn, TutorialFx::getTechnicalName);
 
         applyCopyContextMenus(tutorialTableView, extractors);
     }
