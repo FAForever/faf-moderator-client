@@ -14,7 +14,7 @@ This application enables faforever.com moderators to perform administrative acti
 - For a simple setup and testing of the dependencies you should use [Docker](https://www.docker.org) and [Docker Compose](https://github.com/docker/compose/releases)
 
 ## Boot the dependencies
-- Checkout the [FAF Stack](https://github.com/FAForver/faf-stack) and boot the api via `docker-compose up -d faf-java-api`. This will also boot the FAF database.
+- Checkout the [FAF Stack](https://github.com/FAForever/faf-stack) and boot the api via `docker-compose up -d faf-java-api`. This will also boot the FAF database.
 - Get some [test data](https://github.com/FAForever/db/blob/develop/test-data.sql) and insert it into the MySQL db (user: root & password: banana). A tool like HeidiSQL can help you with this. This also adds a moderator account with username: test & password: test_password
 
 ## Run from source
