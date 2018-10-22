@@ -749,8 +749,8 @@ public class ViewHelper {
         extractors.put(downloadUrlColumn, MapVersionFX::getDownloadUrl);
 
         if (onToggleHide != null) {
-            TableColumn<MapVersionFX, MapVersionFX> toggleHideColumn = new TableColumn<>("Ban");
-            toggleHideColumn.setMinWidth(150);
+            TableColumn<MapVersionFX, MapVersionFX> toggleHideColumn = new TableColumn<>("Action");
+            toggleHideColumn.setMinWidth(50);
             toggleHideColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
             toggleHideColumn.setCellFactory(param -> new TableCell<MapVersionFX, MapVersionFX>() {
                 @Override
