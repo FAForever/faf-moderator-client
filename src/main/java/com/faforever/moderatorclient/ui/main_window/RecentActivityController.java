@@ -1,11 +1,13 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import javafx.collections.FXCollections;
@@ -22,20 +24,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecentActivityController implements Controller<VBox> {
     private final UserService userService;
+    private final MapService mapService;
     private final ObservableList<PlayerFX> users;
     private final ObservableList<TeamkillFX> teamkills;
+    private final ObservableList<MapVersionFX> mapVersions;
 
     public VBox root;
     public TableView<PlayerFX> userRegistrationFeedTableView;
     public TableView<TeamkillFX> teamkillFeedTableView;
+    public TableView<MapVersionFX> mapUploadFeedTableView;
     private final UiService uiService;
 
-    public RecentActivityController(UserService userService, UiService uiService) {
+    public RecentActivityController(UserService userService, MapService mapService, UiService uiService) {
         this.userService = userService;
+        this.mapService = mapService;
         this.uiService = uiService;
 
         users = FXCollections.observableArrayList();
         teamkills = FXCollections.observableArrayList();
+        mapVersions = FXCollections.observableArrayList();
     }
 
     @Override
@@ -47,6 +54,7 @@ public class RecentActivityController implements Controller<VBox> {
     public void initialize() {
         ViewHelper.buildUserTableView(userRegistrationFeedTableView, users, this::addBan);
         ViewHelper.buildTeamkillTableView(teamkillFeedTableView, teamkills, true, this::addBan);
+        ViewHelper.buildMapFeedTableView(mapUploadFeedTableView, mapVersions, this::toggleHide);
     }
 
     private void addBan(PlayerFX playerFX) {
@@ -59,7 +67,11 @@ public class RecentActivityController implements Controller<VBox> {
         banInfoDialog.setTitle("Apply new ban");
         banInfoDialog.setScene(new Scene(banInfoController.getRoot()));
         banInfoDialog.showAndWait();
+    }
 
+    private void toggleHide(MapVersionFX mapVersionFX) {
+        mapVersionFX.setHidden(!mapVersionFX.isHidden());
+        mapService.patchMapVersion(mapVersionFX);
     }
 
     public void refresh() {
@@ -68,5 +80,8 @@ public class RecentActivityController implements Controller<VBox> {
 
         teamkills.setAll(userService.findLatestTeamkills());
         teamkillFeedTableView.getSortOrder().clear();
+
+        mapVersions.setAll(mapService.findLatestMapVersions());
+        mapUploadFeedTableView.getSortOrder().clear();
     }
 }

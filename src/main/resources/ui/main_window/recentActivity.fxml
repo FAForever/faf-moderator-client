@@ -25,6 +25,11 @@
                                 <TableView fx:id="teamkillFeedTableView"/>
                             </content>
                         </TitledPane>
+                        <TitledPane expanded="false" text="Latest map uploads">
+                            <content>
+                                <TableView fx:id="mapUploadFeedTableView"/>
+                            </content>
+                        </TitledPane>
                     </children>
                 </VBox>
             </content>

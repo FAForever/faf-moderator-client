@@ -6,11 +6,14 @@ import com.faforever.commons.api.dto.MapVersion;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
+import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +22,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MapService {
     private final FafApiCommunicationService fafApi;
+    private final MapVersionMapper mapVersionMapper;
 
-    public MapService(FafApiCommunicationService fafApi) {
+    public MapService(FafApiCommunicationService fafApi, MapVersionMapper mapVersionMapper) {
         this.fafApi = fafApi;
+        this.mapVersionMapper = mapVersionMapper;
     }
 
 
@@ -121,6 +126,10 @@ public class MapService {
                 new Ladder1v1Map().setMapVersion(mapVersion));
     }
 
+    public void patchMapVersion(MapVersionFX mapVersionFX) {
+        patchMapVersion(mapVersionMapper.map(mapVersionFX));
+    }
+
     public void patchMapVersion(MapVersion mapVersion) {
         log.debug("Updating mapVersion id: {}", mapVersion.getId());
         fafApi.patch(ElideNavigator.of(mapVersion),
@@ -137,5 +146,18 @@ public class MapService {
                 .collection()
                 .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
+    }
+
+    public List<MapVersionFX> findLatestMapVersions() {
+        log.debug("Searching for latest mapVersions ");
+        ElideNavigatorOnCollection<MapVersion> navigator = ElideNavigator.of(MapVersion.class)
+                .collection()
+                .addIncludeOnCollection("map")
+                .addIncludeOnCollection("map.author")
+                .addSortingRule("id", false);
+
+        List<MapVersion> result = fafApi.getPage(navigator, 50, 1, Collections.emptyMap());
+        log.trace("found {} teamkills", result.size());
+        return mapVersionMapper.mapToFX(result);
     }
 }

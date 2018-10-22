@@ -1,12 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.BanDurationType;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.BanStatus;
+import com.faforever.commons.api.dto.*;
 import com.faforever.commons.api.dto.Map;
-import com.faforever.commons.api.dto.VotingChoice;
-import com.faforever.commons.api.dto.VotingQuestion;
-import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
@@ -26,11 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -39,6 +30,8 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.io.PrintWriter;
@@ -48,13 +41,7 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -332,7 +319,7 @@ public class ViewHelper {
      * @param showKiller whether to show the killer
      * @param onAddBan   if not null shows a ban button which triggers this consumer
      */
-    public static void buildTeamkillTableView(TableView<TeamkillFX> tableView, ObservableList<TeamkillFX> data, boolean showKiller, Consumer<PlayerFX> onAddBan) {
+    public static void buildTeamkillTableView(@NotNull TableView<TeamkillFX> tableView, @NotNull ObservableList<TeamkillFX> data, boolean showKiller, @Nullable Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
         HashMap<TableColumn<TeamkillFX, ?>, Function<TeamkillFX, ?>> extractors = new HashMap<>();
 
@@ -672,6 +659,117 @@ public class ViewHelper {
         TreeItem<MapTableItemAdapter> rootTreeItem = new TreeItem<>(new MapTableItemAdapter(new Map()));
         mapTreeView.setRoot(rootTreeItem);
         mapTreeView.setShowRoot(false);
+    }
+
+    public static void buildMapFeedTableView(@NotNull TableView<MapVersionFX> tableView, @NotNull ObservableList<MapVersionFX> data, @Nullable Consumer<MapVersionFX> onToggleHide) {
+        tableView.setItems(data);
+        HashMap<TableColumn<MapVersionFX, ?>, Function<MapVersionFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<MapVersionFX, String> idColumn = new TableColumn<>("Map Version ID");
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setMinWidth(100);
+        tableView.getColumns().add(idColumn);
+        extractors.put(idColumn, MapVersionFX::getId);
+
+        TableColumn<MapVersionFX, String> mapIdColumn = new TableColumn<>("Map ID");
+        mapIdColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue())
+                        .map(mapVersionFX -> mapVersionFX.getMap().getId())
+                        .orElse(""))
+        );
+        mapIdColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        mapIdColumn.setMinWidth(50);
+        tableView.getColumns().add(mapIdColumn);
+        extractors.put(mapIdColumn, mapVersionFX -> mapVersionFX.getMap().getId());
+
+        TableColumn<MapVersionFX, String> mapNameColumn = new TableColumn<>("Map Name");
+        mapNameColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue())
+                        .map(mapVersionFX -> mapVersionFX.getMap().getDisplayName())
+                        .orElse(""))
+        );
+        mapNameColumn.setMinWidth(150);
+        tableView.getColumns().add(mapNameColumn);
+        extractors.put(mapNameColumn, mapVersionFX -> mapVersionFX.getMap().getDisplayName());
+
+        TableColumn<MapVersionFX, String> uploaderColumn = new TableColumn<>("Uploader");
+        uploaderColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                Optional.ofNullable(param.getValue())
+                        .map(mapVersionFX -> mapVersionFX.getMap().getAuthor().getRepresentation())
+                        .orElse("")));
+        uploaderColumn.setMinWidth(150);
+        tableView.getColumns().add(uploaderColumn);
+        extractors.put(uploaderColumn, mapVersionFX -> mapVersionFX.getMap().getAuthor().getRepresentation());
+
+        TableColumn<MapVersionFX, ComparableVersion> versionColumn = new TableColumn<>("Version");
+        versionColumn.setCellValueFactory(o -> o.getValue().versionProperty());
+        versionColumn.setMinWidth(50);
+        tableView.getColumns().add(versionColumn);
+        extractors.put(versionColumn, MapVersionFX::getVersion);
+
+        TableColumn<MapVersionFX, Boolean> rankedCheckBoxColumn = new TableColumn<>("Ranked");
+        rankedCheckBoxColumn.setCellValueFactory(param -> param.getValue().rankedProperty());
+        rankedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(rankedCheckBoxColumn));
+        tableView.getColumns().add(rankedCheckBoxColumn);
+
+        TableColumn<MapVersionFX, Boolean> hiddenColumn = new TableColumn<>("Hidden");
+        hiddenColumn.setCellValueFactory(o -> o.getValue().hiddenProperty());
+        hiddenColumn.setCellFactory(CheckBoxTableCell.forTableColumn(hiddenColumn));
+        tableView.getColumns().add(hiddenColumn);
+
+        TableColumn<MapVersionFX, Number> widthColumn = new TableColumn<>("Width");
+        widthColumn.setCellValueFactory(o -> o.getValue().widthProperty());
+        widthColumn.setMinWidth(50);
+        tableView.getColumns().add(widthColumn);
+        extractors.put(widthColumn, MapVersionFX::getWidth);
+
+        TableColumn<MapVersionFX, Number> heightColumn = new TableColumn<>("Height");
+        heightColumn.setCellValueFactory(o -> o.getValue().widthProperty());
+        heightColumn.setMinWidth(50);
+        tableView.getColumns().add(heightColumn);
+        extractors.put(heightColumn, MapVersionFX::getHeight);
+
+        TableColumn<MapVersionFX, Number> maxPlayersColumn = new TableColumn<>("Max players");
+        maxPlayersColumn.setCellValueFactory(o -> o.getValue().maxPlayersProperty());
+        maxPlayersColumn.setMinWidth(50);
+        tableView.getColumns().add(maxPlayersColumn);
+        extractors.put(maxPlayersColumn, MapVersionFX::getMaxPlayers);
+
+        TableColumn<MapVersionFX, String> versionDescriptionColumn = new TableColumn<>("Version description");
+        versionDescriptionColumn.setCellValueFactory(o -> o.getValue().descriptionProperty());
+        versionDescriptionColumn.setMinWidth(250);
+        tableView.getColumns().add(versionDescriptionColumn);
+        extractors.put(versionDescriptionColumn, MapVersionFX::getDescription);
+
+        TableColumn<MapVersionFX, URL> downloadUrlColumn = new TableColumn<>("Download URL");
+        downloadUrlColumn.setCellValueFactory(o -> o.getValue().downloadUrlProperty());
+        downloadUrlColumn.setMinWidth(400);
+        tableView.getColumns().add(downloadUrlColumn);
+        extractors.put(downloadUrlColumn, MapVersionFX::getDownloadUrl);
+
+        if (onToggleHide != null) {
+            TableColumn<MapVersionFX, MapVersionFX> toggleHideColumn = new TableColumn<>("Action");
+            toggleHideColumn.setMinWidth(50);
+            toggleHideColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            toggleHideColumn.setCellFactory(param -> new TableCell<MapVersionFX, MapVersionFX>() {
+                @Override
+                protected void updateItem(MapVersionFX mapVersionFX, boolean empty) {
+                    super.updateItem(mapVersionFX, empty);
+                    if (!empty) {
+                        Button button = new Button();
+                        button.textProperty().bind(Bindings.createStringBinding(() -> mapVersionFX.hiddenProperty().get() ? "Unhide" : "Hide", mapVersionFX.hiddenProperty()));
+                        button.setOnMouseClicked(event -> onToggleHide.accept(mapVersionFX));
+                        setGraphic(button);
+                        return;
+                    }
+                    setGraphic(null);
+                }
+            });
+            tableView.getColumns().add(toggleHideColumn);
+        }
+
+        applyCopyContextMenus(tableView, extractors);
     }
 
     public static void buildPlayersGamesTable(TableView<GamePlayerStatsFX> tableView, String replayDownloadFormat, PlatformService platformService) {
@@ -1104,6 +1202,21 @@ public class ViewHelper {
             }
         });
         extractors.put(mapColumn, tutorialFx -> tutorialFx.getMapVersion().toString());
+
+        TableColumn<TutorialFx, String> technicalNameColumn = new TableColumn<>("Technical Name ✏");
+        technicalNameColumn.getStyleClass().add("editable");
+        technicalNameColumn.setCellValueFactory(param -> param.getValue().technicalNameProperty());
+        technicalNameColumn.setCellFactory(TextAreaTableCell.forTableColumn());
+        technicalNameColumn.setEditable(true);
+        technicalNameColumn.setMinWidth(200);
+        tutorialTableView.getColumns().add(technicalNameColumn);
+        technicalNameColumn.setOnEditCommit(event -> {
+            TutorialFx rowValue = event.getRowValue();
+            rowValue.setTechnicalName(event.getNewValue());
+            tutorialService.updateTutorial(rowValue);
+            refresh.run();
+        });
+        extractors.put(technicalNameColumn, TutorialFx::getTechnicalName);
 
         applyCopyContextMenus(tutorialTableView, extractors);
     }

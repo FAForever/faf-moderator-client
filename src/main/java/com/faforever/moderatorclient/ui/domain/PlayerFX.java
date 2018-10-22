@@ -110,6 +110,10 @@ public class PlayerFX extends AbstractEntityFX {
         return recentIpAddress;
     }
 
+    public String getRepresentation() {
+        return representation.get();
+    }
+
     public StringProperty representationProperty() {
         return representation;
     }
