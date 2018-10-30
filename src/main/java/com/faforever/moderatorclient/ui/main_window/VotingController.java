@@ -1,5 +1,6 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
@@ -140,14 +141,14 @@ public class VotingController implements Controller<SplitPane> {
     }
 
     public void revealWinner() {
-        VotingSubjectFX votingSubjectFX = new VotingSubjectFX();
         VotingSubjectFX selectedItem = subjectTable.getSelectionModel().getSelectedItem();
+        VotingSubject updateSubject = new VotingSubject();
         if (selectedItem == null) {
             return;
         }
-        votingSubjectFX.setId(selectedItem.getId());
-        votingSubjectFX.setRevealWinner(true);
-        votingService.updateSubject(votingSubjectFX);
+        updateSubject.setId(selectedItem.getId());
+        updateSubject.setRevealWinner(true);
+        votingService.update(updateSubject);
         onRefreshSubjects();
         onRefreshChoices();
         onRefreshQuestions();
