@@ -79,6 +79,7 @@ public class VotingService {
         List<VotingQuestion> result = fafApi.getAll(ElideNavigator.of(VotingQuestion.class)
                 .collection()
                 .addIncludeOnCollection("winners")
+                .addIncludeOnCollection("votingChoices")
                 .addIncludeOnCollection("votingSubject"));
         log.trace("found {} questions", result.size());
         return result;
