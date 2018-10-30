@@ -33,7 +33,7 @@
         <TextField fx:id="votingSubjectIdTextField" GridPane.columnIndex="1" disable="true"/>
         <TextField fx:id="votingSubjectOrdinal" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
 
-        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
             <GridPane.margin>
                 <Insets/>
             </GridPane.margin>
