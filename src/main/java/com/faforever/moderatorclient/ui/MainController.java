@@ -13,6 +13,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -44,6 +46,7 @@ public class MainController implements Controller<TabPane> {
     private VotingController votingController;
     private TutorialController tutorialController;
     private MessagesController messagesController;
+    private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
     public MainController(UiService uiService) {
         this.uiService = uiService;
@@ -67,6 +70,15 @@ public class MainController implements Controller<TabPane> {
         initTutorialTab();
     }
 
+    private void initLoading(Tab tab, Runnable loadingFunction) {
+        dataLoadingState.put(tab, false);
+        tab.setOnSelectionChanged(event -> {
+            if (tab.isSelected() && !dataLoadingState.getOrDefault(tab, false)) {
+                dataLoadingState.put(tab, true);
+                loadingFunction.run();
+            }
+        });
+    }
 
     private void initUserManagementTab() {
         userManagementController = uiService.loadFxml("ui/main_window/userManagement.fxml");
@@ -76,6 +88,7 @@ public class MainController implements Controller<TabPane> {
     private void initLadderMapPoolTab() {
         ladderMapPoolController = uiService.loadFxml("ui/main_window/ladderMapPool.fxml");
         ladderMapPoolTab.setContent(ladderMapPoolController.getRoot());
+        initLoading(ladderMapPoolTab, ladderMapPoolController::refresh);
     }
 
     private void initMapVaultTab() {
@@ -86,36 +99,43 @@ public class MainController implements Controller<TabPane> {
     private void initAvatarTab() {
         avatarsController = uiService.loadFxml("ui/main_window/avatars.fxml");
         avatarsTab.setContent(avatarsController.getRoot());
+        initLoading(avatarsTab, avatarsController::refresh);
     }
 
     private void initRecentActivityTab() {
         recentActivityController = uiService.loadFxml("ui/main_window/recentActivity.fxml");
         recentActivityTab.setContent(recentActivityController.getRoot());
+        initLoading(recentActivityTab, recentActivityController::refresh);
     }
 
     private void initDomainBlacklistTab() {
         domainBlacklistController = uiService.loadFxml("ui/main_window/domainBlacklist.fxml");
         domainBlacklistTab.setContent(domainBlacklistController.getRoot());
+        initLoading(domainBlacklistTab, domainBlacklistController::refresh);
     }
 
     private void initBanTab() {
         bansController = uiService.loadFxml("ui/main_window/bans.fxml");
         banTab.setContent(bansController.getRoot());
+        initLoading(banTab, bansController::onRefreshBans);
     }
 
     private void initTutorialTab() {
         tutorialController = uiService.loadFxml("ui/main_window/tutorial.fxml");
         tutorialTab.setContent(tutorialController.getRoot());
+        initLoading(tutorialTab, tutorialController::onRefreshTutorials);
     }
 
     private void initMessagesTab() {
         messagesController = uiService.loadFxml("ui/main_window/messages.fxml");
         messagesTab.setContent(messagesController.getRoot());
+        initLoading(messagesTab, messagesController::onRefreshMessages);
     }
 
     private void initVotingTab() {
         votingController = uiService.loadFxml("ui/main_window/voting.fxml");
         votingTab.setContent(votingController.getRoot());
+        initLoading(votingTab, votingController::onRefreshSubjects);
     }
 
     public void display() {
@@ -135,26 +155,11 @@ public class MainController implements Controller<TabPane> {
 
         tutorialController.load();
         messagesController.load();
-        ladderMapPoolController.refresh();
-        refreshAvatars();
-        refreshRecentActivity();
-        domainBlacklistController.refresh();
-        bansController.onRefreshBans();
-        votingController.onRefreshSubjects();
-    }
-
-
-    public void refreshAvatars() {
-        avatarsController.refresh();
     }
 
     @EventListener
     public void onFafApiGetFailed(FafApiFailGetEvent event) {
         Platform.runLater(() ->
                 ViewHelper.exceptionDialog("Querying data from API failed", MessageFormat.format("Something went wrong while fetching data of type ''{0}'' from the API. The related controls are shown empty instead now. You can proceed without causing any harm, but it is likely that some operations will not work and/or the error will pop up again.\n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
-    }
-
-    public void refreshRecentActivity() {
-        recentActivityController.refresh();
     }
 }

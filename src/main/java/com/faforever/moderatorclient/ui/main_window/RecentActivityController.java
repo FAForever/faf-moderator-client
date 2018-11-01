@@ -28,12 +28,12 @@ public class RecentActivityController implements Controller<VBox> {
     private final ObservableList<PlayerFX> users;
     private final ObservableList<TeamkillFX> teamkills;
     private final ObservableList<MapVersionFX> mapVersions;
+    private final UiService uiService;
 
     public VBox root;
     public TableView<PlayerFX> userRegistrationFeedTableView;
     public TableView<TeamkillFX> teamkillFeedTableView;
     public TableView<MapVersionFX> mapUploadFeedTableView;
-    private final UiService uiService;
 
     public RecentActivityController(UserService userService, MapService mapService, UiService uiService) {
         this.userService = userService;

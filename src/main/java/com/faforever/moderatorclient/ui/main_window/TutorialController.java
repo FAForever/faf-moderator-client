@@ -145,12 +145,8 @@ public class TutorialController implements Controller<Node> {
     }
 
     public void load() {
-        Runnable refreshTutorials = this::onRefreshTutorials;
-        Runnable refreshCategorys = this::onRefreshCategorys;
-        ViewHelper.buildTutorialTable(tutorialTableView, tutorialService, log, refreshTutorials);
-        ViewHelper.buildCategoryTable(categoryTableView, tutorialService, refreshCategorys);
-        onRefreshTutorials();
-        onRefreshCategorys();
+        ViewHelper.buildTutorialTable(tutorialTableView, tutorialService, log, this::onRefreshTutorials);
+        ViewHelper.buildCategoryTable(categoryTableView, tutorialService, this::onRefreshCategorys);
         setUpTutorialFilter();
         addTutorialButton.disableProperty().bind(categoryTableView.getSelectionModel().selectedItemProperty().isNull());
     }

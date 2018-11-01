@@ -45,7 +45,6 @@ public class MessagesController implements Controller<HBox> {
 
     public void load() {
         ViewHelper.buildMessagesTable(messageTableView, messagesService, log);
-        onRefreshMessages();
         messageFxes = FXCollections.observableArrayList();
         setUpFilter();
     }
