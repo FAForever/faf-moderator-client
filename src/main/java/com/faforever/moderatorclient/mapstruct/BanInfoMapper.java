@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, BanRevokeDataMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(uses = {JavaFXMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
 public abstract class BanInfoMapper {
     @Mapping(target = "duration", ignore = true)
     @Mapping(target = "banStatus", ignore = true)

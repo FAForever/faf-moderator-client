@@ -1,17 +1,21 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanInfo;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.BanService;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
-import com.faforever.moderatorclient.ui.domain.BanRevokeDataFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,15 +58,24 @@ public class BanInfoController implements Controller<Pane> {
     public RadioButton globalBanRadioButton;
     public Button revokeButton;
     public Label userLabel;
+    public Label banIsRevokedNotice;
+    public TextField revocationTimeTextField;
+    public VBox revokeOptions;
     @Getter
     private BanInfoFX banInfo;
     private Consumer<BanInfoFX> postedListener;
+    private Runnable onBanRevoked;
 
     public BanInfoController(FafApiCommunicationService fafApi, BanService banService, PlayerMapper playerMapper) {
         this.fafApi = fafApi;
         this.banService = banService;
         this.playerMapper = playerMapper;
     }
+
+    public void addRevokedListener(Runnable listener) {
+        this.onBanRevoked = listener;
+    }
+
 
     public void addPostedListener(Consumer<BanInfoFX> listener) {
         this.postedListener = listener;
@@ -75,12 +88,24 @@ public class BanInfoController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
+        banIsRevokedNotice.managedProperty().bind(banIsRevokedNotice.visibleProperty());
+    }
+
+    public void onRevokeTimeTextChanged() {
+        revocationTimeTextField.setStyle("-fx-text-fill: green");
+        try {
+            DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse(revocationTimeTextField.getText());
+        } catch (Exception e) {
+            revocationTimeTextField.setStyle("-fx-text-fill: red");
+        }
     }
 
     public void setBanInfo(BanInfoFX banInfo) {
         this.banInfo = banInfo;
 
         if (banInfo.getId() != null) {
+            revokeOptions.setDisable(false);
+
             affectedUserTextField.setText(banInfo.getPlayer().representationProperty().get());
             Optional.ofNullable(banInfo.getAuthor()).ifPresent(author -> banAuthorTextField.setText(author.representationProperty().get()));
             banReasonTextField.setText(banInfo.getReason());
@@ -92,14 +117,19 @@ public class BanInfoController implements Controller<Pane> {
             temporaryBanRadioButton.setSelected(banInfo.getDuration() == BanDurationType.TEMPORARY);
             Optional.ofNullable(banInfo.getExpiresAt()).ifPresent(offsetDateTime -> untilTextField.setText(offsetDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)));
 
-            if (banInfo.getBanRevokeData() != null) {
-                revocationReasonTextField.setText(banInfo.getBanRevokeData().getReason());
-                revocationAuthorTextField.setText(banInfo.getBanRevokeData().getAuthor().toString());
+            if (banInfo.getRevokeTime() != null) {
+                banIsRevokedNotice.setVisible(true);
+                revocationReasonTextField.setText(banInfo.getRevokeReason());
+                revocationTimeTextField.setText(banInfo.getRevokeTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                revocationAuthorTextField.setText(banInfo.getRevokeAuthor() == null ? "" : banInfo.getRevokeAuthor().getLogin());
+            } else {
+                revocationTimeTextField.setText(OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             }
 
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
         } else {
+
             PlayerFX player = banInfo.getPlayer();
             if (player != null) {
                 affectedUserTextField.setText(player.representationProperty().get());
@@ -188,23 +218,43 @@ public class BanInfoController implements Controller<Pane> {
 
     public void onRevoke() {
         Assert.notNull(banInfo, "You can't revoke if banInfo is null.");
-
+        List<String> errors = new ArrayList<>();
 
         String revocationReason = revocationReasonTextField.getText();
 
         if (StringUtils.isBlank(revocationReason)) {
-            new Alert(Alert.AlertType.ERROR, "The reason of revocation must not be empty", ButtonType.OK).showAndWait();
+            errors.add("The reason of revocation must not be empty.");
+        }
+        OffsetDateTime revokeTime = null;
+        try {
+            revokeTime = OffsetDateTime.of(LocalDateTime.parse(revocationTimeTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC);
+        } catch (Exception e) {
+            log.debug("Revoke time invalid", e);
+            errors.add("Invalid date for revocation.");
+        }
+
+        if (!errors.isEmpty()) {
+            ViewHelper.errorDialog("Could not revoke",
+                    errors.stream().collect(Collectors.joining("\n")));
             return;
         }
 
         log.debug("Revoking ban id '{}' with reason: {}", banInfo.getId(), revocationReason);
 
-        BanRevokeDataFX banRevokeData = new BanRevokeDataFX()
-                .setBan(banInfo)
-                .setAuthor(playerMapper.map(fafApi.getSelfPlayer()))
-                .setReason(revocationReason);
+        banInfo.setRevokeAuthor(playerMapper.map(fafApi.getSelfPlayer()));
+        banInfo.setRevokeReason(revocationReason);
+        banInfo.setRevokeTime(revokeTime);
+        banInfo.setUpdateTime(OffsetDateTime.now());
 
-        banService.revokeBan(banRevokeData);
+        BanInfo banInfoUpdate = new BanInfo();
+        banInfoUpdate.setId(banInfo.getId());
+        banInfoUpdate.setRevokeReason(revocationReason);
+        banInfoUpdate.setRevokeTime(revokeTime);
+
+        banService.updateBan(banInfoUpdate);
+        if (onBanRevoked != null) {
+            onBanRevoked.run();
+        }
         close();
     }
 

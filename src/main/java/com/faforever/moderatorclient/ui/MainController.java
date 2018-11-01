@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
+import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.ui.main_window.*;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -117,7 +118,7 @@ public class MainController implements Controller<TabPane> {
     private void initBanTab() {
         bansController = uiService.loadFxml("ui/main_window/bans.fxml");
         banTab.setContent(bansController.getRoot());
-        initLoading(banTab, bansController::onRefreshBans);
+        initLoading(banTab, bansController::onRefreshLatestBans);
     }
 
     private void initTutorialTab() {
@@ -161,5 +162,11 @@ public class MainController implements Controller<TabPane> {
     public void onFafApiGetFailed(FafApiFailGetEvent event) {
         Platform.runLater(() ->
                 ViewHelper.exceptionDialog("Querying data from API failed", MessageFormat.format("Something went wrong while fetching data of type ''{0}'' from the API. The related controls are shown empty instead now. You can proceed without causing any harm, but it is likely that some operations will not work and/or the error will pop up again.\n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
+    }
+
+    @EventListener
+    public void onFafApiGetFailed(FafApiFailModifyEvent event) {
+        Platform.runLater(() ->
+                ViewHelper.exceptionDialog("Sending updated data to API failed", MessageFormat.format("Something went wrong while sending data of type ''{0}'' to the API. The related change was not saved. You might wanna try again. Please check if the data you entered is valid. \n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
     }
 }

@@ -4,6 +4,7 @@ import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.moderatorclient.api.domain.BanService;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -17,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.function.Predicate;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
 
 @Component
 @Slf4j
@@ -31,8 +34,10 @@ public class BansController implements Controller<HBox> {
     public RadioButton banIdRadioButton;
     public TableView<BanInfoFX> banTableView;
     public CheckBox onlyActiveCheckBox;
-    private FilteredList<BanInfoFX> filteredItemList;
+    public Button editBanButton;
+    private FilteredList<BanInfoFX> filteredList;
     private ObservableList<BanInfoFX> itemList;
+    private boolean inSearchMode = false;
 
     @Inject
     public BansController(UiService uiService, BanService banService) {
@@ -48,33 +53,27 @@ public class BansController implements Controller<HBox> {
     @FXML
     public void initialize() {
         itemList = FXCollections.observableArrayList();
-        filteredItemList = new FilteredList<>(itemList);
-        SortedList<BanInfoFX> sortedItemList = new SortedList<>(filteredItemList);
+        filteredList = new FilteredList<>(itemList);
+        SortedList<BanInfoFX> sortedItemList = new SortedList<>(filteredList);
         sortedItemList.comparatorProperty().bind(banTableView.comparatorProperty());
         ViewHelper.buildBanTableView(banTableView, sortedItemList, true);
-        onRefreshBans();
-        setUpFilter();
+        onRefreshLatestBans();
+        playerRadioButton.setUserData((Supplier<List<BanInfoFX>>) () -> banService.getBanInfoByBannedPlayerNameContains(filter.getText()));
+        banIdRadioButton.setUserData((Supplier<List<BanInfoFX>>) () -> Collections.singletonList(banService.getBanInfoById(filter.getText())));
+        editBanButton.disableProperty().bind(banTableView.getSelectionModel().selectedItemProperty().isNull());
+        InvalidationListener onlyActiveBansChangeListener = (observable) ->
+                filteredList.setPredicate(banInfoFX -> !onlyActiveCheckBox.isSelected() || banInfoFX.getBanStatus() == BanStatus.BANNED);
+        onlyActiveCheckBox.selectedProperty().addListener(onlyActiveBansChangeListener);
+        onlyActiveBansChangeListener.invalidated(onlyActiveCheckBox.selectedProperty());
     }
 
-    private void setUpFilter() {
-        banIdRadioButton.setUserData((Predicate<BanInfoFX>) o -> activeFilter(o) && o.getId().toLowerCase().contains(filter.getText().toLowerCase()));
-        playerRadioButton.setUserData((Predicate<BanInfoFX>) o -> activeFilter(o) && o.getPlayer().getLogin().toLowerCase().contains(filter.getText().toLowerCase()));
-        filterGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> renewFilter());
-        filter.textProperty().addListener((observable, oldValue, newValue) -> renewFilter());
-        onlyActiveCheckBox.selectedProperty().addListener((observable, oldValue, newValue) -> renewFilter());
-        renewFilter();
-    }
-
-    private void renewFilter() {
-        Predicate<? super BanInfoFX> predicate = (Predicate<? super BanInfoFX>) filterGroup.getSelectedToggle().getUserData();
-        filteredItemList.setPredicate(predicate::test);
-    }
-
-    public void onRefreshBans() {
-        banService.getAllBans().thenAccept(banInfoFXES -> Platform.runLater(() -> itemList.setAll(banInfoFXES))).exceptionally(throwable -> {
+    public void onRefreshLatestBans() {
+        banService.getLatestBans().thenAccept(banInfoFXES -> Platform.runLater(() -> itemList.setAll(banInfoFXES))).exceptionally(throwable -> {
             log.error("error loading bans", throwable);
             return null;
         });
+        filter.clear();
+        inSearchMode = false;
     }
 
     public void editBan() {
@@ -90,7 +89,13 @@ public class BansController implements Controller<HBox> {
     private void openBanDialog(BanInfoFX banInfoFX, boolean isNew) {
         BanInfoController banInfoController = uiService.loadFxml("ui/banInfo.fxml");
         banInfoController.setBanInfo(banInfoFX);
-        banInfoController.addPostedListener(banInfoFX1 -> onRefreshBans());
+        banInfoController.addPostedListener(banInfoFX1 -> {
+            if (inSearchMode) {
+                onSearch();
+                return;
+            }
+            onRefreshLatestBans();
+        });
 
         Stage banInfoDialog = new Stage();
         banInfoDialog.setTitle(isNew ? "Apply new ban" : "Edit ban");
@@ -102,7 +107,9 @@ public class BansController implements Controller<HBox> {
         openBanDialog(new BanInfoFX(), true);
     }
 
-    private boolean activeFilter(BanInfoFX banInfoFX) {
-        return !onlyActiveCheckBox.isSelected() || banInfoFX.getBanStatus() == BanStatus.BANNED;
+    public void onSearch() {
+        List<BanInfoFX> banInfoFXES = ((Supplier<List<BanInfoFX>>) filterGroup.getSelectedToggle().getUserData()).get();
+        itemList.setAll(banInfoFXES);
+        inSearchMode = true;
     }
 }

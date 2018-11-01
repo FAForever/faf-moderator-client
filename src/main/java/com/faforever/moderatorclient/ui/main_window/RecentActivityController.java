@@ -63,6 +63,7 @@ public class RecentActivityController implements Controller<VBox> {
         banInfo.setPlayer(playerFX);
         banInfoController.setBanInfo(banInfo);
         banInfoController.addPostedListener(banInfoFX -> refresh());
+        banInfoController.addRevokedListener(this::refresh);
         Stage banInfoDialog = new Stage();
         banInfoDialog.setTitle("Apply new ban");
         banInfoDialog.setScene(new Scene(banInfoController.getRoot()));
