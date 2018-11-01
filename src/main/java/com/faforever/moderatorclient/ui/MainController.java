@@ -123,7 +123,7 @@ public class MainController implements Controller<TabPane> {
     private void initTutorialTab() {
         tutorialController = uiService.loadFxml("ui/main_window/tutorial.fxml");
         tutorialTab.setContent(tutorialController.getRoot());
-        initLoading(tutorialTab, tutorialController::onRefreshTutorials);
+        initLoading(tutorialTab, tutorialController::onRefreshCategorys);
     }
 
     private void initMessagesTab() {
