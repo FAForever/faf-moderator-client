@@ -60,8 +60,7 @@ public class UserService {
                 .addIncludeOnCollection(variablePrefix + "avatarAssignments.avatar")
                 .addIncludeOnCollection(variablePrefix + "bans")
                 .addIncludeOnCollection(variablePrefix + "bans.author")
-                .addIncludeOnCollection(variablePrefix + "bans.banRevokeData")
-                .addIncludeOnCollection(variablePrefix + "bans.banRevokeData.author");
+                .addIncludeOnCollection(variablePrefix + "bans.revokeAuthor");
     }
 
     public List<PlayerFX> findLatestRegistrations() {

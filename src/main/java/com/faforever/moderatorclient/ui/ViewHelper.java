@@ -10,7 +10,6 @@ import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -245,41 +244,32 @@ public class ViewHelper {
         extractors.put(authorColumn, banInfoFX -> banInfoFX.getAuthor().getLogin());
 
         TableColumn<BanInfoFX, String> revokeReasonColumn = new TableColumn<>("Revocation Reason");
-        revokeReasonColumn.setCellValueFactory(o -> {
-            ObjectProperty<BanRevokeDataFX> banRevokeProperty = o.getValue().banRevokeDataProperty();
-            return Bindings.createStringBinding(() -> {
-                        if (banRevokeProperty.get() != null) {
-                            return banRevokeProperty.get().reasonProperty().get();
-                        } else {
-                            return "";
-                        }
-                    },
-                    banRevokeProperty);
-        });
+        revokeReasonColumn.setCellValueFactory(o -> o.getValue().revokeReasonProperty());
         revokeReasonColumn.setMinWidth(250);
         tableView.getColumns().add(revokeReasonColumn);
-        extractors.put(revokeReasonColumn, banInfoFX -> banInfoFX.getBanRevokeData() == null ? null : banInfoFX.getBanRevokeData().getReason());
+        extractors.put(revokeReasonColumn, BanInfoFX::getRevokeReason);
 
         TableColumn<BanInfoFX, String> revokeAuthorColumn = new TableColumn<>("Revocation Author");
-        revokeAuthorColumn.setCellValueFactory(o -> {
-            BanRevokeDataFX banRevokeData = o.getValue().getBanRevokeData();
-            if (banRevokeData != null) {
-                return banRevokeData.getAuthor().representationProperty();
-            } else {
-                return null;
-            }
-                }
-        );
+        revokeAuthorColumn.setCellValueFactory(o -> Bindings.createStringBinding(() -> {
+            PlayerFX revokeAuthor = o.getValue().getRevokeAuthor();
+            return revokeAuthor == null ? null : revokeAuthor.getLogin();
+        }, o.getValue().revokeAuthorProperty()));
         revokeAuthorColumn.setMinWidth(150);
         tableView.getColumns().add(revokeAuthorColumn);
-        extractors.put(revokeAuthorColumn, banInfoFX -> banInfoFX.getBanRevokeData() == null ? null : banInfoFX.getBanRevokeData().getAuthor().getLogin());
+        extractors.put(revokeAuthorColumn, banInfoFX -> banInfoFX.getRevokeAuthor() == null ? null : banInfoFX.getRevokeAuthor().getLogin());
+
+        TableColumn<BanInfoFX, OffsetDateTime> revocationAtColumn = new TableColumn<>("Revocation at");
+        revocationAtColumn.setCellValueFactory(o -> o.getValue().revokeTimeProperty());
+        revocationAtColumn.setMinWidth(180);
+        tableView.getColumns().add(revocationAtColumn);
+        extractors.put(revocationAtColumn, BanInfoFX::getRevokeTime);
 
         TableColumn<BanInfoFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created Time");
         changeTimeColumn.setCellValueFactory(new PropertyValueFactory<>("createTime"));
         changeTimeColumn.setMinWidth(180);
         tableView.getColumns().add(changeTimeColumn);
 
-        TableColumn<BanInfoFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Update (Revoke) Time");
+        TableColumn<BanInfoFX, OffsetDateTime> updateTimeColumn = new TableColumn<>("Update Time");
         updateTimeColumn.setCellValueFactory(new PropertyValueFactory<>("updateTime"));
         updateTimeColumn.setMinWidth(180);
         tableView.getColumns().add(updateTimeColumn);

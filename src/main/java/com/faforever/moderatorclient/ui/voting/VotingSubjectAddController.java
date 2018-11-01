@@ -51,8 +51,8 @@ public class VotingSubjectAddController implements Controller<Pane> {
 
     @FXML
     public void initialize() {
-        beginTimeTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
-        endTimeTextField.setPromptText(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()));
+        beginTimeTextField.setPromptText(OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        endTimeTextField.setPromptText(OffsetDateTime.now().atZoneSameInstant(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
     }
 
