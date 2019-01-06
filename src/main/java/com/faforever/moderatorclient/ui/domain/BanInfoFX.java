@@ -19,7 +19,9 @@ public class BanInfoFX extends AbstractEntityFX {
     private final ObjectProperty<BanLevel> level;
     private final ObjectProperty<BanDurationType> duration;
     private final ObjectProperty<BanStatus> banStatus;
-    private final ObjectProperty<BanRevokeDataFX> banRevokeData;
+    private final StringProperty revokeReason;
+    private final ObjectProperty<PlayerFX> revokeAuthor;
+    private final ObjectProperty<OffsetDateTime> revokeTime;
 
     public BanInfoFX() {
         player = new SimpleObjectProperty<>();
@@ -27,7 +29,10 @@ public class BanInfoFX extends AbstractEntityFX {
         reason = new SimpleStringProperty();
         expiresAt = new SimpleObjectProperty<>();
         level = new SimpleObjectProperty<>();
-        banRevokeData = new SimpleObjectProperty<>();
+
+        revokeAuthor = new SimpleObjectProperty<>();
+        revokeReason = new SimpleStringProperty();
+        revokeTime = new SimpleObjectProperty<>();
 
         duration = new SimpleObjectProperty<>();
         duration.bind(Bindings.createObjectBinding(() -> expiresAt.get() == null ? BanDurationType.PERMANENT : BanDurationType.TEMPORARY, expiresAt));
@@ -35,15 +40,17 @@ public class BanInfoFX extends AbstractEntityFX {
         banStatus = new SimpleObjectProperty<>();
         banStatus.bind(
                 Bindings.createObjectBinding(() -> {
-                            if (banRevokeData.get() != null) {
+                            if (getRevokeTime() != null && getRevokeTime().isBefore(OffsetDateTime.now())) {
                                 return BanStatus.DISABLED;
-                            } else if (duration.get() == BanDurationType.PERMANENT) {
-                                return BanStatus.BANNED;
-                            } else {
-                                return expiresAt.get().isAfter(OffsetDateTime.now()) ? BanStatus.BANNED : BanStatus.EXPIRED;
                             }
+                            if (getDuration() == BanDurationType.PERMANENT) {
+                                return BanStatus.BANNED;
+                            }
+                            return getExpiresAt().isAfter(OffsetDateTime.now())
+                                    ? BanStatus.BANNED
+                                    : BanStatus.EXPIRED;
                         },
-                        banRevokeData, duration, expiresAt)
+                        revokeTime, duration, expiresAt)
         );
     }
 
@@ -128,16 +135,39 @@ public class BanInfoFX extends AbstractEntityFX {
         return banStatus;
     }
 
-    public BanRevokeDataFX getBanRevokeData() {
-        return banRevokeData.get();
+    public String getRevokeReason() {
+        return revokeReason.get();
     }
 
-    public BanInfoFX setBanRevokeData(BanRevokeDataFX banRevokeData) {
-        this.banRevokeData.set(banRevokeData);
-        return this;
+    public void setRevokeReason(String revokeReason) {
+        this.revokeReason.set(revokeReason);
     }
 
-    public ObjectProperty<BanRevokeDataFX> banRevokeDataProperty() {
-        return banRevokeData;
+    public StringProperty revokeReasonProperty() {
+        return revokeReason;
+    }
+
+    public PlayerFX getRevokeAuthor() {
+        return revokeAuthor.get();
+    }
+
+    public void setRevokeAuthor(PlayerFX revokeAuthor) {
+        this.revokeAuthor.set(revokeAuthor);
+    }
+
+    public ObjectProperty<PlayerFX> revokeAuthorProperty() {
+        return revokeAuthor;
+    }
+
+    public OffsetDateTime getRevokeTime() {
+        return revokeTime.get();
+    }
+
+    public void setRevokeTime(OffsetDateTime revokeTime) {
+        this.revokeTime.set(revokeTime);
+    }
+
+    public ObjectProperty<OffsetDateTime> revokeTimeProperty() {
+        return revokeTime;
     }
 }

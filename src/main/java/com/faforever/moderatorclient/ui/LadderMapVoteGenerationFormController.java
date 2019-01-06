@@ -20,9 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -171,8 +171,9 @@ public class LadderMapVoteGenerationFormController implements Controller<Node> {
     private String generateMapDescriptionHTML(MapVersion mapVersion) {
         String formattedHtml;
         try {
-            URL resource = getClass().getClassLoader().getResource("media/map_description_template.html");
-            String htmlTemplate = new String(Files.readAllBytes(Paths.get(resource.toURI())));
+            InputStream resourceAsStream = getClass().getResourceAsStream("/media/map_description_template.html");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
+            String htmlTemplate = reader.lines().collect(Collectors.joining("\n"));
 
             formattedHtml = htmlTemplate.replaceAll("\\{map-player-count}", String.valueOf(mapVersion.getMaxPlayers()));
             formattedHtml = formattedHtml.replaceAll("\\{preview-source}", mapVersion.getThumbnailUrlLarge().toString());

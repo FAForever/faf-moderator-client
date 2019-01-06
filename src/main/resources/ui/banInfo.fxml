@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" hgap="10.0" vgap="10.0"
-          xmlns="http://javafx.com/javafx/8.0.111" fx:controller="com.faforever.moderatorclient.ui.BanInfoController">
+          xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.faforever.moderatorclient.ui.BanInfoController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES"/>
         <ColumnConstraints hgrow="ALWAYS"/>
@@ -17,11 +17,11 @@
         <RowConstraints fillHeight="false"/>
         <RowConstraints fillHeight="false" vgrow="NEVER"/>
         <RowConstraints fillHeight="false"/>
-        <RowConstraints fillHeight="false" minHeight="10.0" prefHeight="30.0"/>
-        <RowConstraints fillHeight="false"/>
+        <RowConstraints/>
+        <RowConstraints/>
     </rowConstraints>
     <children>
-        <Label text="Affected User" fx:id="userLabel"/>
+        <Label fx:id="userLabel" text="Affected User"/>
         <Label text="Banned by" GridPane.rowIndex="1"/>
         <Label text="Reason" GridPane.rowIndex="2"/>
         <Label text="Duration" GridPane.rowIndex="3" GridPane.valignment="TOP">
@@ -34,8 +34,11 @@
                 <Insets top="3.0"/>
             </GridPane.margin>
         </Label>
-        <Label text="Revocation" GridPane.rowIndex="5"/>
-        <Label text="Revoked by" GridPane.rowIndex="6"/>
+        <Label text="Revocation" GridPane.rowIndex="5" GridPane.valignment="TOP">
+            <GridPane.margin>
+                <Insets top="3.0"/>
+            </GridPane.margin>
+        </Label>
         <TextField fx:id="affectedUserTextField" disable="true" editable="false" GridPane.columnIndex="1"/>
         <TextField fx:id="banAuthorTextField" disable="true" editable="false" promptText="Will be you"
                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
@@ -97,20 +100,43 @@
                 </RadioButton>
             </children>
         </VBox>
-        <HBox GridPane.columnIndex="1" GridPane.rowIndex="5">
-            <children>
-                <TextField fx:id="revocationReasonTextField" disable="true" prefWidth="300.0"
-                           promptText="Reason for revocation of ban"/>
-                <Button fx:id="revokeButton" disable="true" mnemonicParsing="false" onAction="#onRevoke"
-                        text="revoke now">
-                    <HBox.margin>
-                        <Insets left="5.0"/>
-                    </HBox.margin>
-                </Button>
-            </children>
-        </HBox>
-        <TextField fx:id="revocationAuthorTextField" disable="true" editable="false" promptText="not revoked yet"
-                   GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+        <VBox fx:id="revokeOptions" disable="true" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <Label fx:id="banIsRevokedNotice"
+                   text="Ban is already revoked you will overwrite the revoke by clicking &quot;revoke now&quot;"
+                   textFill="red" visible="false"/>
+            <GridPane hgap="5.0" vgap="5.0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="NEVER"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints hgrow="NEVER"/>
+                    <ColumnConstraints/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints fillHeight="false"/>
+                    <RowConstraints fillHeight="false"/>
+                    <RowConstraints fillHeight="false"/>
+                </rowConstraints>
+                <children>
+                    <Label text="Reason" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="revocationReasonTextField" prefWidth="300.0"
+                               promptText="Reason for revocation of ban" GridPane.columnIndex="1"
+                               GridPane.rowIndex="0"/>
+                    <Label text="Last revocation author" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="revocationAuthorTextField" editable="false" promptText="Will be you"
+                               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <Label text="Time of effect UTC" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                    <TextField fx:id="revocationTimeTextField" onKeyReleased="#onRevokeTimeTextChanged"
+                               prefWidth="300.0" promptText="Time" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                    <Button fx:id="revokeButton" mnemonicParsing="false" onAction="#onRevoke" text="revoke now"
+                            GridPane.columnIndex="2" GridPane.rowIndex="2">
+                    </Button>
+                </children>
+            </GridPane>
+            <GridPane.margin>
+                <Insets top="3.0"/>
+            </GridPane.margin>
+        </VBox>
+
         <HBox alignment="BOTTOM_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
             <children>
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes"/>

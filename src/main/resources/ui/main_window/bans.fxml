@@ -33,13 +33,18 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </VBox.margin>
                 </CheckBox>
-                <Separator prefWidth="200.0"/>
-                <Button mnemonicParsing="false" onAction="#onRefreshBans" text="Refresh">
+                <Button mnemonicParsing="false" onAction="#onSearch" text="Search">
                     <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </VBox.margin>
                 </Button>
-                <Button mnemonicParsing="false" onAction="#editBan" text="Edit Ban">
+                <Separator prefWidth="200.0"/>
+                <Button mnemonicParsing="false" onAction="#onRefreshLatestBans" text="Load newest">
+                    <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                    </VBox.margin>
+                </Button>
+                <Button fx:id="editBanButton" mnemonicParsing="false" onAction="#editBan" text="Edit Ban">
                     <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                     </VBox.margin>

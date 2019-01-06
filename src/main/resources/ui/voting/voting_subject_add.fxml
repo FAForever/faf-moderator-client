@@ -24,8 +24,8 @@
         <Label text="Description key (HTML)" GridPane.rowIndex="1"/>
         <Label text="Topic Url" GridPane.rowIndex="2"/>
         <Label text="Min games to vote" GridPane.rowIndex="3"/>
-        <Label text="Begin Time (YYYY-MM-DDThh:mm:ss)" GridPane.rowIndex="4"/>
-        <Label text="End Time (YYYY-MM-DDThh:mm:ss)" GridPane.rowIndex="5"/>
+        <Label text="Begin Time (YYYY-MM-DDThh:mm:ss) UTC" GridPane.rowIndex="4"/>
+        <Label text="End Time (YYYY-MM-DDThh:mm:ss) UTC" GridPane.rowIndex="5"/>
         <TextField fx:id="subjectKeyTextField" GridPane.columnIndex="1"/>
         <TextField fx:id="descriptionKeyTextFiled" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
         <TextField fx:id="topicUrlTextField" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
