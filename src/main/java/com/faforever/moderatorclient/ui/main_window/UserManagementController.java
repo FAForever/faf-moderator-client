@@ -328,4 +328,14 @@ public class UserManagementController implements Controller<SplitPane> {
         userAvatarsTableView.getItems().remove(avatarAssignmentFX);
         avatarAssignmentFX.getPlayer().getAvatarAssignments().remove(avatarAssignmentFX);
     }
+
+    public void onRemoveSteamId() {
+        PlayerFX selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedPlayer, "You need to select a player to remove the steam id.");
+
+        selectedPlayer.setSteamId(null);
+        userService.patchPlayer(selectedPlayer);
+
+        onUserSearch();
+    }
 }

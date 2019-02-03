@@ -212,4 +212,9 @@ public class UserService {
         log.debug("Patching UserNote of id: " + userNote.getId());
         return userNoteMapper.map(fafApi.patch(ElideNavigator.of(UserNote.class).id(userNote.getId()), userNote));
     }
+
+    public PlayerFX patchPlayer(PlayerFX playerFX) {
+        log.debug("Patching user of id: " + playerFX.getId());
+        return playerMapper.map(fafApi.patch(ElideNavigator.of(Player.class).id(playerFX.getId()), playerMapper.map(playerFX)));
+    }
 }
