@@ -6,8 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
+import java.util.Set;
 
-@Mapper(uses = {JavaFXMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
 public abstract class BanInfoMapper {
     @Mapping(target = "duration", ignore = true)
     @Mapping(target = "banStatus", ignore = true)
@@ -20,4 +21,8 @@ public abstract class BanInfoMapper {
     public abstract List<BanInfoFX> mapToFX(List<BanInfo> dtoList);
 
     public abstract List<BanInfo> mapToDto(List<BanInfoFX> fxBeanList);
+
+	public abstract Set<BanInfoFX> mapToFX(Set<BanInfo> dtoList);
+
+	public abstract Set<BanInfo> mapToDto(Set<BanInfoFX> fxBeanList);
 }

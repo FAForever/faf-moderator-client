@@ -7,6 +7,7 @@ import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.BanService;
 import com.faforever.moderatorclient.mapstruct.PlayerMapper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.ModerationReportFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -65,6 +66,7 @@ public class BanInfoController implements Controller<Pane> {
     private BanInfoFX banInfo;
     private Consumer<BanInfoFX> postedListener;
     private Runnable onBanRevoked;
+    public TextField reportIdTextField;
 
     public BanInfoController(FafApiCommunicationService fafApi, BanService banService, PlayerMapper playerMapper) {
         this.fafApi = fafApi;
@@ -128,6 +130,12 @@ public class BanInfoController implements Controller<Pane> {
 
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
+
+			ModerationReportFX moderationReportFx = banInfo.getModerationReport();
+			if (moderationReportFx != null) {
+				reportIdTextField.setText(moderationReportFx.getId());
+			}
+
         } else {
 
             PlayerFX player = banInfo.getPlayer();
@@ -158,6 +166,12 @@ public class BanInfoController implements Controller<Pane> {
         banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
                 OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC) : null);
         banInfo.setLevel(chatOnlyBanRadioButton.isSelected() ? BanLevel.CHAT : BanLevel.GLOBAL);
+		if (!StringUtils.isBlank(reportIdTextField.getText())) {
+			ModerationReportFX moderationReportFx = new ModerationReportFX();
+			moderationReportFx.setId(reportIdTextField.getText());
+			banInfo.setModerationReport(moderationReportFx);
+		}
+
 
         if (banInfo.getId() == null) {
             log.debug("Creating ban for player '{}' with reason: {}", banInfo.getPlayer().toString(), banReasonTextField.getText());
@@ -195,6 +209,15 @@ public class BanInfoController implements Controller<Pane> {
         if (!chatOnlyBanRadioButton.isSelected() && !globalBanRadioButton.isSelected()) {
             validationErrors.add("No ban type is selected.");
         }
+
+		if (!StringUtils.isBlank(reportIdTextField.getText())) {
+			try {
+				Integer.parseInt(reportIdTextField.getText());
+			} catch (Exception e) {
+				validationErrors.add("Report ID must be a number.");
+			}
+		}
+
 
         if (temporaryBanRadioButton.isSelected()) {
             try {
@@ -282,4 +305,10 @@ public class BanInfoController implements Controller<Pane> {
             untilDateTimeValidateLabel.setStyle("-fx-text-fill: red");
         }
     }
+
+	public void preSetReportId(String id) {
+		reportIdTextField.setText(id);
+		reportIdTextField.setDisable(true);
+	}
+
 }

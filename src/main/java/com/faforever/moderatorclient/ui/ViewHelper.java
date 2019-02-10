@@ -1410,6 +1410,118 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
+	public static void buildModerationReportTableView(TableView<ModerationReportFX> tableView, ObservableList<ModerationReportFX> items) {
+		tableView.setItems(items);
+		tableView.setEditable(true);
+		HashMap<TableColumn<ModerationReportFX, ?>, Function<ModerationReportFX, ?>> extractors = new HashMap<>();
+
+		TableColumn<ModerationReportFX, String> idColumn = new TableColumn<>("ID");
+		idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+		tableView.getColumns().add(idColumn);
+		extractors.put(idColumn, ModerationReportFX::getId);
+
+		TableColumn<ModerationReportFX, ModerationReportStatus> statusColumn = new TableColumn<>("Status");
+		statusColumn.setCellValueFactory(param -> param.getValue().reportStatusProperty());
+		tableView.getColumns().add(statusColumn);
+		statusColumn.setCellFactory(new Callback<TableColumn<ModerationReportFX, ModerationReportStatus>, TableCell<ModerationReportFX, ModerationReportStatus>>() {
+			@Override
+			public TableCell<ModerationReportFX, ModerationReportStatus> call(TableColumn<ModerationReportFX, ModerationReportStatus> param) {
+				return new TableCell<ModerationReportFX, ModerationReportStatus>() {
+					@Override
+					public void updateItem(ModerationReportStatus item, boolean empty) {
+						super.updateItem(item, empty);
+
+						if (isEmpty()) {
+							setText("");
+							setStyle("  -fx-background-color: transparent;");
+						} else {
+							switch (item) {
+								case AWAITING:
+									setStyle("  -fx-background-color: #dcc414;");
+									break;
+								case DISCARDED:
+									setStyle("-fx-background-color: #9cabab;");
+									break;
+								case PROCESSING:
+									setStyle("-fx-background-color: rgba(56, 56, 255, 0.85);");
+									break;
+								case COMPLETED:
+									setStyle("-fx-background-color: #5aad58;");
+									break;
+							}
+
+							setText(item.name());
+						}
+					}
+				};
+			}
+		});
+		extractors.put(idColumn, ModerationReportFX::getReportStatus);
+
+		TableColumn<ModerationReportFX, String> reporterColumn = new TableColumn<>("Reporter");
+		reporterColumn.setCellValueFactory(o -> o.getValue().getReporter().representationProperty());
+		reporterColumn.setMinWidth(100);
+		tableView.getColumns().add(reporterColumn);
+		extractors.put(reporterColumn, reportFx -> reportFx.getReporter().getRepresentation());
+
+		TableColumn<ModerationReportFX, String> reportDescriptionColumn = new TableColumn<>("Report Description");
+		reportDescriptionColumn.setMinWidth(150);
+		reportDescriptionColumn.setCellValueFactory(param -> param.getValue().reportDescriptionProperty());
+		tableView.getColumns().add(reportDescriptionColumn);
+		extractors.put(reportDescriptionColumn, ModerationReportFX::getReportDescription);
+
+		TableColumn<ModerationReportFX, String> incidentTimeCodeColumn = new TableColumn<>("Incident Timecode");
+		incidentTimeCodeColumn.setMinWidth(110);
+		incidentTimeCodeColumn.setCellValueFactory(param -> param.getValue().gameIncidentTimecodeProperty());
+		tableView.getColumns().add(incidentTimeCodeColumn);
+		extractors.put(incidentTimeCodeColumn, ModerationReportFX::getGameIncidentTimecode);
+
+		TableColumn<ModerationReportFX, String> gameColumn = new TableColumn<>("Game ID");
+		gameColumn.setCellValueFactory(o -> Bindings.createStringBinding(() -> {
+			GameFX game = o.getValue().getGame();
+			if (game == null) {
+				return "";
+			}
+			return game.getId();
+		}, o.getValue().gameProperty()));
+		gameColumn.setMinWidth(80);
+		tableView.getColumns().add(gameColumn);
+		extractors.put(gameColumn, reportFx -> reportFx.getGame() == null ? null : reportFx.getGame().getId());
+
+		TableColumn<ModerationReportFX, String> privateNoteColumn = new TableColumn<>("Private Notice");
+		privateNoteColumn.setMinWidth(150);
+		privateNoteColumn.setCellValueFactory(param -> param.getValue().moderatorPrivateNoteProperty());
+		tableView.getColumns().add(privateNoteColumn);
+		extractors.put(privateNoteColumn, ModerationReportFX::getModeratorPrivateNote);
+
+		TableColumn<ModerationReportFX, String> moderatorPrivateNoticeColumn = new TableColumn<>("Public Note");
+		moderatorPrivateNoticeColumn.setMinWidth(180);
+		moderatorPrivateNoticeColumn.setCellValueFactory(param -> param.getValue().moderatorNoticeProperty());
+		tableView.getColumns().add(moderatorPrivateNoticeColumn);
+		extractors.put(moderatorPrivateNoticeColumn, ModerationReportFX::getModeratorNotice);
+
+		TableColumn<ModerationReportFX, String> lastModeratorColumn = new TableColumn<>("Last Moderator");
+		lastModeratorColumn.setCellValueFactory(o -> Bindings.createStringBinding(() -> {
+			PlayerFX lastModerator = o.getValue().getLastModerator();
+			if (lastModerator == null) {
+				return "null";
+			}
+			return lastModerator.getRepresentation();
+		}, o.getValue().lastModeratorProperty()));
+		lastModeratorColumn.setMinWidth(150);
+		tableView.getColumns().add(lastModeratorColumn);
+		extractors.put(lastModeratorColumn, reportFx -> reportFx.getLastModerator() == null ? null : reportFx.getLastModerator().getLogin());
+
+		TableColumn<ModerationReportFX, OffsetDateTime> createTimeColumn = new TableColumn<>("Create time");
+		createTimeColumn.setMinWidth(150);
+		createTimeColumn.setCellValueFactory(param -> param.getValue().createTimeProperty());
+		tableView.getColumns().add(createTimeColumn);
+		extractors.put(createTimeColumn, ModerationReportFX::getCreateTime);
+
+		applyCopyContextMenus(tableView, extractors);
+	}
+
+
     public static void buildQuestionTable(TableView<VotingQuestionFX> tableView, VotingService votingService, Logger log, Runnable refresh) {
         tableView.setEditable(true);
         HashMap<TableColumn<VotingQuestionFX, ?>, Function<VotingQuestionFX, ?>> extractors = new HashMap<>();
