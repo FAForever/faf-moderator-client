@@ -22,6 +22,7 @@ public class BanInfoFX extends AbstractEntityFX {
     private final StringProperty revokeReason;
     private final ObjectProperty<PlayerFX> revokeAuthor;
     private final ObjectProperty<OffsetDateTime> revokeTime;
+    private final ObjectProperty<ModerationReportFX> moderationReport;
 
     public BanInfoFX() {
         player = new SimpleObjectProperty<>();
@@ -52,6 +53,7 @@ public class BanInfoFX extends AbstractEntityFX {
                         },
                         revokeTime, duration, expiresAt)
         );
+        moderationReport = new SimpleObjectProperty<>();
     }
 
     public PlayerFX getPlayer() {
@@ -169,5 +171,17 @@ public class BanInfoFX extends AbstractEntityFX {
 
     public ObjectProperty<OffsetDateTime> revokeTimeProperty() {
         return revokeTime;
+    }
+
+    public ModerationReportFX getModerationReport() {
+        return moderationReport.get();
+    }
+
+    public void setModerationReport(ModerationReportFX moderationReport) {
+        this.moderationReport.set(moderationReport);
+    }
+
+    public ObjectProperty<ModerationReportFX> moderationReportProperty() {
+        return moderationReport;
     }
 }

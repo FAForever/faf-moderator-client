@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, MapMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, MapMapper.class, CycleAvoidingMappingContext.class})
 public abstract class MapVersionMapper {
     public abstract MapVersionFX map(MapVersion dto);
 

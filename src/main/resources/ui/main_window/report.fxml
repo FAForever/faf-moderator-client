@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
+           xmlns="http://javafx.com/javafx/8.0.141"
+           fx:controller="com.faforever.moderatorclient.ui.moderation_reports.ModerationReportController">
+    <items>
+        <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+            <children>
+
+                <VBox minWidth="200.0" spacing="10.0">
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </HBox.margin>
+                    <children>
+                        <Label text="Moderation Reports">
+                            <font>
+                                <Font name="System Bold" size="18.0"/>
+                            </font>
+                        </Label>
+                        <Separator prefWidth="200.0"/>
+                        <Label text="Filter by status"/>
+                        <ChoiceBox fx:id="statusChoiceBox"/>
+                        <Label text="Search for player(reporter or offender)"/>
+                        <TextField fx:id="playerNameFilterTextField" promptText="Enter player name to search"/>
+                        <Separator prefWidth="200.0"/>
+                        <Label text="Options"/>
+                        <Button fx:id="editReportButton" mnemonicParsing="false" onAction="#onEdit" text="Edit"/>
+                        <Button mnemonicParsing="false" onAction="#onRefreshAllReports" text="Refresh"/>
+
+                    </children>
+                </VBox>
+                <TableView fx:id="reportTableView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                           HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+        <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+            <children>
+
+                <VBox minWidth="200.0" spacing="10.0">
+                    <HBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </HBox.margin>
+                    <children>
+                        <Label text="Reported Accounts">
+                            <font>
+                                <Font name="System Bold" size="18.0"/>
+                            </font>
+                        </Label>
+                    </children>
+                </VBox>
+                <TableView fx:id="reportedPlayerView" maxHeight="1.7976931348623157E308"
+                           maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS"/>
+            </children>
+        </HBox>
+    </items>
+</SplitPane>

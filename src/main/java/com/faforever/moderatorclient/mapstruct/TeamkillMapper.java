@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, PlayerMapper.class, GameMapper.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, PlayerMapper.class, GameMapper.class})
 public abstract class TeamkillMapper {
     public abstract TeamkillFX map(Teamkill dto);
 

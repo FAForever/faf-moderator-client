@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Mapper(uses = {JavaFXMapper.class, MapVersionMapper.class, TutorialCategoryMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, MapVersionMapper.class, TutorialCategoryMapper.class, CycleAvoidingMappingContext.class})
 public abstract class TutorialMapper {
     public abstract TutorialFx map(Tutorial dto);
 

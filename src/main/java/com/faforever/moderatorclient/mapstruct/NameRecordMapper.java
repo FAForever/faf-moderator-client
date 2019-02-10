@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, PlayerMapper.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, PlayerMapper.class})
 public abstract class NameRecordMapper {
     public abstract NameRecordFX map(NameRecord dto);
 

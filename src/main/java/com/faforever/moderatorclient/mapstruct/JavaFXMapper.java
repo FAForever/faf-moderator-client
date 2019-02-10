@@ -3,9 +3,11 @@ package com.faforever.moderatorclient.mapstruct;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class JavaFXMapper {
@@ -46,6 +48,14 @@ public class JavaFXMapper {
             return null;
         } else {
             return FXCollections.observableList(value);
+        }
+    }
+
+    public <T> ObservableSet<T> map(Set<T> value) {
+        if (value == null) {
+            return null;
+        } else {
+            return FXCollections.observableSet(value);
         }
     }
 
