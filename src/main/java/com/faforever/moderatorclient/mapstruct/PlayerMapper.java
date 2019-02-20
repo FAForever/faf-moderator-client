@@ -5,8 +5,9 @@ import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import org.mapstruct.Mapper;
 
 import java.util.List;
+import java.util.Set;
 
-@Mapper(uses = {JavaFXMapper.class, NameRecordMapper.class, BanInfoMapper.class, AvatarAssignmentMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, NameRecordMapper.class, BanInfoMapper.class, AvatarAssignmentMapper.class, CycleAvoidingMappingContext.class})
 public abstract class PlayerMapper {
     public abstract PlayerFX map(Player dto);
 
@@ -15,4 +16,8 @@ public abstract class PlayerMapper {
     public abstract List<PlayerFX> mapToFx(List<Player> dtoList);
 
     public abstract List<Player> mapToDto(List<PlayerFX> fxBeanList);
+
+    public abstract Set<PlayerFX> mapToFx(Set<Player> dtoList);
+
+    public abstract Set<Player> mapToDto(Set<PlayerFX> fxBeanList);
 }

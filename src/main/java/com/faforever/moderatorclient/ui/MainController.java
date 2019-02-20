@@ -3,6 +3,7 @@ package com.faforever.moderatorclient.ui;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.ui.main_window.*;
+import com.faforever.moderatorclient.ui.moderation_reports.ModerationReportController;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -32,11 +33,13 @@ public class MainController implements Controller<TabPane> {
     public Tab votingTab;
     public Tab tutorialTab;
     public Tab messagesTab;
+    public Tab reportTab;
 
 
     private final UiService uiService;
 
     public TabPane root;
+    private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
     private LadderMapPoolController ladderMapPoolController;
     private MapVaultController mapVaultController;
@@ -51,6 +54,7 @@ public class MainController implements Controller<TabPane> {
 
     public MainController(UiService uiService) {
         this.uiService = uiService;
+
     }
 
     @Override
@@ -69,6 +73,7 @@ public class MainController implements Controller<TabPane> {
         initVotingTab();
         initMessagesTab();
         initTutorialTab();
+        initReportTab();
     }
 
     private void initLoading(Tab tab, Runnable loadingFunction) {
@@ -91,6 +96,13 @@ public class MainController implements Controller<TabPane> {
         ladderMapPoolTab.setContent(ladderMapPoolController.getRoot());
         initLoading(ladderMapPoolTab, ladderMapPoolController::refresh);
     }
+
+    private void initReportTab() {
+        moderationReportController = uiService.loadFxml("ui/main_window/report.fxml");
+        reportTab.setContent(moderationReportController.getRoot());
+        initLoading(reportTab, moderationReportController::onRefreshAllReports);
+    }
+
 
     private void initMapVaultTab() {
         mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");

@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = JavaFXMapper.class)
+@Mapper(componentModel = "spring", uses = JavaFXMapper.class)
 public interface DomainBlacklistMapper {
     DomainBlacklistFX map(DomainBlacklist dto);
 

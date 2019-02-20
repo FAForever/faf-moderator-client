@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-@Mapper(uses = {JavaFXMapper.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class})
 public abstract class MessagesMapper {
     public abstract MessageFx map(Message dto);
 

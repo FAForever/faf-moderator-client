@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, VotingQuestionMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, VotingQuestionMapper.class, CycleAvoidingMappingContext.class})
 public abstract class VotingChoiceMapper {
     public abstract VotingChoiceFX map(VotingChoice dto);
 
