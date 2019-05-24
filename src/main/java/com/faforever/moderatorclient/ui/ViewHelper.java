@@ -1467,7 +1467,16 @@ public class ViewHelper {
 		TableColumn<ModerationReportFX, String> reportDescriptionColumn = new TableColumn<>("Report Description");
 		reportDescriptionColumn.setMinWidth(150);
 		reportDescriptionColumn.setCellValueFactory(param -> param.getValue().reportDescriptionProperty());
-		reportDescriptionColumn.text.wrappingWidthProperty().bind(reportDescriptionColumn.widthProperty());
+		reportDescriptionColumn.setCellFactory(column -> {
+			TableCell<ModerationReportFX, String> cell = new TableCell<>();
+			Text text = new Text();
+			cell.setGraphic(text);
+			cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
+			cell.setWrapText(true);
+			text.wrappingWidthProperty().bind(Bindings.createDoubleBinding(() -> cell.getWidth() - 10.0, cell.widthProperty()));
+			text.textProperty().bind(cell.itemProperty());
+			return cell;
+		});
 		tableView.getColumns().add(reportDescriptionColumn);
 		extractors.put(reportDescriptionColumn, ModerationReportFX::getReportDescription);
 
