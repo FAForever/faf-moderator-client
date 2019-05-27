@@ -1457,7 +1457,7 @@ public class ViewHelper {
 				};
 			}
 		});
-		extractors.put(idColumn, ModerationReportFX::getReportStatus);
+        extractors.put(statusColumn, ModerationReportFX::getReportStatus);
 
 		TableColumn<ModerationReportFX, String> reporterColumn = new TableColumn<>("Reporter");
 		reporterColumn.setCellValueFactory(o -> o.getValue().getReporter().representationProperty());
