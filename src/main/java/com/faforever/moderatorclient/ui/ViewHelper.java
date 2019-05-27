@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.*;
 import com.faforever.commons.api.dto.Map;
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
@@ -24,6 +24,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -1456,7 +1457,7 @@ public class ViewHelper {
 				};
 			}
 		});
-		extractors.put(idColumn, ModerationReportFX::getReportStatus);
+        extractors.put(statusColumn, ModerationReportFX::getReportStatus);
 
 		TableColumn<ModerationReportFX, String> reporterColumn = new TableColumn<>("Reporter");
 		reporterColumn.setCellValueFactory(o -> o.getValue().getReporter().representationProperty());
@@ -1467,6 +1468,16 @@ public class ViewHelper {
 		TableColumn<ModerationReportFX, String> reportDescriptionColumn = new TableColumn<>("Report Description");
 		reportDescriptionColumn.setMinWidth(150);
 		reportDescriptionColumn.setCellValueFactory(param -> param.getValue().reportDescriptionProperty());
+        reportDescriptionColumn.setCellFactory(column -> {
+            TableCell<ModerationReportFX, String> cell = new TableCell<>();
+            Text text = new Text();
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
+            cell.setWrapText(true);
+            text.wrappingWidthProperty().bind(Bindings.createDoubleBinding(() -> cell.getWidth() - 10.0, cell.widthProperty()));
+            text.textProperty().bind(cell.itemProperty());
+            return cell;
+        });
 		tableView.getColumns().add(reportDescriptionColumn);
 		extractors.put(reportDescriptionColumn, ModerationReportFX::getReportDescription);
 
