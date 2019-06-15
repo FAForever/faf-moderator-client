@@ -1290,6 +1290,7 @@ public class ViewHelper {
 
         TableColumn<VotingSubjectFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, VotingSubjectFX::getId);
 
@@ -1418,6 +1419,7 @@ public class ViewHelper {
 
 		TableColumn<ModerationReportFX, String> idColumn = new TableColumn<>("ID");
 		idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
 		tableView.getColumns().add(idColumn);
 		extractors.put(idColumn, ModerationReportFX::getId);
 
@@ -1541,6 +1543,7 @@ public class ViewHelper {
 
         TableColumn<VotingQuestionFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, VotingQuestionFX::getId);
 
@@ -1687,6 +1690,7 @@ public class ViewHelper {
 
         TableColumn<VotingChoiceFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, VotingChoiceFX::getId);
 
