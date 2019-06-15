@@ -43,6 +43,7 @@ public class MainController implements Controller<TabPane> {
     private UserManagementController userManagementController;
     private LadderMapPoolController ladderMapPoolController;
     private MapVaultController mapVaultController;
+    private ModVaultController modVaultController;
     private AvatarsController avatarsController;
     private RecentActivityController recentActivityController;
     private DomainBlacklistController domainBlacklistController;
@@ -66,6 +67,7 @@ public class MainController implements Controller<TabPane> {
         initUserManagementTab();
         initLadderMapPoolTab();
         initMapVaultTab();
+        initModVaultTab();
         initAvatarTab();
         initRecentActivityTab();
         initDomainBlacklistTab();
@@ -107,6 +109,11 @@ public class MainController implements Controller<TabPane> {
     private void initMapVaultTab() {
         mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");
         mapVaultTab.setContent(mapVaultController.getRoot());
+    }
+
+    private void initModVaultTab() {
+        modVaultController = uiService.loadFxml("ui/main_window/modVault.fxml");
+        modVaultTab.setContent(modVaultController.getRoot());
     }
 
     private void initAvatarTab() {
