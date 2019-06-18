@@ -69,7 +69,7 @@ public class ModService {
     }
 
     public List<Mod> findModsByAuthorName(@NotNull String pattern, boolean excludeHidden) {
-        return findModsByAttribute("uploader.displayName", pattern, excludeHidden);
+        return findModsByAttribute("uploader.login", pattern, excludeHidden);
     }
 
     public List<Mod> findMods(String modNamePattern) {
