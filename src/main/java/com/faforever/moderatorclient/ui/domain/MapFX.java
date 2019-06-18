@@ -7,14 +7,10 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 public class MapFX extends AbstractEntityFX {
-    private final StringProperty id;
     private final StringProperty battleType;
-    private final ObjectProperty<OffsetDateTime> createTime;
-    private final ObjectProperty<OffsetDateTime> updateTime;
     private final StringProperty displayName;
     private final ObjectProperty<PlayerFX> author;
     private final StringProperty mapType;
@@ -22,29 +18,12 @@ public class MapFX extends AbstractEntityFX {
     private final ObservableList<MapVersionFX> versions;
 
     public MapFX() {
-        id = new SimpleStringProperty();
         battleType = new SimpleStringProperty();
-        createTime = new SimpleObjectProperty<>();
-        updateTime = new SimpleObjectProperty<>();
         displayName = new SimpleStringProperty();
         author = new SimpleObjectProperty<>();
         mapType = new SimpleStringProperty();
         latestVersion = new SimpleObjectProperty<>();
         versions = FXCollections.observableArrayList();
-    }
-
-    @Override
-    public String getId() {
-        return id.get();
-    }
-
-    public void setId(String id) {
-        this.id.set(id);
-    }
-
-    @Override
-    public StringProperty idProperty() {
-        return id;
     }
 
     public String getBattleType() {
@@ -57,34 +36,6 @@ public class MapFX extends AbstractEntityFX {
 
     public StringProperty battleTypeProperty() {
         return battleType;
-    }
-
-    @Override
-    public OffsetDateTime getCreateTime() {
-        return createTime.get();
-    }
-
-    public void setCreateTime(OffsetDateTime createTime) {
-        this.createTime.set(createTime);
-    }
-
-    @Override
-    public ObjectProperty<OffsetDateTime> createTimeProperty() {
-        return createTime;
-    }
-
-    @Override
-    public OffsetDateTime getUpdateTime() {
-        return updateTime.get();
-    }
-
-    public void setUpdateTime(OffsetDateTime updateTime) {
-        this.updateTime.set(updateTime);
-    }
-
-    @Override
-    public ObjectProperty<OffsetDateTime> updateTimeProperty() {
-        return updateTime;
     }
 
     public String getDisplayName() {
@@ -147,9 +98,6 @@ public class MapFX extends AbstractEntityFX {
         }
     }
 
-    //    @Relationship("author")
-//    private Player author;
-//
 //    @Relationship("statistics")
 //    private MapStatistics statistics;
 

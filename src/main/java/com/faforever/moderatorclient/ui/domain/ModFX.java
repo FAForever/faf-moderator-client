@@ -7,14 +7,10 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.time.OffsetDateTime;
-
 public class ModFX extends AbstractEntityFX {
-    private final StringProperty id;
     private final StringProperty displayName;
     private final StringProperty author;
     private final ObjectProperty<PlayerFX> uploader;
-    private final ObjectProperty<OffsetDateTime> createTime;
     private final ObservableList<ModVersionFX> versions;
     private final ObjectProperty<ModVersionFX> latestVersion;
 
@@ -22,24 +18,8 @@ public class ModFX extends AbstractEntityFX {
         uploader = new SimpleObjectProperty<>();
         versions = FXCollections.observableArrayList();
         latestVersion = new SimpleObjectProperty<>();
-        id = new SimpleStringProperty();
         displayName = new SimpleStringProperty();
         author = new SimpleStringProperty();
-        createTime = new SimpleObjectProperty<>();
-    }
-
-    @Override
-    public String getId() {
-        return id.get();
-    }
-
-    public void setId(String id) {
-        this.id.set(id);
-    }
-
-    @Override
-    public StringProperty idProperty() {
-        return id;
     }
 
     public String getDisplayName() {
@@ -64,20 +44,6 @@ public class ModFX extends AbstractEntityFX {
 
     public StringProperty authorProperty() {
         return author;
-    }
-
-    @Override
-    public OffsetDateTime getCreateTime() {
-        return createTime.get();
-    }
-
-    public void setCreateTime(OffsetDateTime createTime) {
-        this.createTime.set(createTime);
-    }
-
-    @Override
-    public ObjectProperty<OffsetDateTime> createTimeProperty() {
-        return createTime;
     }
 
     public ObservableList<ModVersionFX> getVersions() {
