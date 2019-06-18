@@ -37,8 +37,8 @@ public class ModVaultController implements Controller<SplitPane> {
     public TableView<ModVersionFX> modVersionTableView;
     public Button toggleModVersionHidingButton;
     public Button toggleModVersionRatingButton;
-    private ObservableList<ModFX> mods = FXCollections.observableArrayList();
-    private ObservableList<ModVersionFX> modVersions = FXCollections.observableArrayList();
+    private final ObservableList<ModFX> mods = FXCollections.observableArrayList();
+    private final ObservableList<ModVersionFX> modVersions = FXCollections.observableArrayList();
 
     public ModVaultController(ModService modService, ModMapper modMapper, ModVersionMapper modVersionMapper) {
         this.modService = modService;
