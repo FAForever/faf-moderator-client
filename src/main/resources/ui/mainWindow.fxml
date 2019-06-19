@@ -9,7 +9,7 @@
         <Tab fx:id="userManagementTab" closable="false" text="User Management"/>
         <Tab fx:id="ladderMapPoolTab" closable="false" text="Ladder Map Pool"/>
         <Tab fx:id="mapVaultTab" closable="false" text="Map vault"/>
-        <Tab fx:id="modVaultTab" closable="false" disable="true" text="Mod vault"/>
+        <Tab fx:id="modVaultTab" closable="false" text="Mod vault"/>
         <Tab fx:id="avatarsTab" closable="false" text="Avatars"/>
         <Tab fx:id="recentActivityTab" closable="false" text="Recent activity"/>
         <Tab fx:id="domainBlacklistTab" closable="false" text="Domain Blacklist"/>
