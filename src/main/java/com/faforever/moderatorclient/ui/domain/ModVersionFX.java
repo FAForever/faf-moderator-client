@@ -6,6 +6,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
 import java.util.UUID;
@@ -14,7 +15,7 @@ public class ModVersionFX extends AbstractEntityFX {
     private final ObjectProperty<UUID> uuid;
     private final ObjectProperty<ModType> type;
     private final ObjectProperty<String> description;
-    private final ObjectProperty<Short> version;
+    private final ObjectProperty<ComparableVersion> version;
     private final ObjectProperty<String> filename;
     private final ObjectProperty<String> icon;
     private final BooleanProperty ranked;
@@ -74,15 +75,15 @@ public class ModVersionFX extends AbstractEntityFX {
         return description;
     }
 
-    public Short getVersion() {
+    public ComparableVersion getVersion() {
         return version.get();
     }
 
-    public void setVersion(Short version) {
+    public void setVersion(ComparableVersion version) {
         this.version.set(version);
     }
 
-    public ObjectProperty<Short> versionProperty() {
+    public ObjectProperty<ComparableVersion> versionProperty() {
         return version;
     }
 
