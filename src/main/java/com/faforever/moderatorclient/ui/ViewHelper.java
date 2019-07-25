@@ -423,7 +423,7 @@ public class ViewHelper {
                             tooltip.setText("Permanent ban");
                             setTextFill(Color.valueOf("#ca0000"));
                         } else if (item.getBans().stream()
-                                .allMatch(banInfo -> banInfo.getBanStatus() == BanStatus.EXPIRED)) {
+                                .allMatch(banInfo -> banInfo.getBanStatus() == BanStatus.EXPIRED || banInfo.getBanStatus() == BanStatus.DISABLED)) {
                             tooltip.setText("Expired ban");
                             setTextFill(Color.valueOf("#098700"));
                         } else {
