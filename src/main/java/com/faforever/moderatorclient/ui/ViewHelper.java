@@ -984,6 +984,12 @@ public class ViewHelper {
         tableView.getColumns().add(nameColumn);
         extractors.put(nameColumn, ModVersionFX::getVersion);
 
+        TableColumn<ModVersionFX, String> uidColumn = new TableColumn<>("UID");
+        uidColumn.setCellValueFactory(o -> o.getValue().uidProperty());
+        uidColumn.setMinWidth(280);
+        tableView.getColumns().add(uidColumn);
+        extractors.put(uidColumn, ModVersionFX::getUid);
+
         TableColumn<ModVersionFX, Boolean> rankedCheckBoxColumn = new TableColumn<>("Ranked");
         rankedCheckBoxColumn.setCellValueFactory(param -> param.getValue().rankedProperty());
         rankedCheckBoxColumn.setCellFactory(CheckBoxTableCell.forTableColumn(rankedCheckBoxColumn));
