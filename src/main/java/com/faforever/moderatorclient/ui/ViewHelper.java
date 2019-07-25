@@ -381,18 +381,8 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    /**
-     * @param tableView The tableview to be populated
-     * @param data      data to be put in the tableView
-     * @param onAddBan  if not null shows a ban button which triggers this consumer
-     */
-    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
-        tableView.setItems(data);
-        HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
-
-        TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
-        idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-        idColumn.setCellFactory(param -> new TableCell<PlayerFX, PlayerFX>() {
+    private static <T> TableCell<T, PlayerFX> playerFXCellFactory(TableColumn<T, PlayerFX> ignored) {
+        return new TableCell<T, PlayerFX>() {
             Tooltip tooltip = new Tooltip();
 
             {
@@ -433,7 +423,21 @@ public class ViewHelper {
                     }
                 }
             }
-        });
+        };
+    }
+
+    /**
+     * @param tableView The tableview to be populated
+     * @param data      data to be put in the tableView
+     * @param onAddBan  if not null shows a ban button which triggers this consumer
+     */
+    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
+        tableView.setItems(data);
+        HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        idColumn.setCellFactory(ViewHelper::playerFXCellFactory);
         idColumn.setComparator(Comparator.comparingInt(o -> Integer.parseInt(o.getId())));
         idColumn.setMinWidth(70);
         tableView.getColumns().add(idColumn);
@@ -1560,8 +1564,9 @@ public class ViewHelper {
         });
         extractors.put(statusColumn, ModerationReportFX::getReportStatus);
 
-        TableColumn<ModerationReportFX, String> reporterColumn = new TableColumn<>("Reporter");
-        reporterColumn.setCellValueFactory(o -> o.getValue().getReporter().representationProperty());
+        TableColumn<ModerationReportFX, PlayerFX> reporterColumn = new TableColumn<>("Reporter");
+        reporterColumn.setCellFactory(ViewHelper::playerFXCellFactory);
+        reporterColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getReporter()));
         reporterColumn.setMinWidth(100);
         tableView.getColumns().add(reporterColumn);
         extractors.put(reporterColumn, reportFx -> reportFx.getReporter().getRepresentation());
