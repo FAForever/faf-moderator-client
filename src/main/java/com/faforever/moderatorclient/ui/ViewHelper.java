@@ -381,7 +381,7 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    private static <T> TableCell<T, PlayerFX> playerFXCellFactory(TableColumn<T, PlayerFX> ignored, Function<PlayerFX, String> textExtracotr) {
+    private static <T> TableCell<T, PlayerFX> playerFXCellFactory(TableColumn<T, PlayerFX> ignored, Function<PlayerFX, String> textExtractor) {
         return new TableCell<T, PlayerFX>() {
             Tooltip tooltip = new Tooltip();
 
@@ -400,7 +400,7 @@ public class ViewHelper {
                     setStyle("");
                     tooltip.setText("");
                 } else {
-                    setText(textExtracotr.apply(item));
+                    setText(textExtractor.apply(item));
 
                     if (item.getBans().isEmpty()) {
                         setStyle("");
