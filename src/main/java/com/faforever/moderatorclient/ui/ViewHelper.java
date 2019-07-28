@@ -381,7 +381,7 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    private static <T> TableCell<T, PlayerFX> playerFXCellFactory(TableColumn<T, PlayerFX> ignored) {
+    private static <T> TableCell<T, PlayerFX> playerFXCellFactory(TableColumn<T, PlayerFX> ignored, Function<PlayerFX, String> textExtracotr) {
         return new TableCell<T, PlayerFX>() {
             Tooltip tooltip = new Tooltip();
 
@@ -400,7 +400,7 @@ public class ViewHelper {
                     setStyle("");
                     tooltip.setText("");
                 } else {
-                    setText(item.getId());
+                    setText(textExtracotr.apply(item));
 
                     if (item.getBans().isEmpty()) {
                         setStyle("");
@@ -437,7 +437,7 @@ public class ViewHelper {
 
         TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-        idColumn.setCellFactory(ViewHelper::playerFXCellFactory);
+        idColumn.setCellFactory(tableColumn -> ViewHelper.playerFXCellFactory(tableColumn, PlayerFX::getId));
         idColumn.setComparator(Comparator.comparingInt(o -> Integer.parseInt(o.getId())));
         idColumn.setMinWidth(70);
         tableView.getColumns().add(idColumn);
@@ -1571,7 +1571,7 @@ public class ViewHelper {
         extractors.put(statusColumn, ModerationReportFX::getReportStatus);
 
         TableColumn<ModerationReportFX, PlayerFX> reporterColumn = new TableColumn<>("Reporter");
-        reporterColumn.setCellFactory(ViewHelper::playerFXCellFactory);
+        reporterColumn.setCellFactory(tableColumn -> ViewHelper.playerFXCellFactory(tableColumn, PlayerFX::getLogin));
         reporterColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue().getReporter()));
         reporterColumn.setMinWidth(100);
         tableView.getColumns().add(reporterColumn);
