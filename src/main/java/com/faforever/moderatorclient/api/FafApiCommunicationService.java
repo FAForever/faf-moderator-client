@@ -104,9 +104,14 @@ public class FafApiCommunicationService {
         restTemplate.setInterceptors(Collections.singletonList(
                 (request, body, execution) -> {
                     HttpHeaders headers = request.getHeaders();
-                    headers.setAccept(Collections.singletonList(MediaType.valueOf("application/vnd.api+json")));
-                    if (request.getMethod() == HttpMethod.POST || request.getMethod() == HttpMethod.PATCH || request.getMethod() == HttpMethod.PUT) {
-                        headers.setContentType(MediaType.APPLICATION_JSON);
+
+                    List<String> contentTypes = headers.get(HttpHeaders.CONTENT_TYPE);
+                    if (contentTypes != null && contentTypes.stream()
+                            .anyMatch(MediaType.APPLICATION_JSON_VALUE::equalsIgnoreCase)) {
+                        headers.setAccept(Collections.singletonList(MediaType.valueOf("application/vnd.api+json")));
+                        if (request.getMethod() == HttpMethod.POST || request.getMethod() == HttpMethod.PATCH || request.getMethod() == HttpMethod.PUT) {
+                            headers.setContentType(MediaType.APPLICATION_JSON);
+                        }
                     }
                     return execution.execute(request, body);
                 }

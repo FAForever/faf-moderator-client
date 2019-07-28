@@ -64,6 +64,10 @@ public class ModService {
         return findModsByAttribute("displayName", pattern, excludeHidden);
     }
 
+    public List<Mod> findModsByModVersionUid(@NotNull String pattern, boolean excludeHidden) {
+        return findModsByAttribute("versions.uid", pattern, excludeHidden);
+    }
+
     public List<Mod> findModsByAuthorId(@NotNull String pattern, boolean excludeHidden) {
         return findModsByAttribute("uploader.id", pattern, excludeHidden);
     }

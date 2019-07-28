@@ -28,6 +28,7 @@ public class ModVaultController implements Controller<SplitPane> {
     private final ModVersionMapper modVersionMapper;
     public SplitPane root;
     public RadioButton searchModByModNameRadioButton;
+    public RadioButton searchModByModVersionUidRadioButton;
     public RadioButton searchModByAuthorIdRadioButton;
     public RadioButton searchModByAuthorNameRadioButton;
     public TextField modSearchTextField;
@@ -83,6 +84,8 @@ public class ModVaultController implements Controller<SplitPane> {
         String searchPattern = modSearchTextField.getText();
         if (searchModByModNameRadioButton.isSelected()) {
             modsFound = modService.findModsByName(searchPattern, excludeHiddenModVersionsCheckbox.isSelected());
+        } else if (searchModByModVersionUidRadioButton.isSelected()) {
+            modsFound = modService.findModsByModVersionUid(searchPattern, excludeHiddenModVersionsCheckbox.isSelected());
         } else if (searchModByAuthorIdRadioButton.isSelected()) {
             modsFound = modService.findModsByAuthorId(searchPattern, excludeHiddenModVersionsCheckbox.isSelected());
         } else if (searchModByAuthorNameRadioButton.isSelected()) {

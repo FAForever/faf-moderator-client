@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.5" orientation="VERTICAL"
-           xmlns="http://javafx.com/javafx/8.0.141"
+           xmlns="http://javafx.com/javafx/8.0.171"
            fx:controller="com.faforever.moderatorclient.ui.main_window.ModVaultController">
     <items>
         <TabPane tabClosingPolicy="UNAVAILABLE">
@@ -25,6 +25,12 @@
                                             <toggleGroup>
                                                 <ToggleGroup fx:id="modSearch"/>
                                             </toggleGroup>
+                                        </RadioButton>
+                                        <RadioButton fx:id="searchModByModVersionUidRadioButton" mnemonicParsing="false"
+                                                     text="search by uid" toggleGroup="$modSearch">
+                                            <padding>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </padding>
                                         </RadioButton>
                                         <RadioButton fx:id="searchModByAuthorIdRadioButton" mnemonicParsing="false"
                                                      text="search by uploader id" toggleGroup="$modSearch">

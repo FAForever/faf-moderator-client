@@ -9,10 +9,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.net.URL;
-import java.util.UUID;
 
 public class ModVersionFX extends AbstractEntityFX {
-    private final ObjectProperty<UUID> uuid;
+    private final ObjectProperty<String> uid;
     private final ObjectProperty<ModType> type;
     private final ObjectProperty<String> description;
     private final ObjectProperty<ComparableVersion> version;
@@ -26,7 +25,7 @@ public class ModVersionFX extends AbstractEntityFX {
 
 
     public ModVersionFX() {
-        uuid = new SimpleObjectProperty<>();
+        uid = new SimpleObjectProperty<>();
         type = new SimpleObjectProperty<>();
         description = new SimpleObjectProperty<>();
         version = new SimpleObjectProperty<>();
@@ -39,16 +38,16 @@ public class ModVersionFX extends AbstractEntityFX {
         mod = new SimpleObjectProperty<>();
     }
 
-    public UUID getUuid() {
-        return uuid.get();
+    public String getUid() {
+        return uid.get();
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid.set(uuid);
+    public void setUid(String uid) {
+        this.uid.set(uid);
     }
 
-    public ObjectProperty<UUID> uuidProperty() {
-        return uuid;
+    public ObjectProperty<String> uidProperty() {
+        return uid;
     }
 
     public ModType getType() {
