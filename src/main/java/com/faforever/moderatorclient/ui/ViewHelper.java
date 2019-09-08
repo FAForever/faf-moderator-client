@@ -1,5 +1,8 @@
 package com.faforever.moderatorclient.ui;
 
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
 import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.domain.MessagesService;
@@ -578,6 +581,7 @@ public class ViewHelper {
 
 
         TableColumn<MapFX, PlayerFX> authorColumn = new TableColumn<>("Author");
+        authorColumn.setCellValueFactory(o -> o.getValue().authorProperty());
         authorColumn.setCellFactory(o -> getPlayerFXTableCell());
         authorColumn.setMinWidth(200);
         tableView.getColumns().add(authorColumn);
