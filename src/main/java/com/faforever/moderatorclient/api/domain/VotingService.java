@@ -6,28 +6,21 @@ import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VotingService {
     private final FafApiCommunicationService fafApi;
     private final VotingSubjectMapper subjectMapper;
     private final VotingQuestionMapper questionMapper;
     private final VotingChoiceMapper votingChoiceMapper;
-
-    @Inject
-    public VotingService(FafApiCommunicationService fafApi, VotingSubjectMapper subjectMapper, VotingQuestionMapper questionMapper, VotingChoiceMapper votingChoiceMapper) {
-        this.fafApi = fafApi;
-        this.subjectMapper = subjectMapper;
-        this.questionMapper = questionMapper;
-        this.votingChoiceMapper = votingChoiceMapper;
-    }
 
     //region subjects
     public List<VotingSubject> getAllSubjectsFromApi() {

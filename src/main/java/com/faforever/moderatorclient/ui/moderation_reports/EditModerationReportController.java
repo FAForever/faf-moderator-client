@@ -11,9 +11,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class EditModerationReportController implements Controller<Pane> {
 	private final ModerationReportService moderationReportService;
 
@@ -24,10 +26,6 @@ public class EditModerationReportController implements Controller<Pane> {
 
 	private Runnable onSaveRunnable;
 	private ModerationReportFX moderationReportFx;
-
-	public EditModerationReportController(ModerationReportService moderationReportService) {
-		this.moderationReportService = moderationReportService;
-	}
 
 	@FXML
 	public void initialize() {

@@ -15,6 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -25,14 +26,17 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AvatarsController implements Controller<SplitPane> {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final UiService uiService;
     private final AvatarService avatarService;
     private final AvatarMapper avatarMapper;
+    private final ObservableList<AvatarFX> avatars = FXCollections.observableArrayList();
+    private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
+
     public TableView<AvatarFX> avatarTableView;
     public TableView<AvatarAssignmentFX> avatarAssignmentTableView;
-
     public SplitPane root;
     public RadioButton showAllAvatarsRadioButton;
     public RadioButton searchAvatarsByIdRadioButton;
@@ -42,19 +46,6 @@ public class AvatarsController implements Controller<SplitPane> {
 
     public Button editAvatarButton;
     public Button deleteAvatarButton;
-
-    private ObservableList<AvatarFX> avatars;
-    private ObservableList<AvatarAssignmentFX> avatarAssignments;
-
-    public AvatarsController(ApplicationEventPublisher applicationEventPublisher, UiService uiService, AvatarService avatarService, AvatarMapper avatarMapper) {
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.uiService = uiService;
-        this.avatarService = avatarService;
-        this.avatarMapper = avatarMapper;
-
-        avatars = FXCollections.observableArrayList();
-        avatarAssignments = FXCollections.observableArrayList();
-    }
 
     @Override
     public SplitPane getRoot() {

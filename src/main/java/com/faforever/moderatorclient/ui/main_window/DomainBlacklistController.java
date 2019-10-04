@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Callback;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -19,21 +20,15 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DomainBlacklistController implements Controller<SplitPane> {
     private final DomainBlacklistService domainBlacklistService;
     private final DomainBlacklistMapper domainBlacklistMapper;
-    private ObservableList<DomainBlacklistFX> domainBlacklist;
+    private ObservableList<DomainBlacklistFX> domainBlacklist = FXCollections.observableArrayList();
 
     public SplitPane root;
     public ListView<DomainBlacklistFX> currentDomainBlacklistListView;
     public TextArea addDomainBlacklistTextArea;
-
-    public DomainBlacklistController(DomainBlacklistService domainBlacklistService, DomainBlacklistMapper domainBlacklistMapper) {
-        this.domainBlacklistService = domainBlacklistService;
-        this.domainBlacklistMapper = domainBlacklistMapper;
-
-        domainBlacklist = FXCollections.observableArrayList();
-    }
 
     @FXML
     public void initialize() {
