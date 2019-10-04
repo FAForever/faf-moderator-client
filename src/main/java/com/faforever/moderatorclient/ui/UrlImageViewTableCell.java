@@ -10,8 +10,8 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 
 public class UrlImageViewTableCell<T> extends TableCell<T, String> {
-    ImageView imageView = new ImageView();
-    String currentUrl;
+    private ImageView imageView = new ImageView();
+    private String currentUrl;
 
     @Override
     protected void updateItem(String item, boolean empty) {

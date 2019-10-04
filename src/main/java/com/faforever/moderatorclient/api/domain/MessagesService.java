@@ -6,27 +6,21 @@ import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.events.MessagesChangedEvent;
 import com.faforever.moderatorclient.mapstruct.MessagesMapper;
 import com.faforever.moderatorclient.ui.domain.MessageFx;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MessagesService {
     private final FafApiCommunicationService fafApi;
     private final MessagesMapper messagesMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    @Inject
-    public MessagesService(FafApiCommunicationService fafApi, MessagesMapper messagesMapper, ApplicationEventPublisher applicationEventPublisher) {
-        this.fafApi = fafApi;
-        this.messagesMapper = messagesMapper;
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
 
     public CompletableFuture<List<MessageFx>> getAllMessages() {
         return CompletableFuture.supplyAsync(() -> messagesMapper.map(getAllMessagesFromApi()));

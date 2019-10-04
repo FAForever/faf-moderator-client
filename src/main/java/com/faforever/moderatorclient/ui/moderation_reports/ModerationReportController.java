@@ -24,13 +24,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class ModerationReportController implements Controller<Region> {
 	private final ModerationReportService moderationReportService;
 	private final UiService uiService;
@@ -46,12 +46,6 @@ public class ModerationReportController implements Controller<Region> {
 	private FilteredList<ModerationReportFX> filteredItemList;
 	private ObservableList<ModerationReportFX> itemList;
 	private ModerationReportFX currentlySelectedItemNotNull;
-
-	@Inject
-	public ModerationReportController(ModerationReportService moderationReportService, UiService uiService) {
-		this.moderationReportService = moderationReportService;
-		this.uiService = uiService;
-	}
 
 	@Override
 	public Region getRoot() {

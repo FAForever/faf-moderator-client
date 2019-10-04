@@ -9,29 +9,26 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.text.MessageFormat;
 
 @Component
-@Scope("prototype")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
+@RequiredArgsConstructor
 public class CategoryAddController implements Controller<Pane> {
     private final TutorialService tutorialService;
+
     public TextField categoryField;
     public Label errorLabel;
     public GridPane root;
 
-
     private Runnable onSaveRunnable;
-
-    @Inject
-    public CategoryAddController(TutorialService tutorialService) {
-        this.tutorialService = tutorialService;
-    }
 
     @Override
     public Pane getRoot() {

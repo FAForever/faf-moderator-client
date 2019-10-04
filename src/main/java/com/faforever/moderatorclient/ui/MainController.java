@@ -10,6 +10,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,11 @@ import java.util.Optional;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MainController implements Controller<TabPane> {
+    private final UiService uiService;
+
+    public TabPane root;
     public Tab userManagementTab;
     public Tab ladderMapPoolTab;
     public Tab mapVaultTab;
@@ -35,10 +40,6 @@ public class MainController implements Controller<TabPane> {
     public Tab messagesTab;
     public Tab reportTab;
 
-
-    private final UiService uiService;
-
-    public TabPane root;
     private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
     private LadderMapPoolController ladderMapPoolController;
@@ -53,17 +54,12 @@ public class MainController implements Controller<TabPane> {
     private MessagesController messagesController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
-    public MainController(UiService uiService) {
-        this.uiService = uiService;
-
-    }
-
     @Override
     public TabPane getRoot() {
         return root;
     }
 
-    public void initializeAfterLogin() {
+    private void initializeAfterLogin() {
         initUserManagementTab();
         initLadderMapPoolTab();
         initMapVaultTab();

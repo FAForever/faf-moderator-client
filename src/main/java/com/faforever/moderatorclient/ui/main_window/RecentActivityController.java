@@ -17,33 +17,26 @@ import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RecentActivityController implements Controller<VBox> {
     private final UserService userService;
     private final MapService mapService;
-    private final ObservableList<PlayerFX> users;
-    private final ObservableList<TeamkillFX> teamkills;
-    private final ObservableList<MapVersionFX> mapVersions;
+    private final ObservableList<PlayerFX> users = FXCollections.observableArrayList();
+    private final ObservableList<TeamkillFX> teamkills = FXCollections.observableArrayList();
+    ;
+    private final ObservableList<MapVersionFX> mapVersions = FXCollections.observableArrayList();
     private final UiService uiService;
 
     public VBox root;
     public TableView<PlayerFX> userRegistrationFeedTableView;
     public TableView<TeamkillFX> teamkillFeedTableView;
     public TableView<MapVersionFX> mapUploadFeedTableView;
-
-    public RecentActivityController(UserService userService, MapService mapService, UiService uiService) {
-        this.userService = userService;
-        this.mapService = mapService;
-        this.uiService = uiService;
-
-        users = FXCollections.observableArrayList();
-        teamkills = FXCollections.observableArrayList();
-        mapVersions = FXCollections.observableArrayList();
-    }
 
     @Override
     public VBox getRoot() {

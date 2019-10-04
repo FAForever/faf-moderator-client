@@ -8,27 +8,21 @@ import com.faforever.moderatorclient.mapstruct.TutorialCategoryMapper;
 import com.faforever.moderatorclient.mapstruct.TutorialMapper;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TutorialService {
     private final FafApiCommunicationService fafApi;
     private final TutorialMapper tutorialMapper;
     private final TutorialCategoryMapper tutorialCategoryMapper;
-
-    @Inject
-    public TutorialService(FafApiCommunicationService fafApi, TutorialMapper tutorialMapper, TutorialCategoryMapper tutorialCategoryMapper) {
-        this.fafApi = fafApi;
-        this.tutorialMapper = tutorialMapper;
-        this.tutorialCategoryMapper = tutorialCategoryMapper;
-    }
 
     public List<Tutorial> getAllTutorialsFromApi() {
         log.debug("Retrieving all tutorials");

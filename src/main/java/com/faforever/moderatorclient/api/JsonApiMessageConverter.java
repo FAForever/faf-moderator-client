@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -18,7 +17,6 @@ import java.util.Collection;
 public class JsonApiMessageConverter extends AbstractHttpMessageConverter<Object> {
     private final ResourceConverter resourceConverter;
 
-    @Inject
     public JsonApiMessageConverter(ResourceConverter resourceConverter) {
         super(MediaType.parseMediaType("application/vnd.api+json"));
         this.resourceConverter = resourceConverter;

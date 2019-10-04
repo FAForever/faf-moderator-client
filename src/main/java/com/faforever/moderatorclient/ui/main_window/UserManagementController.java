@@ -6,7 +6,6 @@ import com.faforever.moderatorclient.api.dto.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.*;
 import com.faforever.moderatorclient.ui.domain.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -38,21 +37,30 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Component
 public class UserManagementController implements Controller<SplitPane> {
-    private final ObjectMapper objectMapper;
     private final UiService uiService;
     private final PlatformService platformService;
     private final UserService userService;
     private final AvatarService avatarService;
     private final GamePlayerStatsMapper gamePlayerStatsMapper;
 
-    private final ObservableList<PlayerFX> users;
-    private final ObservableList<UserNoteFX> userNotes;
-    private final ObservableList<BanInfoFX> bans;
-    private final ObservableList<NameRecordFX> nameRecords;
-    private final ObservableList<TeamkillFX> teamkills;
-    private final ObservableList<AvatarAssignmentFX> avatarAssignments;
+    private final ObservableList<PlayerFX> users = FXCollections.observableArrayList();
+    private final ObservableList<UserNoteFX> userNotes = FXCollections.observableArrayList();
+    private final ObservableList<BanInfoFX> bans = FXCollections.observableArrayList();
+    private final ObservableList<NameRecordFX> nameRecords = FXCollections.observableArrayList();
+    private final ObservableList<TeamkillFX> teamkills = FXCollections.observableArrayList();
+    private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
+    private final ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
 
     private final String replayDownLoadFormat;
+
+    public UserManagementController(UiService uiService, PlatformService platformService, UserService userService, AvatarService avatarService, GamePlayerStatsMapper gamePlayerStatsMapper, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat) {
+        this.uiService = uiService;
+        this.platformService = platformService;
+        this.userService = userService;
+        this.avatarService = avatarService;
+        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
+        this.replayDownLoadFormat = replayDownLoadFormat;
+    }
 
     public SplitPane root;
 
@@ -84,23 +92,6 @@ public class UserManagementController implements Controller<SplitPane> {
     private Runnable loadMoreGamesRunnable;
     private int userGamesPage = 1;
 
-    private ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
-
-    public UserManagementController(ObjectMapper objectMapper, UiService uiService, PlatformService platformService, UserService userService, AvatarService avatarService, GamePlayerStatsMapper gamePlayerStatsMapper, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat) {
-        this.objectMapper = objectMapper;
-        this.uiService = uiService;
-        this.platformService = platformService;
-        this.userService = userService;
-        this.avatarService = avatarService;
-        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
-        this.replayDownLoadFormat = replayDownLoadFormat;
-        users = FXCollections.observableArrayList();
-        userNotes = FXCollections.observableArrayList();
-        bans = FXCollections.observableArrayList();
-        nameRecords = FXCollections.observableArrayList();
-        teamkills = FXCollections.observableArrayList();
-        avatarAssignments = FXCollections.observableArrayList();
-    }
 
     @Override
     public SplitPane getRoot() {
@@ -157,7 +148,7 @@ public class UserManagementController implements Controller<SplitPane> {
     }
 
     @EventListener
-    private void onAvatarSelected(AvatarFX avatarFX) {
+    public void onAvatarSelected(AvatarFX avatarFX) {
         currentSelectedAvatar.setValue(avatarFX);
     }
 

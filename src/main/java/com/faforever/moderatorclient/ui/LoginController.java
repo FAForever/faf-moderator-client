@@ -8,22 +8,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class LoginController implements Controller<Pane> {
     private final FafApiCommunicationService fafApiCommunicationService;
+
     public DialogPane root;
     public TextField usernameField;
     public PasswordField passwordField;
     public Label errorMessageLabel;
-
-    public LoginController(FafApiCommunicationService fafApiCommunicationService) {
-        this.fafApiCommunicationService = fafApiCommunicationService;
-
-    }
 
     @Override
     public Pane getRoot() {

@@ -43,6 +43,7 @@ public class VotingController implements Controller<SplitPane> {
     private final FilteredList<VotingChoiceFX> filteredChoices;
     private final ObservableList<VotingChoiceFX> rawChoices;
     private final UiService uiService;
+
     public SplitPane root;
     public TableView<VotingSubjectFX> subjectTable;
     public TableView<VotingQuestionFX> questionTable;

@@ -17,34 +17,27 @@ import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 
-
 @Slf4j
-@Component
+@Repository
+@RequiredArgsConstructor
 public class TutorialController implements Controller<Node> {
     private final UiService uiService;
     private final TutorialService tutorialService;
     private final ObservableList<TutorialFx> tutorialList = FXCollections.observableArrayList();
-    private final FilteredList<TutorialFx> filterTutorials;
+    private final FilteredList<TutorialFx> filterTutorials = new FilteredList(tutorialList);
+    private final HashMap<TutorialFx, WeakChangeListener<Boolean>> weakChangeListenersByTutorial = new HashMap<>();
+
     public SplitPane root;
     public TableView<TutorialFx> tutorialTableView;
     public TableView<TutorialCategoryFX> categoryTableView;
     public Button addTutorialButton;
-    private HashMap<TutorialFx, WeakChangeListener<Boolean>> weakChangeListenersByTutorial = new HashMap<>();
-
-
-    @Inject
-    public TutorialController(UiService uiService, TutorialService tutorialService) {
-        this.uiService = uiService;
-        this.tutorialService = tutorialService;
-        filterTutorials = new FilteredList(tutorialList);
-    }
 
     private void setUpTutorialFilter() {
         SortedList<TutorialFx> sortedList = new SortedList<>(filterTutorials);
