@@ -1,8 +1,5 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.BanDurationType;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
 import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.domain.MessagesService;
@@ -47,6 +44,7 @@ import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,28 +59,20 @@ public class ViewHelper {
      * @param tableView  that the context menu will be added to
      * @param extractors contains a map of columns to copy along with a value extraction function
      */
-    public static <T> void applyCopyContextMenus(TableView<T> tableView, java.util.Map<TableColumn<T, ?>, Function<T, ?>> extractors) {
+    public static <T> ContextMenu applyCopyContextMenus(TableView<T> tableView, java.util.Map<TableColumn<T, ?>, Function<T, ?>> extractors) {
         ContextMenu contextMenu = tableView.getContextMenu() == null ? new ContextMenu() : tableView.getContextMenu();
 
         for (TableColumn<?, ?> column : tableView.getColumns()) {
             if (extractors.containsKey(column)) {
-                MenuItem menuItem = new MenuItem("Copy " + column.getText());
-                menuItem.setOnAction(event -> {
-                    final Clipboard clipboard = Clipboard.getSystemClipboard();
-                    final ClipboardContent content = new ClipboardContent();
-
+                MenuItem menuItem = buildCopyContextMenuItem(column.getText(), () -> {
                     T selectedItem = (T) column.getTableView().getSelectionModel().getSelectedItem();
                     if (selectedItem == null) {
-                        return;
+                        return null;
                     }
 
-                    Object result = extractors.get(column).apply(selectedItem);
-
-                    if (result != null) {
-                        content.putString(result.toString());
-                        clipboard.setContent(content);
-                    }
+                    return extractors.get(column).apply(selectedItem);
                 });
+
                 contextMenu.getItems().add(menuItem);
             }
 
@@ -90,6 +80,24 @@ public class ViewHelper {
         }
 
         tableView.setContextMenu(contextMenu);
+
+        return contextMenu;
+    }
+
+    private static MenuItem buildCopyContextMenuItem(String baseText, Supplier<?> supplier) {
+        MenuItem menuItem = new MenuItem("Copy " + baseText);
+        menuItem.setOnAction(event -> {
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+
+            Object o = supplier.get();
+
+            if (o != null) {
+                content.putString(o.toString());
+                clipboard.setContent(content);
+            }
+        });
+        return menuItem;
     }
 
     public static void buildAvatarTableView(TableView<AvatarFX> tableView, ObservableList<AvatarFX> data) {
@@ -967,7 +975,11 @@ public class ViewHelper {
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
 
-        applyCopyContextMenus(tableView, extractors);
+        ContextMenu contextMenu = applyCopyContextMenus(tableView, extractors);
+        contextMenu.getItems().add(buildCopyContextMenuItem("Download URL", () -> {
+            MapVersionFX mapVersionFX = tableView.getSelectionModel().getSelectedItem();
+            return mapVersionFX == null ? null : mapVersionFX.getDownloadUrl().toString();
+        }));
     }
 
 
@@ -1021,7 +1033,11 @@ public class ViewHelper {
         updateTimeColumn.setMinWidth(160);
         tableView.getColumns().add(updateTimeColumn);
 
-        applyCopyContextMenus(tableView, extractors);
+        ContextMenu contextMenu = applyCopyContextMenus(tableView, extractors);
+        contextMenu.getItems().add(buildCopyContextMenuItem("Download URL", () -> {
+            ModVersionFX modVersionFX = tableView.getSelectionModel().getSelectedItem();
+            return modVersionFX == null ? null : modVersionFX.getDownloadUrl().toString();
+        }));
     }
 
 
