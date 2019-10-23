@@ -1,11 +1,26 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.api.dto.AvatarAssignmentUpdate;
+import com.faforever.moderatorclient.api.dto.GroupPermission;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
-import com.faforever.moderatorclient.ui.*;
-import com.faforever.moderatorclient.ui.domain.*;
+import com.faforever.moderatorclient.ui.BanInfoController;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.PlatformService;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.UserNoteController;
+import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
+import com.faforever.moderatorclient.ui.domain.AvatarFX;
+import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.NameRecordFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -15,9 +30,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -36,6 +58,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UserManagementController implements Controller<SplitPane> {
     private final UiService uiService;
     private final PlatformService platformService;
@@ -51,18 +74,18 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
     private final ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
 
-    private final String replayDownLoadFormat;
-
-    public UserManagementController(UiService uiService, PlatformService platformService, UserService userService, AvatarService avatarService, GamePlayerStatsMapper gamePlayerStatsMapper, @Value("${faforever.vault.replayDownloadUrlFormat}") String replayDownLoadFormat) {
-        this.uiService = uiService;
-        this.platformService = platformService;
-        this.userService = userService;
-        this.avatarService = avatarService;
-        this.gamePlayerStatsMapper = gamePlayerStatsMapper;
-        this.replayDownLoadFormat = replayDownLoadFormat;
-    }
+    @Value("${faforever.vault.replayDownloadUrlFormat}")
+    private String replayDownLoadFormat;
+    private final FafApiCommunicationService communicationService;
 
     public SplitPane root;
+
+    public Tab notesTab;
+    public Tab bansTab;
+    public Tab teamkillsTab;
+    public Tab nameHistoryTab;
+    public Tab lastGamesTab;
+    public Tab avatarsTab;
 
     public RadioButton searchUserByIdRadioButton;
     public RadioButton searchUserByCurrentNameRadioButton;
@@ -98,8 +121,17 @@ public class UserManagementController implements Controller<SplitPane> {
         return root;
     }
 
+    private void disableTabOnMissingPermission(Tab tab, String permissionTechnicalName) {
+        tab.setDisable(!communicationService.hasPermission(permissionTechnicalName));
+    }
+
     @FXML
     public void initialize() {
+        disableTabOnMissingPermission(notesTab, GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE);
+        disableTabOnMissingPermission(bansTab, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN);
+        disableTabOnMissingPermission(teamkillsTab, GroupPermission.ROLE_READ_TEAMKILL_REPORT);
+        disableTabOnMissingPermission(avatarsTab, GroupPermission.ROLE_WRITE_AVATAR);
+
         ViewHelper.buildUserTableView(userSearchTableView, users, null);
         ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
@@ -171,10 +203,10 @@ public class UserManagementController implements Controller<SplitPane> {
         userAvatarsTableView.getSortOrder().clear();
 
         if (newValue != null) {
+            teamkills.addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userNotes.addAll(userService.getUserNotes(newValue.getId()));
             nameRecords.addAll(newValue.getNames());
             bans.addAll(newValue.getBans());
-            teamkills.addAll(userService.findTeamkillsByUserId(newValue.getId()));
             avatarAssignments.addAll(newValue.getAvatarAssignments());
 
             userGamesPage = 1;

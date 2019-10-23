@@ -45,9 +45,6 @@ public class PlayerFX extends AbstractEntityFX {
 //
 //    @Relationship("ladder1v1Rating")
 //    private Ladder1v1Rating ladder1v1Rating;
-//
-//    @Relationship("lobbyGroup")
-//    private LobbyGroup lobbyGroup;
 
 
     public String getLogin() {

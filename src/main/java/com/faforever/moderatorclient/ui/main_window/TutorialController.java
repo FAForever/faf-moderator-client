@@ -2,7 +2,11 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.events.MessagesChangedEvent;
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.ui.CategoryAddController;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.TutorialAddController;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
 import javafx.application.Platform;
@@ -137,10 +141,15 @@ public class TutorialController implements Controller<Node> {
         onRefreshCategorys();
     }
 
-    public void load() {
+    public void initialize() {
         ViewHelper.buildTutorialTable(tutorialTableView, tutorialService, log, this::onRefreshTutorials);
         ViewHelper.buildCategoryTable(categoryTableView, tutorialService, this::onRefreshCategorys);
         setUpTutorialFilter();
         addTutorialButton.disableProperty().bind(categoryTableView.getSelectionModel().selectedItemProperty().isNull());
+    }
+
+    public void onRefresh() {
+        onRefreshCategorys();
+        onRefreshTutorials();
     }
 }
