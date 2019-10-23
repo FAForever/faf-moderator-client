@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8.0.111"
       fx:controller="com.faforever.moderatorclient.ui.main_window.RecentActivityController">
@@ -15,17 +18,17 @@
             <content>
                 <VBox>
                     <children>
-                        <TitledPane expanded="false" text="Latest Registrations">
+                        <TitledPane fx:id="userRegistrationFeedPane" expanded="false" text="Latest Registrations">
                             <content>
                                 <TableView fx:id="userRegistrationFeedTableView"/>
                             </content>
                         </TitledPane>
-                        <TitledPane expanded="false" text="Latest Teamkills">
+                        <TitledPane fx:id="teamkillFeedPane" expanded="false" text="Latest Teamkills">
                             <content>
                                 <TableView fx:id="teamkillFeedTableView"/>
                             </content>
                         </TitledPane>
-                        <TitledPane expanded="false" text="Latest map uploads">
+                        <TitledPane fx:id="mapUploadFeedPane" expanded="false" text="Latest map uploads">
                             <content>
                                 <TableView fx:id="mapUploadFeedTableView"/>
                             </content>

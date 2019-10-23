@@ -128,10 +128,10 @@ public class BanInfoController implements Controller<Pane> {
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
 
-			ModerationReportFX moderationReportFx = banInfo.getModerationReport();
-			if (moderationReportFx != null) {
-				reportIdTextField.setText(moderationReportFx.getId());
-			}
+            ModerationReportFX moderationReportFx = banInfo.getModerationReport();
+            if (moderationReportFx != null) {
+                reportIdTextField.setText(moderationReportFx.getId());
+            }
 
         } else {
 
@@ -163,11 +163,11 @@ public class BanInfoController implements Controller<Pane> {
         banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
                 OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC) : null);
         banInfo.setLevel(chatOnlyBanRadioButton.isSelected() ? BanLevel.CHAT : BanLevel.GLOBAL);
-		if (!StringUtils.isBlank(reportIdTextField.getText())) {
-			ModerationReportFX moderationReportFx = new ModerationReportFX();
-			moderationReportFx.setId(reportIdTextField.getText());
-			banInfo.setModerationReport(moderationReportFx);
-		}
+        if (!StringUtils.isBlank(reportIdTextField.getText())) {
+            ModerationReportFX moderationReportFx = new ModerationReportFX();
+            moderationReportFx.setId(reportIdTextField.getText());
+            banInfo.setModerationReport(moderationReportFx);
+        }
 
 
         if (banInfo.getId() == null) {
@@ -207,13 +207,13 @@ public class BanInfoController implements Controller<Pane> {
             validationErrors.add("No ban type is selected.");
         }
 
-		if (!StringUtils.isBlank(reportIdTextField.getText())) {
-			try {
-				Integer.parseInt(reportIdTextField.getText());
-			} catch (Exception e) {
-				validationErrors.add("Report ID must be a number.");
-			}
-		}
+        if (!StringUtils.isBlank(reportIdTextField.getText())) {
+            try {
+                Integer.parseInt(reportIdTextField.getText());
+            } catch (Exception e) {
+                validationErrors.add("Report ID must be a number.");
+            }
+        }
 
 
         if (temporaryBanRadioButton.isSelected()) {
@@ -260,7 +260,9 @@ public class BanInfoController implements Controller<Pane> {
 
         log.debug("Revoking ban id '{}' with reason: {}", banInfo.getId(), revocationReason);
 
-        banInfo.setRevokeAuthor(playerMapper.map(fafApi.getSelfPlayer()));
+        PlayerFX author = new PlayerFX();
+        author.setId(fafApi.getMeResult().getId());
+        banInfo.setRevokeAuthor(author);
         banInfo.setRevokeReason(revocationReason);
         banInfo.setRevokeTime(revokeTime);
         banInfo.setUpdateTime(OffsetDateTime.now());
@@ -302,9 +304,9 @@ public class BanInfoController implements Controller<Pane> {
         }
     }
 
-	public void preSetReportId(String id) {
-		reportIdTextField.setText(id);
-		reportIdTextField.setDisable(true);
-	}
+    public void preSetReportId(String id) {
+        reportIdTextField.setText(id);
+        reportIdTextField.setDisable(true);
+    }
 
 }

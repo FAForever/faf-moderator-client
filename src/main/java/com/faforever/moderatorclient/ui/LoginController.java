@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.LegacyAccessLevel;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.dto.MeResult;
 import javafx.fxml.FXML;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
@@ -35,13 +35,10 @@ public class LoginController implements Controller<Pane> {
     }
 
     public void onLoginClicked() {
-        LegacyAccessLevel accessLevel = fafApiCommunicationService.login(usernameField.getText(), passwordField.getText());
+        MeResult meResult = fafApiCommunicationService.login(usernameField.getText(), passwordField.getText());
 
-        if (accessLevel == null) {
+        if (meResult == null) {
             errorMessageLabel.setText("Login failed. Please check your credentials.");
-            errorMessageLabel.setVisible(true);
-        } else if (accessLevel == LegacyAccessLevel.ROLE_USER) {
-            errorMessageLabel.setText("You do not have moderator permissions.");
             errorMessageLabel.setVisible(true);
         } else {
             root.getScene().getWindow().hide();

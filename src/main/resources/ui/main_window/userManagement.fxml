@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.3" orientation="VERTICAL"
-           prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.111"
+           prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.171"
            fx:controller="com.faforever.moderatorclient.ui.main_window.UserManagementController">
     <items>
         <HBox>
@@ -71,7 +82,7 @@
         </HBox>
         <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab text="Notes">
+                <Tab fx:id="notesTab" text="Notes">
                     <content>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                             <children>
@@ -100,7 +111,7 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Bans">
+                <Tab fx:id="bansTab" text="Bans">
                     <content>
                         <VBox>
                             <children>
@@ -136,18 +147,18 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Teamkills">
+                <Tab fx:id="teamkillsTab" text="Teamkills">
                     <content>
                         <TableView fx:id="userTeamkillsTableView" prefHeight="200.0" prefWidth="200.0"/>
                     </content>
                 </Tab>
-                <Tab text="Name History">
+                <Tab fx:id="nameHistoryTab" text="Name History">
                     <content>
                         <TableView fx:id="userNameHistoryTableView" maxHeight="1.7976931348623157E308"
                                    maxWidth="1.7976931348623157E308" prefHeight="200.0"/>
                     </content>
                 </Tab>
-                <Tab text="Last Games">
+                <Tab fx:id="lastGamesTab" text="Last Games">
                     <content>
                         <VBox>
                             <children>
@@ -168,7 +179,7 @@
                         </VBox>
                     </content>
                 </Tab>
-                <Tab text="Avatars">
+                <Tab fx:id="avatarsTab" text="Avatars">
                     <content>
                         <VBox>
                             <children>

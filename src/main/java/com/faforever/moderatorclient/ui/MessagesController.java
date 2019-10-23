@@ -39,7 +39,7 @@ public class MessagesController implements Controller<HBox> {
     public RadioButton languageRadioButton;
     public RadioButton noneRadioButton;
 
-    public void load() {
+    public void initialize() {
         ViewHelper.buildMessagesTable(messageTableView, messagesService, log);
         messageFxes = FXCollections.observableArrayList();
         setUpFilter();
@@ -90,7 +90,6 @@ public class MessagesController implements Controller<HBox> {
         newCategoryDialog.setScene(new Scene(messageAddController.getRoot()));
         newCategoryDialog.showAndWait();
     }
-
 
     @Override
     public HBox getRoot() {
