@@ -19,8 +19,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -35,16 +37,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 
 @Component
-@Scope("prototype")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
+@RequiredArgsConstructor
 public class BanInfoController implements Controller<Pane> {
     private final FafApiCommunicationService fafApi;
     private final BanService banService;
     private final PlayerMapper playerMapper;
+
     public GridPane root;
     public TextField affectedUserTextField;
     public TextField banAuthorTextField;
@@ -62,22 +65,16 @@ public class BanInfoController implements Controller<Pane> {
     public Label banIsRevokedNotice;
     public TextField revocationTimeTextField;
     public VBox revokeOptions;
+    public TextField reportIdTextField;
+
     @Getter
     private BanInfoFX banInfo;
     private Consumer<BanInfoFX> postedListener;
     private Runnable onBanRevoked;
-    public TextField reportIdTextField;
-
-    public BanInfoController(FafApiCommunicationService fafApi, BanService banService, PlayerMapper playerMapper) {
-        this.fafApi = fafApi;
-        this.banService = banService;
-        this.playerMapper = playerMapper;
-    }
 
     public void addRevokedListener(Runnable listener) {
         this.onBanRevoked = listener;
     }
-
 
     public void addPostedListener(Consumer<BanInfoFX> listener) {
         this.postedListener = listener;
@@ -131,10 +128,10 @@ public class BanInfoController implements Controller<Pane> {
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
 
-			ModerationReportFX moderationReportFx = banInfo.getModerationReport();
-			if (moderationReportFx != null) {
-				reportIdTextField.setText(moderationReportFx.getId());
-			}
+            ModerationReportFX moderationReportFx = banInfo.getModerationReport();
+            if (moderationReportFx != null) {
+                reportIdTextField.setText(moderationReportFx.getId());
+            }
 
         } else {
 
@@ -166,11 +163,11 @@ public class BanInfoController implements Controller<Pane> {
         banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
                 OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC) : null);
         banInfo.setLevel(chatOnlyBanRadioButton.isSelected() ? BanLevel.CHAT : BanLevel.GLOBAL);
-		if (!StringUtils.isBlank(reportIdTextField.getText())) {
-			ModerationReportFX moderationReportFx = new ModerationReportFX();
-			moderationReportFx.setId(reportIdTextField.getText());
-			banInfo.setModerationReport(moderationReportFx);
-		}
+        if (!StringUtils.isBlank(reportIdTextField.getText())) {
+            ModerationReportFX moderationReportFx = new ModerationReportFX();
+            moderationReportFx.setId(reportIdTextField.getText());
+            banInfo.setModerationReport(moderationReportFx);
+        }
 
 
         if (banInfo.getId() == null) {
@@ -210,13 +207,13 @@ public class BanInfoController implements Controller<Pane> {
             validationErrors.add("No ban type is selected.");
         }
 
-		if (!StringUtils.isBlank(reportIdTextField.getText())) {
-			try {
-				Integer.parseInt(reportIdTextField.getText());
-			} catch (Exception e) {
-				validationErrors.add("Report ID must be a number.");
-			}
-		}
+        if (!StringUtils.isBlank(reportIdTextField.getText())) {
+            try {
+                Integer.parseInt(reportIdTextField.getText());
+            } catch (Exception e) {
+                validationErrors.add("Report ID must be a number.");
+            }
+        }
 
 
         if (temporaryBanRadioButton.isSelected()) {
@@ -229,8 +226,7 @@ public class BanInfoController implements Controller<Pane> {
 
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
-                    validationErrors.stream()
-                            .collect(Collectors.joining("\n"))
+                    String.join("\n", validationErrors)
             );
 
             return false;
@@ -258,13 +254,15 @@ public class BanInfoController implements Controller<Pane> {
 
         if (!errors.isEmpty()) {
             ViewHelper.errorDialog("Could not revoke",
-                    errors.stream().collect(Collectors.joining("\n")));
+                    String.join("\n", errors));
             return;
         }
 
         log.debug("Revoking ban id '{}' with reason: {}", banInfo.getId(), revocationReason);
 
-        banInfo.setRevokeAuthor(playerMapper.map(fafApi.getSelfPlayer()));
+        PlayerFX author = new PlayerFX();
+        author.setId(fafApi.getMeResult().getId());
+        banInfo.setRevokeAuthor(author);
         banInfo.setRevokeReason(revocationReason);
         banInfo.setRevokeTime(revokeTime);
         banInfo.setUpdateTime(OffsetDateTime.now());
@@ -306,9 +304,9 @@ public class BanInfoController implements Controller<Pane> {
         }
     }
 
-	public void preSetReportId(String id) {
-		reportIdTextField.setText(id);
-		reportIdTextField.setDisable(true);
-	}
+    public void preSetReportId(String id) {
+        reportIdTextField.setText(id);
+        reportIdTextField.setDisable(true);
+    }
 
 }

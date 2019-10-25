@@ -12,8 +12,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -26,24 +28,22 @@ import java.util.stream.Collectors;
 
 
 @Component
-@Scope("prototype")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
+@RequiredArgsConstructor
 public class UserNoteController implements Controller<Pane> {
     private final UserService userService;
     private final UserNoteMapper userNoteMapper;
+
     public GridPane root;
     public TextField affectedUserTextField;
     public TextField authorTextField;
     public TextArea noteTextArea;
     public CheckBox watchedCheckBox;
+
     @Getter
     private UserNoteFX userNoteFX;
     private Consumer<UserNoteFX> postedListener;
-
-    public UserNoteController(UserService userService, UserNoteMapper userNoteMapper) {
-        this.userService = userService;
-        this.userNoteMapper = userNoteMapper;
-    }
 
     public void addPostedListener(Consumer<UserNoteFX> listener) {
         this.postedListener = listener;

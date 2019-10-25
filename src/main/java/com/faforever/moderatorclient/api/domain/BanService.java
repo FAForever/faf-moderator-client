@@ -39,7 +39,6 @@ public class BanService {
     public String createBan(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
         log.debug("Creating ban");
-        banInfo.setAuthor(fafApi.getSelfPlayer());
         return fafApi.post(ElideNavigator.of(BanInfo.class).collection(), banInfo).getId();
     }
 

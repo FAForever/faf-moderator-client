@@ -1,6 +1,11 @@
 package com.faforever.moderatorclient.api.domain;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.FeaturedMod;
+import com.faforever.commons.api.dto.GamePlayerStats;
+import com.faforever.commons.api.dto.NameRecord;
+import com.faforever.commons.api.dto.Player;
+import com.faforever.commons.api.dto.Teamkill;
+import com.faforever.commons.api.dto.UserNote;
 import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
@@ -55,7 +60,6 @@ public class UserService {
                 .addIncludeOnCollection(variablePrefix + "names")
                 .addIncludeOnCollection(variablePrefix + "globalRating")
                 .addIncludeOnCollection(variablePrefix + "ladder1v1Rating")
-                .addIncludeOnCollection(variablePrefix + "lobbyGroup")
                 .addIncludeOnCollection(variablePrefix + "avatarAssignments")
                 .addIncludeOnCollection(variablePrefix + "avatarAssignments.avatar")
                 .addIncludeOnCollection(variablePrefix + "bans")
@@ -204,7 +208,6 @@ public class UserService {
 
     public String createUserNote(UserNote userNote) {
         log.debug("Creating userNote");
-        userNote.setAuthor(fafApi.getSelfPlayer());
         return fafApi.post(ElideNavigator.of(UserNote.class).collection(), userNote).getId();
     }
 

@@ -2,7 +2,11 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.events.MessagesChangedEvent;
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.ui.CategoryAddController;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.TutorialAddController;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
 import javafx.application.Platform;
@@ -17,34 +21,27 @@ import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 
-
 @Slf4j
-@Component
+@Repository
+@RequiredArgsConstructor
 public class TutorialController implements Controller<Node> {
     private final UiService uiService;
     private final TutorialService tutorialService;
     private final ObservableList<TutorialFx> tutorialList = FXCollections.observableArrayList();
-    private final FilteredList<TutorialFx> filterTutorials;
+    private final FilteredList<TutorialFx> filterTutorials = new FilteredList(tutorialList);
+    private final HashMap<TutorialFx, WeakChangeListener<Boolean>> weakChangeListenersByTutorial = new HashMap<>();
+
     public SplitPane root;
     public TableView<TutorialFx> tutorialTableView;
     public TableView<TutorialCategoryFX> categoryTableView;
     public Button addTutorialButton;
-    private HashMap<TutorialFx, WeakChangeListener<Boolean>> weakChangeListenersByTutorial = new HashMap<>();
-
-
-    @Inject
-    public TutorialController(UiService uiService, TutorialService tutorialService) {
-        this.uiService = uiService;
-        this.tutorialService = tutorialService;
-        filterTutorials = new FilteredList(tutorialList);
-    }
 
     private void setUpTutorialFilter() {
         SortedList<TutorialFx> sortedList = new SortedList<>(filterTutorials);
@@ -144,10 +141,15 @@ public class TutorialController implements Controller<Node> {
         onRefreshCategorys();
     }
 
-    public void load() {
+    public void initialize() {
         ViewHelper.buildTutorialTable(tutorialTableView, tutorialService, log, this::onRefreshTutorials);
         ViewHelper.buildCategoryTable(categoryTableView, tutorialService, this::onRefreshCategorys);
         setUpTutorialFilter();
         addTutorialButton.disableProperty().bind(categoryTableView.getSelectionModel().selectedItemProperty().isNull());
+    }
+
+    public void onRefresh() {
+        onRefreshCategorys();
+        onRefreshTutorials();
     }
 }

@@ -1,8 +1,18 @@
 package com.faforever.moderatorclient.ui;
 
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
-import com.faforever.moderatorclient.ui.main_window.*;
+import com.faforever.moderatorclient.ui.main_window.AvatarsController;
+import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
+import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
+import com.faforever.moderatorclient.ui.main_window.MapVaultController;
+import com.faforever.moderatorclient.ui.main_window.ModVaultController;
+import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
+import com.faforever.moderatorclient.ui.main_window.TutorialController;
+import com.faforever.moderatorclient.ui.main_window.UserManagementController;
+import com.faforever.moderatorclient.ui.main_window.VotingController;
 import com.faforever.moderatorclient.ui.moderation_reports.ModerationReportController;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -10,6 +20,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -21,7 +32,11 @@ import java.util.Optional;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MainController implements Controller<TabPane> {
+    private final UiService uiService;
+
+    public TabPane root;
     public Tab userManagementTab;
     public Tab ladderMapPoolTab;
     public Tab mapVaultTab;
@@ -35,10 +50,6 @@ public class MainController implements Controller<TabPane> {
     public Tab messagesTab;
     public Tab reportTab;
 
-
-    private final UiService uiService;
-
-    public TabPane root;
     private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
     private LadderMapPoolController ladderMapPoolController;
@@ -53,17 +64,24 @@ public class MainController implements Controller<TabPane> {
     private MessagesController messagesController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
-    public MainController(UiService uiService) {
-        this.uiService = uiService;
-
-    }
+    private final FafApiCommunicationService communicationService;
 
     @Override
     public TabPane getRoot() {
         return root;
     }
 
-    public void initializeAfterLogin() {
+    private boolean checkPermissionForTab(Tab tab, String... permissionTechnicalName) {
+        if (!communicationService.hasPermission(permissionTechnicalName)) {
+            tab.setDisable(true);
+            return false;
+        }
+
+        tab.setDisable(false);
+        return true;
+    }
+
+    private void initializeAfterLogin() {
         initUserManagementTab();
         initLadderMapPoolTab();
         initMapVaultTab();
@@ -89,73 +107,99 @@ public class MainController implements Controller<TabPane> {
     }
 
     private void initUserManagementTab() {
-        userManagementController = uiService.loadFxml("ui/main_window/userManagement.fxml");
-        userManagementTab.setContent(userManagementController.getRoot());
+        if (checkPermissionForTab(userManagementTab, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS,
+                GroupPermission.ROLE_ADMIN_ACCOUNT_NOTE, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN,
+                GroupPermission.ROLE_READ_TEAMKILL_REPORT, GroupPermission.ROLE_WRITE_AVATAR)) {
+            userManagementController = uiService.loadFxml("ui/main_window/userManagement.fxml");
+            userManagementTab.setContent(userManagementController.getRoot());
+        }
     }
 
     private void initLadderMapPoolTab() {
-        ladderMapPoolController = uiService.loadFxml("ui/main_window/ladderMapPool.fxml");
-        ladderMapPoolTab.setContent(ladderMapPoolController.getRoot());
-        initLoading(ladderMapPoolTab, ladderMapPoolController::refresh);
+        if (checkPermissionForTab(ladderMapPoolTab, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)) {
+            ladderMapPoolController = uiService.loadFxml("ui/main_window/ladderMapPool.fxml");
+            ladderMapPoolTab.setContent(ladderMapPoolController.getRoot());
+            initLoading(ladderMapPoolTab, ladderMapPoolController::refresh);
+        }
     }
 
     private void initReportTab() {
-        moderationReportController = uiService.loadFxml("ui/main_window/report.fxml");
-        reportTab.setContent(moderationReportController.getRoot());
-        initLoading(reportTab, moderationReportController::onRefreshAllReports);
+        if (checkPermissionForTab(reportTab, GroupPermission.ROLE_ADMIN_MODERATION_REPORT)) {
+            moderationReportController = uiService.loadFxml("ui/main_window/report.fxml");
+            reportTab.setContent(moderationReportController.getRoot());
+            initLoading(reportTab, moderationReportController::onRefreshAllReports);
+        }
     }
 
-
     private void initMapVaultTab() {
-        mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");
-        mapVaultTab.setContent(mapVaultController.getRoot());
+        if (checkPermissionForTab(mapVaultTab, GroupPermission.ROLE_ADMIN_MAP)) {
+            mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");
+            mapVaultTab.setContent(mapVaultController.getRoot());
+        }
     }
 
     private void initModVaultTab() {
-        modVaultController = uiService.loadFxml("ui/main_window/modVault.fxml");
-        modVaultTab.setContent(modVaultController.getRoot());
+        if (checkPermissionForTab(modVaultTab, GroupPermission.ROLE_ADMIN_MOD)) {
+            modVaultController = uiService.loadFxml("ui/main_window/modVault.fxml");
+            modVaultTab.setContent(modVaultController.getRoot());
+        }
     }
 
     private void initAvatarTab() {
-        avatarsController = uiService.loadFxml("ui/main_window/avatars.fxml");
-        avatarsTab.setContent(avatarsController.getRoot());
-        initLoading(avatarsTab, avatarsController::refresh);
+        if (checkPermissionForTab(avatarsTab, GroupPermission.ROLE_WRITE_AVATAR)) {
+            avatarsController = uiService.loadFxml("ui/main_window/avatars.fxml");
+            avatarsTab.setContent(avatarsController.getRoot());
+            initLoading(avatarsTab, avatarsController::refresh);
+        }
     }
 
     private void initRecentActivityTab() {
-        recentActivityController = uiService.loadFxml("ui/main_window/recentActivity.fxml");
-        recentActivityTab.setContent(recentActivityController.getRoot());
-        initLoading(recentActivityTab, recentActivityController::refresh);
+        if (checkPermissionForTab(recentActivityTab, GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS,
+                GroupPermission.ROLE_READ_TEAMKILL_REPORT, GroupPermission.ROLE_ADMIN_MAP)) {
+            recentActivityController = uiService.loadFxml("ui/main_window/recentActivity.fxml");
+            recentActivityTab.setContent(recentActivityController.getRoot());
+            initLoading(recentActivityTab, recentActivityController::refresh);
+        }
     }
 
     private void initDomainBlacklistTab() {
-        domainBlacklistController = uiService.loadFxml("ui/main_window/domainBlacklist.fxml");
-        domainBlacklistTab.setContent(domainBlacklistController.getRoot());
-        initLoading(domainBlacklistTab, domainBlacklistController::refresh);
+        if (checkPermissionForTab(domainBlacklistTab, GroupPermission.ROLE_WRITE_EMAIL_DOMAIN_BAN)) {
+            domainBlacklistController = uiService.loadFxml("ui/main_window/domainBlacklist.fxml");
+            domainBlacklistTab.setContent(domainBlacklistController.getRoot());
+            initLoading(domainBlacklistTab, domainBlacklistController::refresh);
+        }
     }
 
     private void initBanTab() {
-        bansController = uiService.loadFxml("ui/main_window/bans.fxml");
-        banTab.setContent(bansController.getRoot());
-        initLoading(banTab, bansController::onRefreshLatestBans);
+        if (checkPermissionForTab(banTab, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN)) {
+            bansController = uiService.loadFxml("ui/main_window/bans.fxml");
+            banTab.setContent(bansController.getRoot());
+            initLoading(banTab, bansController::onRefreshLatestBans);
+        }
     }
 
     private void initTutorialTab() {
-        tutorialController = uiService.loadFxml("ui/main_window/tutorial.fxml");
-        tutorialTab.setContent(tutorialController.getRoot());
-        initLoading(tutorialTab, tutorialController::onRefreshCategorys);
+        if (checkPermissionForTab(tutorialTab, GroupPermission.ROLE_WRITE_TUTORIAL)) {
+            tutorialController = uiService.loadFxml("ui/main_window/tutorial.fxml");
+            tutorialTab.setContent(tutorialController.getRoot());
+            initLoading(tutorialTab, tutorialController::onRefresh);
+        }
     }
 
     private void initMessagesTab() {
-        messagesController = uiService.loadFxml("ui/main_window/messages.fxml");
-        messagesTab.setContent(messagesController.getRoot());
-        initLoading(messagesTab, messagesController::onRefreshMessages);
+        if (checkPermissionForTab(messagesTab, GroupPermission.ROLE_WRITE_MESSAGE)) {
+            messagesController = uiService.loadFxml("ui/main_window/messages.fxml");
+            messagesTab.setContent(messagesController.getRoot());
+            initLoading(messagesTab, messagesController::onRefreshMessages);
+        }
     }
 
     private void initVotingTab() {
-        votingController = uiService.loadFxml("ui/main_window/voting.fxml");
-        votingTab.setContent(votingController.getRoot());
-        initLoading(votingTab, votingController::onRefreshSubjects);
+        if (checkPermissionForTab(votingTab, GroupPermission.ROLE_ADMIN_VOTE)) {
+            votingController = uiService.loadFxml("ui/main_window/voting.fxml");
+            votingTab.setContent(votingController.getRoot());
+            initLoading(votingTab, votingController::onRefreshSubjects);
+        }
     }
 
     public void display() {
@@ -172,9 +216,6 @@ public class MainController implements Controller<TabPane> {
         loginDialog.showAndWait();
 
         initializeAfterLogin();
-
-        tutorialController.load();
-        messagesController.load();
     }
 
     @EventListener

@@ -14,15 +14,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.function.Predicate;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MessagesController implements Controller<HBox> {
+    private FilteredList<MessageFx> filteredItemList;
+    private ObservableList<MessageFx> messageFxes;
+
     public HBox root;
     public ToggleGroup filterGroup;
     public TableView<MessageFx> messageTableView;
@@ -34,16 +38,8 @@ public class MessagesController implements Controller<HBox> {
     public RadioButton regionRadioButton;
     public RadioButton languageRadioButton;
     public RadioButton noneRadioButton;
-    private FilteredList<MessageFx> filteredItemList;
-    private ObservableList<MessageFx> messageFxes;
 
-    @Inject
-    public MessagesController(MessagesService messagesService, UiService uiService) {
-        this.messagesService = messagesService;
-        this.uiService = uiService;
-    }
-
-    public void load() {
+    public void initialize() {
         ViewHelper.buildMessagesTable(messageTableView, messagesService, log);
         messageFxes = FXCollections.observableArrayList();
         setUpFilter();
@@ -94,7 +90,6 @@ public class MessagesController implements Controller<HBox> {
         newCategoryDialog.setScene(new Scene(messageAddController.getRoot()));
         newCategoryDialog.showAndWait();
     }
-
 
     @Override
     public HBox getRoot() {

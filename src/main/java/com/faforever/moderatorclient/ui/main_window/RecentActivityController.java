@@ -1,7 +1,9 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.api.domain.UserService;
+import com.faforever.moderatorclient.api.dto.GroupPermission;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
@@ -15,46 +17,63 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RecentActivityController implements Controller<VBox> {
     private final UserService userService;
     private final MapService mapService;
-    private final ObservableList<PlayerFX> users;
-    private final ObservableList<TeamkillFX> teamkills;
-    private final ObservableList<MapVersionFX> mapVersions;
+    private final ObservableList<PlayerFX> users = FXCollections.observableArrayList();
+    private final ObservableList<TeamkillFX> teamkills = FXCollections.observableArrayList();
+    private final ObservableList<MapVersionFX> mapVersions = FXCollections.observableArrayList();
+    private final FafApiCommunicationService communicationService;
     private final UiService uiService;
 
     public VBox root;
+
+    public TitledPane userRegistrationFeedPane;
+    public TitledPane teamkillFeedPane;
+    public TitledPane mapUploadFeedPane;
+
     public TableView<PlayerFX> userRegistrationFeedTableView;
     public TableView<TeamkillFX> teamkillFeedTableView;
     public TableView<MapVersionFX> mapUploadFeedTableView;
-
-    public RecentActivityController(UserService userService, MapService mapService, UiService uiService) {
-        this.userService = userService;
-        this.mapService = mapService;
-        this.uiService = uiService;
-
-        users = FXCollections.observableArrayList();
-        teamkills = FXCollections.observableArrayList();
-        mapVersions = FXCollections.observableArrayList();
-    }
 
     @Override
     public VBox getRoot() {
         return root;
     }
 
+    private boolean checkPermissionForTitledPane(String permissionTechnicalName, TitledPane titledPane) {
+        if (communicationService.hasPermission(permissionTechnicalName)) {
+            titledPane.setDisable(false);
+            return true;
+        } else {
+            titledPane.setDisable(true);
+            return false;
+        }
+    }
+
     @FXML
     public void initialize() {
-        ViewHelper.buildUserTableView(userRegistrationFeedTableView, users, this::addBan);
-        ViewHelper.buildTeamkillTableView(teamkillFeedTableView, teamkills, true, this::addBan);
-        ViewHelper.buildMapFeedTableView(mapUploadFeedTableView, mapVersions, this::toggleHide);
+        if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS, userRegistrationFeedPane)) {
+            ViewHelper.buildUserTableView(userRegistrationFeedTableView, users, this::addBan);
+        }
+
+        if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_TEAMKILL_REPORT, teamkillFeedPane)) {
+            ViewHelper.buildTeamkillTableView(teamkillFeedTableView, teamkills, true, this::addBan);
+        }
+
+        if (checkPermissionForTitledPane(GroupPermission.ROLE_ADMIN_MAP, mapUploadFeedPane)) {
+            ViewHelper.buildMapFeedTableView(mapUploadFeedTableView, mapVersions, this::toggleHide);
+        }
     }
 
     private void addBan(PlayerFX playerFX) {

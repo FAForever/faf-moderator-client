@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -22,10 +23,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class ModVaultController implements Controller<SplitPane> {
     private final ModService modService;
     private final ModMapper modMapper;
     private final ModVersionMapper modVersionMapper;
+    private final ObservableList<ModFX> mods = FXCollections.observableArrayList();
+    private final ObservableList<ModVersionFX> modVersions = FXCollections.observableArrayList();
+
     public SplitPane root;
     public RadioButton searchModByModNameRadioButton;
     public RadioButton searchModByModVersionUidRadioButton;
@@ -38,14 +43,6 @@ public class ModVaultController implements Controller<SplitPane> {
     public TableView<ModVersionFX> modVersionTableView;
     public Button toggleModVersionHidingButton;
     public Button toggleModVersionRatingButton;
-    private final ObservableList<ModFX> mods = FXCollections.observableArrayList();
-    private final ObservableList<ModVersionFX> modVersions = FXCollections.observableArrayList();
-
-    public ModVaultController(ModService modService, ModMapper modMapper, ModVersionMapper modVersionMapper) {
-        this.modService = modService;
-        this.modMapper = modMapper;
-        this.modVersionMapper = modVersionMapper;
-    }
 
     @Override
     public SplitPane getRoot() {

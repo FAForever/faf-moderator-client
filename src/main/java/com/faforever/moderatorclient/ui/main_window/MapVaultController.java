@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -24,12 +25,13 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MapVaultController implements Controller<SplitPane> {
     private final MapService mapService;
     private final MapMapper mapMapper;
     private final MapVersionMapper mapVersionMapper;
-    private ObservableList<MapFX> maps;
-    private ObservableList<MapVersionFX> mapVersions;
+    private final ObservableList<MapFX> maps = FXCollections.observableArrayList();
+    private final ObservableList<MapVersionFX> mapVersions = FXCollections.observableArrayList();
 
     public SplitPane root;
 
@@ -43,15 +45,6 @@ public class MapVaultController implements Controller<SplitPane> {
     public TableView<MapVersionFX> mapVersionTableView;
     public Button toggleMapVersionHidingButton;
     public Button toggleMapVersionRatingButton;
-
-    public MapVaultController(MapService mapService, MapMapper mapMapper, MapVersionMapper mapVersionMapper) {
-        this.mapService = mapService;
-        this.mapMapper = mapMapper;
-        this.mapVersionMapper = mapVersionMapper;
-
-        maps = FXCollections.observableArrayList();
-        mapVersions = FXCollections.observableArrayList();
-    }
 
     @Override
     public SplitPane getRoot() {

@@ -10,11 +10,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -22,13 +23,14 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
-@Scope("prototype")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
+@RequiredArgsConstructor
 public class VotingSubjectAddController implements Controller<Pane> {
     private final VotingService votingService;
+
     public GridPane root;
     public TextField subjectKeyTextField;
     public TextField descriptionKeyTextFiled;
@@ -38,11 +40,6 @@ public class VotingSubjectAddController implements Controller<Pane> {
     public TextField endTimeTextField;
 
     private Runnable onSaveRunnable;
-
-    @Inject
-    public VotingSubjectAddController(VotingService votingService) {
-        this.votingService = votingService;
-    }
 
     @Override
     public Pane getRoot() {
@@ -121,7 +118,7 @@ public class VotingSubjectAddController implements Controller<Pane> {
 
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
-                    validationErrors.stream().collect(Collectors.joining("\n")));
+                    String.join("\n", validationErrors));
             return false;
         }
 

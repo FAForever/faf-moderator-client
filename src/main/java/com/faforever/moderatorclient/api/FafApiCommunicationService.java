@@ -1,11 +1,10 @@
 package com.faforever.moderatorclient.api;
 
-import com.faforever.commons.api.dto.LegacyAccessLevel;
-import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
+import com.faforever.moderatorclient.api.dto.MeResult;
 import com.faforever.moderatorclient.api.dto.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
@@ -18,7 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -30,6 +33,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +47,7 @@ public class FafApiCommunicationService {
     private final ResourceConverter resourceConverter;
     private final ApplicationEventPublisher applicationEventPublisher;
     @Getter
-    private Player selfPlayer;
+    private MeResult meResult;
     private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
     private final RestTemplateBuilder restTemplateBuilder;
     private final String apiClientId;
@@ -89,6 +93,11 @@ public class FafApiCommunicationService {
         return restTemplate;
     }
 
+    public boolean hasPermission(String... permissionTechnicalName) {
+        return meResult.getPermissions().stream()
+                .anyMatch(permission -> Arrays.asList(permissionTechnicalName).contains(permission));
+    }
+
     @SneakyThrows
     private void authorize(String username, String password) {
         log.debug("Configuring OAuth2 login with player = '{}', password=[hidden]", username);
@@ -121,17 +130,13 @@ public class FafApiCommunicationService {
     }
 
     /**
-     * @return LegacyAccessLevel of the player if login was successful, else null
+     * @return MeResult of the player if login was successful, else null
      */
-    public LegacyAccessLevel login(String username, String password) {
+    public MeResult login(String username, String password) {
         authorize(username, password);
         try {
-            selfPlayer = getOne("/me?include=lobbyGroup", Player.class);
-            if (selfPlayer.getLobbyGroup() == null) {
-                return LegacyAccessLevel.ROLE_USER;
-            }
-
-            return selfPlayer.getLobbyGroup().getAccessLevel();
+            meResult = getOne("/me", MeResult.class);
+            return meResult;
         } catch (OAuth2AccessDeniedException e) {
             log.error("login failed", e);
             return null;

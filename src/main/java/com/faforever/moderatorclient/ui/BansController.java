@@ -14,19 +14,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class BansController implements Controller<HBox> {
     private final UiService uiService;
     private final BanService banService;
+
     public HBox root;
     public ToggleGroup filterGroup;
     public TextField filter;
@@ -38,12 +40,6 @@ public class BansController implements Controller<HBox> {
     private FilteredList<BanInfoFX> filteredList;
     private ObservableList<BanInfoFX> itemList;
     private boolean inSearchMode = false;
-
-    @Inject
-    public BansController(UiService uiService, BanService banService) {
-        this.uiService = uiService;
-        this.banService = banService;
-    }
 
     @Override
     public HBox getRoot() {

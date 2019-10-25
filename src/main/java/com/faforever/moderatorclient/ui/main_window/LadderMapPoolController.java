@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -19,10 +20,12 @@ import java.util.Set;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LadderMapPoolController implements Controller<SplitPane> {
     private final MapService mapService;
     private final MapMapper mapMapper;
     private final MapVersionMapper mapVersionMapper;
+    private final UiService uiService;
 
     public SplitPane root;
 
@@ -34,15 +37,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public ImageView mapVaultImageView;
     public Button removeFromPoolButton;
     public Button addToPoolButton;
-    private final UiService uiService;
     private Set<Map> mapsInLadder1v1Pool;
-
-    public LadderMapPoolController(MapService mapService, MapMapper mapMapper, MapVersionMapper mapVersionMapper, UiService uiService) {
-        this.mapService = mapService;
-        this.mapMapper = mapMapper;
-        this.mapVersionMapper = mapVersionMapper;
-        this.uiService = uiService;
-    }
 
     @Override
     public SplitPane getRoot() {

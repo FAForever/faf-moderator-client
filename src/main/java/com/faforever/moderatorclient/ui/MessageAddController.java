@@ -6,29 +6,25 @@ import javafx.scene.Parent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class MessageAddController implements Controller<Parent> {
     private final MessagesService messagesService;
+
     public TextField keyField;
     public TextField languageField;
     public TextField regionField;
     public TextField valueField;
     public GridPane root;
     private Runnable onSaveRunnable;
-
-    @Inject
-    public MessageAddController(MessagesService messagesService) {
-        this.messagesService = messagesService;
-    }
 
     @Override
     public Parent getRoot() {
@@ -82,7 +78,7 @@ public class MessageAddController implements Controller<Parent> {
         }
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
-                    validationErrors.stream().collect(Collectors.joining("\n")));
+                    String.join("\n", validationErrors));
             return false;
         }
 

@@ -10,8 +10,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -23,13 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
-@Scope("prototype")
+@Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
+@RequiredArgsConstructor
 public class AvatarInfoController implements Controller<Pane> {
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final AvatarService avatarService;
 
     public Runnable onSaveRunnable;
@@ -39,11 +39,6 @@ public class AvatarInfoController implements Controller<Pane> {
     public Hyperlink hyperlink;
     private AvatarFX avatarFX;
     private File avatarImageFile;
-
-    public AvatarInfoController(ApplicationEventPublisher applicationEventPublisher, AvatarService avatarService) {
-        this.applicationEventPublisher = applicationEventPublisher;
-        this.avatarService = avatarService;
-    }
 
     @Override
     public Pane getRoot() {
@@ -75,8 +70,7 @@ public class AvatarInfoController implements Controller<Pane> {
 
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
-                    validationErrors.stream()
-                            .collect(Collectors.joining("\n"))
+                    String.join("\n", validationErrors)
             );
 
             return false;

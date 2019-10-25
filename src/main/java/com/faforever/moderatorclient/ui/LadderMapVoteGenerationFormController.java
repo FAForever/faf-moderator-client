@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LadderMapVoteGenerationFormController implements Controller<Node> {
     private final VotingService votingService;
     private final MessagesService messagesService;
     private final ApplicationEventPublisher applicationEventPublisher;
+
     public VBox root;
     public TextField subjectTextKey;
     public TextField subjectForumThread;
@@ -51,12 +54,6 @@ public class LadderMapVoteGenerationFormController implements Controller<Node> {
     public TextField choiceTextPattern;
     public TextField choiceDescriptionPattern;
     private Set<Map> givenMaps;
-
-    public LadderMapVoteGenerationFormController(VotingService votingService, MessagesService messagesService, ApplicationEventPublisher applicationEventPublisher) {
-        this.votingService = votingService;
-        this.messagesService = messagesService;
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
 
     @FXML
     public void initialize() {
@@ -232,7 +229,7 @@ public class LadderMapVoteGenerationFormController implements Controller<Node> {
 
         if (validationErrors.size() > 0) {
             ViewHelper.errorDialog("Validation failed",
-                    validationErrors.stream().collect(Collectors.joining("\n")));
+                    String.join("\n", validationErrors));
             return false;
         }
 
