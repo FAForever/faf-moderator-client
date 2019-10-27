@@ -18,10 +18,16 @@ import static java.lang.Class.forName;
 @Configuration
 public class JsonApiConfig {
 
-    @Bean
-    public ResourceConverter resourceConverter(ObjectMapper objectMapper) {
+    @Bean(name = "defaultResourceConverter")
+    public ResourceConverter defaultResourceConverter(ObjectMapper objectMapper) {
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto", "com.faforever.commons.api.dto"));
+        return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto.get", "com.faforever.commons.api.dto"));
+    }
+
+    @Bean(name = "updateResourceConverter")
+    public ResourceConverter updateResourceConverter(ObjectMapper objectMapper) {
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto.update"));
     }
 
     private Class<?>[] findJsonApiTypes(String... scanPackages) {

@@ -19,7 +19,7 @@ public class DomainBlacklistService {
 
     public List<DomainBlacklist> getAll() {
         log.debug("Retrieving all domainBlacklists");
-        List<DomainBlacklist> result = fafApi.getAll(ElideNavigator.of(DomainBlacklist.class).collection());
+        List<DomainBlacklist> result = fafApi.getAll(DomainBlacklist.class, ElideNavigator.of(DomainBlacklist.class).collection());
         log.trace("found {} avatars", result.size());
         return result;
     }

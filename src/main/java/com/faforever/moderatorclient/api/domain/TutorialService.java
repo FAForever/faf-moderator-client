@@ -32,7 +32,7 @@ public class TutorialService {
 
     public List<Tutorial> getAllTutorialsFromApi() {
         log.debug("Retrieving all tutorials");
-        List<Tutorial> result = fafApi.getAll(ElideNavigator.of(Tutorial.class)
+        List<Tutorial> result = fafApi.getAll(Tutorial.class, ElideNavigator.of(Tutorial.class)
                 .collection()
                 .addIncludeOnCollection("mapVersion")
                 .addIncludeOnCollection("category"));
@@ -42,7 +42,7 @@ public class TutorialService {
 
     public List<TutorialCategory> getAllCategoriesFromApi() {
         log.debug("Retrieving all tutorial categories");
-        List<TutorialCategory> result = fafApi.getAll(ElideNavigator.of(TutorialCategory.class)
+        List<TutorialCategory> result = fafApi.getAll(TutorialCategory.class, ElideNavigator.of(TutorialCategory.class)
                 .collection()
                 .addIncludeOnCollection("tutorials"));
         log.trace("found {} tutorial categories", result.size());

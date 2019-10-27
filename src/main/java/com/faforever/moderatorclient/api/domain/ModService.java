@@ -42,7 +42,7 @@ public class ModService {
             routeBuilder.addFilter(ElideNavigator.qBuilder().string("mod." + attribute).eq(pattern));
         }
 
-        List<Mod> result = communicationService.getAll(routeBuilder).stream()
+        List<Mod> result = communicationService.getAll(ModVersion.class, routeBuilder).stream()
                 .map(ModVersion::getMod)
                 .distinct()
                 .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class ModService {
             routeBuilder.addFilter(ElideNavigator.qBuilder().string("displayName").eq(modNamePattern));
         }
 
-        List<Mod> result = communicationService.getAll(routeBuilder);
+        List<Mod> result = communicationService.getAll(Mod.class, routeBuilder);
         log.trace("found {} mods", result.size());
         return result;
     }
@@ -107,7 +107,7 @@ public class ModService {
 
     public boolean doesModVersionExist(int id) {
         log.debug("Requesting Modversion with id: {}", id);
-        return !communicationService.getAll(ElideNavigator.of(ModVersion.class)
+        return !communicationService.getAll(ModVersion.class, ElideNavigator.of(ModVersion.class)
                 .collection()
                 .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
@@ -121,7 +121,7 @@ public class ModService {
                 .addIncludeOnCollection("mod.uploader")
                 .addSortingRule("id", false);
 
-        List<ModVersion> result = communicationService.getPage(navigator, 50, 1, Collections.emptyMap());
+        List<ModVersion> result = communicationService.getPage(ModVersion.class, navigator, 50, 1, Collections.emptyMap());
         log.trace("found {} modVersions", result.size());
         return modVersionMapper.mapToFX(result);
     }

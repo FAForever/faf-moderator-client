@@ -6,7 +6,7 @@ import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
-import com.faforever.moderatorclient.api.dto.UpdateDto;
+import com.faforever.moderatorclient.api.dto.update.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
@@ -15,10 +15,15 @@ import com.github.jasminb.jsonapi.ResourceConverter;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -30,6 +35,7 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +46,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class FafApiCommunicationService {
-    private final ResourceConverter resourceConverter;
+    private final ResourceConverter defaultResourceConverter;
+    private final ResourceConverter updateResourceConverter;
     private final ApplicationEventPublisher applicationEventPublisher;
     @Getter
     private Player selfPlayer;
@@ -55,7 +62,9 @@ public class FafApiCommunicationService {
     private RestTemplate restTemplate;
 
 
-    public FafApiCommunicationService(ResourceConverter resourceConverter, ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
+    public FafApiCommunicationService(@Qualifier("defaultResourceConverter") ResourceConverter defaultResourceConverter,
+                                      @Qualifier("updateResourceConverter") ResourceConverter updateResourceConverter,
+                                      ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler,
                                       @Value("${faforever.api.base-url}")
@@ -70,7 +79,8 @@ public class FafApiCommunicationService {
                                               int apiMaxPageSize,
                                       @Value("${faforever.api.max-result-size}")
                                               int apiMaxResultSize) {
-        this.resourceConverter = resourceConverter;
+        this.defaultResourceConverter = defaultResourceConverter;
+        this.updateResourceConverter = updateResourceConverter;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.apiClientId = apiClientId;
@@ -147,10 +157,10 @@ public class FafApiCommunicationService {
 
         try {
             JSONAPIDocument<T> data = new JSONAPIDocument<>(object);
-            String dataString = new String(resourceConverter.writeDocument(data));
+            String dataString = new String(defaultResourceConverter.writeDocument(data));
             authorizedLatch.await();
-            HttpEntity<String> tHttpEntity = new HttpEntity<>(dataString, httpHeaders);
-            ResponseEntity<T> entity = restTemplate.exchange(url, HttpMethod.POST, tHttpEntity, navigator.getDtoClass());
+            HttpEntity<String> httpEntity = new HttpEntity<>(dataString, httpHeaders);
+            ResponseEntity<T> entity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, navigator.getDtoClass());
 
             cycleAvoidingMappingContext.clearCache();
 
@@ -172,8 +182,11 @@ public class FafApiCommunicationService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
         try {
+            JSONAPIDocument<UpdateDto<T>> data = new JSONAPIDocument<>(object);
+            String dataString = new String(updateResourceConverter.writeDocument(data));
             authorizedLatch.await();
-            return restTemplate.exchange(url, HttpMethod.PATCH, new HttpEntity<>(object, httpHeaders), routeBuilder.getDtoClass()).getBody();
+            HttpEntity<String> httpEntity = new HttpEntity<>(dataString, httpHeaders);
+            return restTemplate.exchange(url, HttpMethod.PATCH, httpEntity, routeBuilder.getDtoClass()).getBody();
         } catch (Throwable t) {
             applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, routeBuilder.getDtoClass(), url));
             throw t;
@@ -235,36 +248,36 @@ public class FafApiCommunicationService {
         }
     }
 
-    public <T extends ElideEntity> List<T> getAll(ElideNavigatorOnCollection<T> routeBuilder) {
-        return getAll(routeBuilder, Collections.emptyMap());
+    public <T extends ElideEntity> List<T> getAll(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder) {
+        return getAll(clazz, routeBuilder, Collections.emptyMap());
     }
 
-    public <T extends ElideEntity> List<T> getAll(ElideNavigatorOnCollection<T> routeBuilder, java.util.Map<String, Serializable> params) {
-        return getMany(routeBuilder, apiMaxResultSize, params);
+    public <T extends ElideEntity> List<T> getAll(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder, java.util.Map<String, Serializable> params) {
+        return getMany(clazz, routeBuilder, apiMaxResultSize, params);
     }
 
     @SneakyThrows
-    public <T extends ElideEntity> List<T> getMany(ElideNavigatorOnCollection<T> routeBuilder, int count, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> List<T> getMany(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder, int count, java.util.Map<String, Serializable> params) {
         List<T> result = new LinkedList<>();
         List<T> current = null;
         int page = 1;
         while ((current == null || current.size() >= apiMaxPageSize) && result.size() < count) {
-            current = getPage(routeBuilder, apiMaxPageSize, page++, params);
+            current = getPage(clazz, routeBuilder, apiMaxPageSize, page++, params);
             result.addAll(current);
         }
         return result;
     }
 
-    public <T extends ElideEntity> List<T> getPage(ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
+    public <T extends ElideEntity> List<T> getPage(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, java.util.Map<String, Serializable> params) {
         java.util.Map<String, List<String>> multiValues = params.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> Collections.singletonList(String.valueOf(entry.getValue()))));
 
-        return getPage(routeBuilder, pageSize, page, CollectionUtils.toMultiValueMap(multiValues));
+        return getPage(clazz, routeBuilder, pageSize, page, CollectionUtils.toMultiValueMap(multiValues));
     }
 
     @SuppressWarnings("unchecked")
     @SneakyThrows
-    public <T extends ElideEntity> List<T> getPage(ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
+    public <T extends ElideEntity> List<T> getPage(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder, int pageSize, int page, MultiValueMap<String, String> params) {
         authorizedLatch.await();
         String route = routeBuilder
                 .pageSize(pageSize)
@@ -276,7 +289,7 @@ public class FafApiCommunicationService {
         try {
             return (List<T>) restTemplate.getForObject(
                     route,
-                    List.class,
+                    Array.newInstance(clazz, 0).getClass(),
                     params);
         } catch (Throwable t) {
             log.error("API returned error on getPage for route ''{}''", route, t);

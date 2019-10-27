@@ -45,7 +45,7 @@ public class BanService {
 
     public CompletableFuture<List<BanInfoFX>> getLatestBans() {
         return CompletableFuture.supplyAsync(() -> {
-            List<BanInfo> banInfos = fafApi.getPage(ElideNavigator.of(BanInfo.class)
+            List<BanInfo> banInfos = fafApi.getPage(BanInfo.class, ElideNavigator.of(BanInfo.class)
                     .collection()
                     .addIncludeOnCollection("player")
                     .addIncludeOnCollection("author")
@@ -82,6 +82,6 @@ public class BanService {
                 .addFilter(ElideNavigator.qBuilder().string("player.login").eq("*" + name + "*"))
                 .addIncludeOnCollection("player")
                 .addIncludeOnCollection("author");
-        return banInfoMapper.mapToFX(fafApi.getAll(navigator));
+        return banInfoMapper.mapToFX(fafApi.getAll(BanInfo.class, navigator));
     }
 }
