@@ -6,7 +6,7 @@ import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.dto.AvatarMetadata;
+import com.faforever.moderatorclient.api.dto.get.AvatarMetadata;
 import com.faforever.moderatorclient.api.dto.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.mapstruct.AvatarAssignmentMapper;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;

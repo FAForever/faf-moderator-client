@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.dto.GroupPermission;
+import com.faforever.moderatorclient.api.dto.get.GroupPermission;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.ui.main_window.AvatarsController;

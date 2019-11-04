@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.dto;
+package com.faforever.moderatorclient.api.dto.get;
 
 import com.faforever.commons.api.elide.ElideEntity;
 import com.github.jasminb.jsonapi.annotations.Id;
