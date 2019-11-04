@@ -5,7 +5,12 @@ import com.faforever.commons.api.dto.VotingQuestion;
 import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.mapstruct.*;
+import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
+import com.faforever.moderatorclient.mapstruct.VotingChoiceMapper;
+import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
+import com.faforever.moderatorclient.mapstruct.VotingQuestionMapper;
+import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
+import com.faforever.moderatorclient.mapstruct.VotingSubjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +30,7 @@ public class VotingService {
     //region subjects
     public List<VotingSubject> getAllSubjectsFromApi() {
         log.debug("Retrieving all subjects");
-        List<VotingSubject> result = fafApi.getAll(ElideNavigator.of(VotingSubject.class).collection());
+        List<VotingSubject> result = fafApi.getAll(VotingSubject.class, ElideNavigator.of(VotingSubject.class).collection());
         log.trace("found {} subjects", result.size());
         return result;
     }
@@ -69,7 +74,7 @@ public class VotingService {
     //region questions
     public List<VotingQuestion> getAllQuestionsFromApi() {
         log.debug("Retrieving all questions");
-        List<VotingQuestion> result = fafApi.getAll(ElideNavigator.of(VotingQuestion.class)
+        List<VotingQuestion> result = fafApi.getAll(VotingQuestion.class, ElideNavigator.of(VotingQuestion.class)
                 .collection()
                 .addIncludeOnCollection("winners")
                 .addIncludeOnCollection("votingChoices")
@@ -114,7 +119,7 @@ public class VotingService {
     //region choices
     public List<VotingChoice> getAllChoicesFromApi() {
         log.debug("Retrieving all choices");
-        List<VotingChoice> result = fafApi.getAll(ElideNavigator.of(VotingChoice.class)
+        List<VotingChoice> result = fafApi.getAll(VotingChoice.class, ElideNavigator.of(VotingChoice.class)
                 .collection()
                 .addIncludeOnCollection("votingQuestion"));
         log.trace("found {} choices", result.size());

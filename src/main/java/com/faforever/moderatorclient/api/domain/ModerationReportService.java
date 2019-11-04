@@ -31,7 +31,7 @@ public class ModerationReportService {
 
 	public CompletableFuture<List<ModerationReportFX>> getAllReports() {
 		return CompletableFuture.supplyAsync(() -> {
-			List<ModerationReport> reports = fafApi.getAll(ElideNavigator.of(ModerationReport.class)
+            List<ModerationReport> reports = fafApi.getAll(ModerationReport.class, ElideNavigator.of(ModerationReport.class)
 					.collection()
 					.addIncludeOnCollection("reporter")
                     .addIncludeOnCollection("reporter.bans")

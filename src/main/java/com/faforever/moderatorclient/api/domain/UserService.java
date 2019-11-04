@@ -76,7 +76,7 @@ public class UserService {
                 .pageSize(50);
         addModeratorIncludes(navigator);
 
-        List<Player> result = fafApi.getPage(navigator, 100, 1, Collections.emptyMap());
+        List<Player> result = fafApi.getPage(Player.class, navigator, 100, 1, Collections.emptyMap());
         log.trace("found {} users", result.size());
         return playerMapper.mapToFx(result);
     }
@@ -88,7 +88,7 @@ public class UserService {
                 .addFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(navigator);
 
-        List<Player> result = fafApi.getAll(navigator);
+        List<Player> result = fafApi.getAll(Player.class, navigator);
         log.trace("found {} users", result.size());
         return playerMapper.mapToFx(result);
     }
@@ -121,7 +121,7 @@ public class UserService {
                 .addFilter(ElideNavigator.qBuilder().string("name").eq(pattern));
         addModeratorIncludes(navigator, "player");
 
-        List<NameRecord> result = fafApi.getAll(navigator);
+        List<NameRecord> result = fafApi.getAll(NameRecord.class, navigator);
         log.trace("found {} name records", result.size());
         return result.stream()
                 .map(NameRecord::getPlayer)
@@ -139,7 +139,7 @@ public class UserService {
                 .addIncludeOnCollection("victim")
                 .addSortingRule("id", false);
 
-        List<Teamkill> result = fafApi.getPage(navigator, 100, 1, Collections.emptyMap());
+        List<Teamkill> result = fafApi.getPage(Teamkill.class, navigator, 100, 1, Collections.emptyMap());
         log.trace("found {} teamkills", result.size());
         return teamkillMapper.map(result);
     }
@@ -152,7 +152,7 @@ public class UserService {
                 .addIncludeOnCollection("victim")
                 .addFilter(ElideNavigator.qBuilder().string("teamkiller.id").eq(userId));
 
-        List<Teamkill> result = fafApi.getAll(navigator);
+        List<Teamkill> result = fafApi.getAll(Teamkill.class, navigator);
         log.trace("found {} teamkills", result.size());
         return teamkillMapper.map(result);
     }
@@ -174,7 +174,7 @@ public class UserService {
         } else {
             navigator.addFilter(ElideNavigator.qBuilder().string("player.id").eq(userId));
         }
-        return fafApi.getPage(navigator, 100, page, Collections.emptyMap());
+        return fafApi.getPage(GamePlayerStats.class, navigator, 100, page, Collections.emptyMap());
     }
 
     public List<GamePlayerStats> getLastHundredPlayedGames(@NotNull String userId, int page) {
@@ -184,7 +184,7 @@ public class UserService {
     public List<FeaturedModFX> getFeaturedMods() {
         ElideNavigatorOnCollection<FeaturedMod> navigator = ElideNavigator.of(FeaturedMod.class)
                 .collection();
-        return featuredModMapper.map(fafApi.getAll(navigator));
+        return featuredModMapper.map(fafApi.getAll(FeaturedMod.class, navigator));
     }
 
     public UserNoteFX getUserNoteById(@NotNull String userNoteId) {
@@ -203,7 +203,7 @@ public class UserService {
                 .addFilter(ElideNavigator.qBuilder().string("player.id").eq(userId))
                 .addIncludeOnCollection("player")
                 .addIncludeOnCollection("author");
-        return userNoteMapper.map(fafApi.getAll(navigator));
+        return userNoteMapper.map(fafApi.getAll(UserNote.class, navigator));
     }
 
     public String createUserNote(UserNote userNote) {

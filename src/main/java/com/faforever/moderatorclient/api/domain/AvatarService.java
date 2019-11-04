@@ -6,8 +6,8 @@ import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.dto.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.dto.AvatarMetadata;
+import com.faforever.moderatorclient.api.dto.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.mapstruct.AvatarAssignmentMapper;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class AvatarService {
 
     public List<Avatar> getAll() {
         log.debug("Retrieving all avatars");
-        List<Avatar> result = fafApi.getAll(ElideNavigator.of(Avatar.class)
+        List<Avatar> result = fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
                 .collection()
                 .addIncludeOnCollection("assignments")
                 .addIncludeOnCollection("assignments.player"));
@@ -52,7 +52,7 @@ public class AvatarService {
                 .addIncludeOnCollection("assignments.player")
                 .addFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
 
-        List<Avatar> result = fafApi.getAll(navigator);
+        List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
         log.trace("found {} avatars", result.size());
         return result;
     }
@@ -75,7 +75,7 @@ public class AvatarService {
                 .addIncludeOnCollection("assignments.player")
                 .addFilter(ElideNavigator.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
 
-        List<Avatar> result = fafApi.getAll(navigator);
+        List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
         log.trace("found {} avatars", result.size());
         return result;
     }
@@ -112,7 +112,7 @@ public class AvatarService {
     }
 
     public List<Avatar> getAllAvatarsWithPlayerAssignments() {
-        return fafApi.getAll(ElideNavigator.of(Avatar.class)
+        return fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
                 .collection()
                 .addIncludeOnCollection("assignments")
                 .addIncludeOnCollection("assignments.player"));

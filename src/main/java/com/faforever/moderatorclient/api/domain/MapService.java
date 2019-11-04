@@ -44,7 +44,7 @@ public class MapService {
             routeBuilder.addFilter(ElideNavigator.qBuilder().string("map." + attribute).eq(pattern));
         }
 
-        List<Map> result = fafApi.getAll(routeBuilder).stream()
+        List<Map> result = fafApi.getAll(MapVersion.class, routeBuilder).stream()
                 .map(MapVersion::getMap)
                 .distinct()
                 .collect(Collectors.toList());
@@ -84,14 +84,14 @@ public class MapService {
             routeBuilder.addFilter(ElideNavigator.qBuilder().string("displayName").eq(mapNamePattern));
         }
 
-        List<Map> result = fafApi.getAll(routeBuilder);
+        List<Map> result = fafApi.getAll(Map.class, routeBuilder);
         log.trace("found {} maps", result.size());
         return result;
     }
 
     public Set<Map> findMapsInLadder1v1Pool() {
         log.debug("Searching for all ladder1v1 maps");
-        List<Ladder1v1Map> ladder1v1Maps = fafApi.getAll(
+        List<Ladder1v1Map> ladder1v1Maps = fafApi.getAll(Ladder1v1Map.class,
                 ElideNavigator.of(Ladder1v1Map.class)
                         .collection()
                         .addIncludeOnCollection("mapVersion")
@@ -142,7 +142,7 @@ public class MapService {
 
     public boolean doesMapVersionExist(int id) {
         log.debug("Requesting Mapversion with id: {}", id);
-        return !fafApi.getAll(ElideNavigator.of(MapVersion.class)
+        return !fafApi.getAll(MapVersion.class, ElideNavigator.of(MapVersion.class)
                 .collection()
                 .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
@@ -156,7 +156,7 @@ public class MapService {
                 .addIncludeOnCollection("map.author")
                 .addSortingRule("id", false);
 
-        List<MapVersion> result = fafApi.getPage(navigator, 50, 1, Collections.emptyMap());
+        List<MapVersion> result = fafApi.getPage(MapVersion.class, navigator, 50, 1, Collections.emptyMap());
         log.trace("found {} teamkills", result.size());
         return mapVersionMapper.mapToFX(result);
     }

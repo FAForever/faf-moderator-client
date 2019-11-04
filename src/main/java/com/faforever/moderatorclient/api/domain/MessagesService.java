@@ -27,7 +27,7 @@ public class MessagesService {
     }
 
     private List<Message> getAllMessagesFromApi() {
-        return fafApi.getAll(ElideNavigator.of(Message.class).collection());
+        return fafApi.getAll(Message.class, ElideNavigator.of(Message.class).collection());
     }
 
     public void updateMessage(MessageFx messageFx) {
@@ -52,7 +52,7 @@ public class MessagesService {
 
     public Message putMessage(MessageFx messageFx) {
         Message message = messagesMapper.map(messageFx);
-        List<Message> messages = fafApi.getAll(ElideNavigator.of(Message.class)
+        List<Message> messages = fafApi.getAll(Message.class, ElideNavigator.of(Message.class)
                 .collection()
                 .addFilter(ElideNavigator.qBuilder().string("region").eq(message.getRegion())
                         .and().string("language").eq(message.getLanguage())
