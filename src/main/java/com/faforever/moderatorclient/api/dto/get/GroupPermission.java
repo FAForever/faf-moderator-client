@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.dto;
+package com.faforever.moderatorclient.api.dto.get;
 
 import com.faforever.commons.api.dto.AbstractEntity;
 import com.github.jasminb.jsonapi.annotations.Relationship;
@@ -6,7 +6,7 @@ import com.github.jasminb.jsonapi.annotations.Type;
 
 import java.util.Set;
 
-import static com.faforever.moderatorclient.api.dto.GroupPermission.TYPE_NAME;
+import static com.faforever.moderatorclient.api.dto.get.GroupPermission.TYPE_NAME;
 
 @Type(TYPE_NAME)
 public class GroupPermission extends AbstractEntity {

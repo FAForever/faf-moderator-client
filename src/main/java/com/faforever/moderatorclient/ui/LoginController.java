@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.api.dto.MeResult;
+import com.faforever.moderatorclient.api.dto.get.MeResult;
 import javafx.fxml.FXML;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;

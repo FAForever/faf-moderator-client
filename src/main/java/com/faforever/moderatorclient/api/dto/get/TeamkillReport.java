@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.dto;
+package com.faforever.moderatorclient.api.dto.get;
 
 import com.faforever.commons.api.dto.AbstractEntity;
 import com.faforever.commons.api.dto.Game;
