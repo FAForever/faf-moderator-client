@@ -23,11 +23,12 @@
           <entry name="$MAVEN_REPOSITORY$/org/springframework/spring-context/4.0.3.RELEASE/spring-context-4.0.3.RELEASE.jar" />
           <entry name="$MAVEN_REPOSITORY$/joda-time/joda-time/2.9/joda-time-2.9.jar" />
         </processorPath>
-        <module name="faf-moderator-client" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="faf-moderator-client" target="1.8" />
+      <module name="faf-moderator-client.main" target="1.8" />
+      <module name="faf-moderator-client.test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
