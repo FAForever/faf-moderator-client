@@ -1,5 +1,7 @@
-dist: trusty
 language: java
 
 before_install:
-  - chmod +x ./mvnw
+  - chmod +x ./gradlew
+
+script:
+  - ./gradlew build -PjavafxPlatform=linux

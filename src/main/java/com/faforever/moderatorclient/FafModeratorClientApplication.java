@@ -1,26 +1,26 @@
 package com.faforever.moderatorclient;
 
-import com.faforever.moderatorclient.ui.MainController;
-import com.faforever.moderatorclient.ui.PlatformService;
-import com.faforever.moderatorclient.ui.PlatformServiceImpl;
-import com.faforever.moderatorclient.ui.StageHolder;
-import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-@SpringBootApplication
+@Configuration
+@ComponentScan
+@Slf4j
 public class FafModeratorClientApplication extends Application {
     private ConfigurableApplicationContext applicationContext;
 
-    public static void main(String[] args) {
-        launch(args);
+    public static void applicationMain(String[] args) {
+        Application.launch(FafModeratorClientApplication.class, args);
     }
 
     @Override
