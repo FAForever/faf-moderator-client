@@ -1,3 +1,5 @@
+import org.gradle.internal.os.OperatingSystem
+
 buildscript {
     repositories {
         jcenter()
@@ -22,12 +24,23 @@ compileJava() {
     options.compilerArgs << "-Amapstruct.defaultComponentModel=jsr330"
 }
 
+project.ext.javafxPlatform = "${javafxPlatform}"
+
 if (javafxPlatform == "unspecified") {
-    throw new InvalidUserDataException("javafxPlatform unspecified! Must be one of [linux,mac,win]")
-} else {
-    project.ext.javafxPlatform = "${javafxPlatform}"
+    switch (OperatingSystem.current()) {
+        case OperatingSystem.LINUX:
+            project.ext.javafxPlatform = "linux"
+            break
+        case OperatingSystem.MAC_OS:
+            project.ext.javafxPlatform = "mac"
+            break
+        case OperatingSystem.WINDOWS:
+            project.ext.javafxPlatform = "win"
+            break
+    }
     println "Platform is: ${javafxPlatform}"
 }
+println "Platform is: ${javafxPlatform}"
 
 dependencies {
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.1.11.RELEASE"))
@@ -43,8 +56,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
     implementation 'com.github.jasminb:jsonapi-converter:0.9'
-    implementation 'com.github.FAForever.faf-java-commons:faf-commons-data:4ca1f75'
-    implementation 'com.github.FAForever.faf-java-commons:faf-commons-api:4ca1f75'
+    implementation 'com.github.FAForever.faf-java-commons:faf-commons-data:cc8c606a'
+    implementation 'com.github.FAForever.faf-java-commons:faf-commons-api:cc8c606a'
     implementation 'com.github.micheljung:nocatch:1.1'
     implementation 'org.apache.httpcomponents:httpclient:4.5.9'
     implementation 'com.github.rutledgepaulv:q-builders:1.6'

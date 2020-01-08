@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.mapstruct;
 
+import com.faforever.commons.api.dto.TeamkillReport;
 import com.faforever.moderatorclient.api.domain.TeamKillReportFx;
-import com.faforever.moderatorclient.api.dto.get.TeamkillReport;
 import org.mapstruct.Mapper;
 
 import java.util.List;

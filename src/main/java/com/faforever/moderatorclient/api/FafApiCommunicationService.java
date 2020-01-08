@@ -1,11 +1,11 @@
 package com.faforever.moderatorclient.api;
 
+import com.faforever.commons.api.dto.MeResult;
+import com.faforever.commons.api.dto.update.UpdateDto;
 import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
-import com.faforever.moderatorclient.api.dto.get.MeResult;
-import com.faforever.moderatorclient.api.dto.update.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
@@ -18,11 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -35,11 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 

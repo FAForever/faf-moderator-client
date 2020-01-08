@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.api.dto.get;
+package com.faforever.moderatorclient.api.dto.update;
 
 import lombok.Data;
 

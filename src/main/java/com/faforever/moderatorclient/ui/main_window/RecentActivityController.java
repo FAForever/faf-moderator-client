@@ -1,9 +1,9 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.api.domain.UserService;
-import com.faforever.moderatorclient.api.dto.get.GroupPermission;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
