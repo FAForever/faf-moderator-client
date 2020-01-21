@@ -84,7 +84,7 @@ javafx {
 mainClassName = 'com.faforever.moderatorclient.Launcher'
 
 group = 'com.faforever'
-version = '0.8.3'
+version = '0.8.4'
 description = 'faf-moderator-client'
 sourceCompatibility = '11'
 
