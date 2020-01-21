@@ -2,10 +2,10 @@ package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.Avatar;
 import com.faforever.commons.api.dto.AvatarAssignment;
-import com.faforever.commons.api.dto.update.AvatarAssignmentUpdate;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
+import com.faforever.commons.api.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.dto.update.AvatarMetadata;
 import com.faforever.moderatorclient.mapstruct.AvatarAssignmentMapper;

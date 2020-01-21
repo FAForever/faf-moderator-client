@@ -1,7 +1,7 @@
 package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.commons.api.dto.GroupPermission;
-import com.faforever.commons.api.dto.update.AvatarAssignmentUpdate;
+import com.faforever.commons.api.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.UserService;

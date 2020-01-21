@@ -1,11 +1,11 @@
 package com.faforever.moderatorclient.api;
 
 import com.faforever.commons.api.dto.MeResult;
-import com.faforever.commons.api.dto.update.UpdateDto;
 import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
+import com.faforever.commons.api.update.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
