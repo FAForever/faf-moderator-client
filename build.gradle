@@ -38,8 +38,9 @@ if (javafxPlatform == "unspecified") {
             project.ext.javafxPlatform = "win"
             break
     }
-    println "Platform is: ${javafxPlatform}"
 }
+
+println "Platform is: ${javafxPlatform}"
 
 dependencies {
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE"))
@@ -69,17 +70,17 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-javafx {
-    version = "11"
-    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
-    /**
-     * https://github.com/openjfx/javafx-gradle-plugin
-     * JavaFX modules require native binaries for each platform. The plugin only includes binaries for the platform
-     * running the build. By declaring the dependency configuration compileOnly, the native binaries will not be
-     * included. You will need to provide those separately during deployment for each target platform.
-     */
-    configuration = 'implementation'
-}
+//javafx {
+//    version = "11"
+//    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
+//    /**
+//     * https://github.com/openjfx/javafx-gradle-plugin
+//     * JavaFX modules require native binaries for each platform. The plugin only includes binaries for the platform
+//     * running the build. By declaring the dependency configuration compileOnly, the native binaries will not be
+//     * included. You will need to provide those separately during deployment for each target platform.
+//     */
+//    configuration = 'compileOnly'
+//}
 
 mainClassName = 'com.faforever.moderatorclient.Launcher'
 
