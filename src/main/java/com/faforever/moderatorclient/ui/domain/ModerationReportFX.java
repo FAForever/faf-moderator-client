@@ -16,10 +16,10 @@ public class ModerationReportFX extends AbstractEntityFX {
 	private final StringProperty moderatorNotice;
 	private final StringProperty moderatorPrivateNote;
 	private final ObservableSet<BanInfoFX> bans;
-	private final ObjectProperty<PlayerFX> reporter;
+	private final ObjectProperty<UserFX> reporter;
 	private final ObjectProperty<GameFX> game;
-	private final ObjectProperty<PlayerFX> lastModerator;
-	private final ObservableSet<PlayerFX> reportedUsers;
+	private final ObjectProperty<UserFX> lastModerator;
+	private final ObservableSet<UserFX> reportedUsers;
 
 	public ModerationReportFX() {
 		reportDescription = new SimpleStringProperty();
@@ -98,15 +98,15 @@ public class ModerationReportFX extends AbstractEntityFX {
 		return bans;
 	}
 
-	public PlayerFX getReporter() {
+	public UserFX getReporter() {
 		return reporter.get();
 	}
 
-	public void setReporter(PlayerFX reporter) {
+	public void setReporter(UserFX reporter) {
 		this.reporter.set(reporter);
 	}
 
-	public ObservableObjectValue<PlayerFX> reporterProperty() {
+	public ObservableObjectValue<UserFX> reporterProperty() {
 		return reporter;
 	}
 
@@ -122,19 +122,19 @@ public class ModerationReportFX extends AbstractEntityFX {
 		return game;
 	}
 
-	public PlayerFX getLastModerator() {
+	public UserFX getLastModerator() {
 		return lastModerator.get();
 	}
 
-	public void setLastModerator(PlayerFX lastModerator) {
+	public void setLastModerator(UserFX lastModerator) {
 		this.lastModerator.set(lastModerator);
 	}
 
-	public ObservableObjectValue<PlayerFX> lastModeratorProperty() {
+	public ObservableObjectValue<UserFX> lastModeratorProperty() {
 		return lastModerator;
 	}
 
-	public ObservableSet<PlayerFX> getReportedUsers() {
+	public ObservableSet<UserFX> getReportedUsers() {
 		return reportedUsers;
 	}
 }

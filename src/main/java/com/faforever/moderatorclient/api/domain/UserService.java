@@ -3,7 +3,7 @@ package com.faforever.moderatorclient.api.domain;
 import com.faforever.commons.api.dto.FeaturedMod;
 import com.faforever.commons.api.dto.GamePlayerStats;
 import com.faforever.commons.api.dto.NameRecord;
-import com.faforever.commons.api.dto.Player;
+import com.faforever.commons.api.dto.User;
 import com.faforever.commons.api.dto.Teamkill;
 import com.faforever.commons.api.dto.UserNote;
 import com.faforever.commons.api.elide.ElideEntity;
@@ -12,11 +12,11 @@ import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.mapstruct.FeaturedModMapper;
-import com.faforever.moderatorclient.mapstruct.PlayerMapper;
+import com.faforever.moderatorclient.mapstruct.UserMapper;
 import com.faforever.moderatorclient.mapstruct.TeamkillMapper;
 import com.faforever.moderatorclient.mapstruct.UserNoteMapper;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
-import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.UserFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +31,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
     private final FafApiCommunicationService fafApi;
-    private final PlayerMapper playerMapper;
+    private final UserMapper userMapper;
     private final FeaturedModMapper featuredModMapper;
     private final UserNoteMapper userNoteMapper;
     private final TeamkillMapper teamkillMapper;
 
 
-    public UserService(FafApiCommunicationService fafApi, PlayerMapper playerMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper, TeamkillMapper teamkillMapper) {
+    public UserService(FafApiCommunicationService fafApi, UserMapper userMapper, FeaturedModMapper featuredModMapper, UserNoteMapper userNoteMapper, TeamkillMapper teamkillMapper) {
         this.fafApi = fafApi;
-        this.playerMapper = playerMapper;
+        this.userMapper = userMapper;
         this.featuredModMapper = featuredModMapper;
         this.userNoteMapper = userNoteMapper;
         this.teamkillMapper = teamkillMapper;
@@ -67,53 +67,53 @@ public class UserService {
                 .addIncludeOnCollection(variablePrefix + "bans.revokeAuthor");
     }
 
-    public List<PlayerFX> findLatestRegistrations() {
+    public List<UserFX> findLatestRegistrations() {
         log.debug("Searching for latest registrations");
-        ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
+        ElideNavigatorOnCollection<User> navigator = ElideNavigator.of(User.class)
                 .collection()
                 .addIncludeOnCollection("bans")
                 .addSortingRule("id", false)
                 .pageSize(50);
         addModeratorIncludes(navigator);
 
-        List<Player> result = fafApi.getPage(Player.class, navigator, 100, 1, Collections.emptyMap());
+        List<User> result = fafApi.getPage(User.class, navigator, 100, 1, Collections.emptyMap());
         log.trace("found {} users", result.size());
-        return playerMapper.mapToFx(result);
+        return userMapper.mapToFx(result);
     }
 
-    private List<PlayerFX> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
+    private List<UserFX> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
         log.debug("Searching for player by attribute '{}' with pattern: {}", attribute, pattern);
-        ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
+        ElideNavigatorOnCollection<User> navigator = ElideNavigator.of(User.class)
                 .collection()
                 .addFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(navigator);
 
-        List<Player> result = fafApi.getAll(Player.class, navigator);
+        List<User> result = fafApi.getAll(User.class, navigator);
         log.trace("found {} users", result.size());
-        return playerMapper.mapToFx(result);
+        return userMapper.mapToFx(result);
     }
 
-    public List<PlayerFX> findUserById(@NotNull String pattern) {
+    public List<UserFX> findUserById(@NotNull String pattern) {
         return findUsersByAttribute("id", pattern);
     }
 
-    public List<PlayerFX> findUserByName(@NotNull String pattern) {
+    public List<UserFX> findUserByName(@NotNull String pattern) {
         return findUsersByAttribute("login", pattern);
     }
 
-    public List<PlayerFX> findUserByEmail(@NotNull String pattern) {
+    public List<UserFX> findUserByEmail(@NotNull String pattern) {
         return findUsersByAttribute("email", pattern);
     }
 
-    public List<PlayerFX> findUserBySteamId(@NotNull String pattern) {
+    public List<UserFX> findUserBySteamId(@NotNull String pattern) {
         return findUsersByAttribute("steamId", pattern);
     }
 
-    public List<PlayerFX> findUserByIP(@NotNull String pattern) {
+    public List<UserFX> findUserByIP(@NotNull String pattern) {
         return findUsersByAttribute("recentIpAddress", pattern);
     }
 
-    public List<PlayerFX> findUsersByPreviousName(@NotNull String pattern) {
+    public List<UserFX> findUsersByPreviousName(@NotNull String pattern) {
         log.debug("Searching for player by previous name with pattern: {}", pattern);
         ElideNavigatorOnCollection<NameRecord> navigator = ElideNavigator.of(NameRecord.class)
                 .collection()
@@ -123,11 +123,12 @@ public class UserService {
 
         List<NameRecord> result = fafApi.getAll(NameRecord.class, navigator);
         log.trace("found {} name records", result.size());
-        return result.stream()
-                .map(NameRecord::getPlayer)
-                .distinct()
-                .map(playerMapper::map)
-                .collect(Collectors.toList());
+        return List.of();
+//        return result.stream()
+//                .map(NameRecord::getPlayer)
+//                .distinct()
+//                .map(userMapper::map)
+//                .collect(Collectors.toList());
     }
 
     public List<TeamkillFX> findLatestTeamkills() {
