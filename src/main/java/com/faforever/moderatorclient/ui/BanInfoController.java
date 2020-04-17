@@ -59,6 +59,7 @@ public class BanInfoController implements Controller<Pane> {
     public RadioButton permanentBanRadioButton;
     public RadioButton temporaryBanRadioButton;
     public RadioButton chatOnlyBanRadioButton;
+    public RadioButton vaultBanRadioButton;
     public RadioButton globalBanRadioButton;
     public Button revokeButton;
     public Label userLabel;
@@ -126,6 +127,7 @@ public class BanInfoController implements Controller<Pane> {
             }
 
             chatOnlyBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.CHAT);
+            vaultBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.VAULT);
             globalBanRadioButton.setSelected(banInfo.getLevel() == BanLevel.GLOBAL);
 
             ModerationReportFX moderationReportFx = banInfo.getModerationReport();
@@ -162,7 +164,14 @@ public class BanInfoController implements Controller<Pane> {
         banInfo.setReason(banReasonTextField.getText());
         banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
                 OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC) : null);
-        banInfo.setLevel(chatOnlyBanRadioButton.isSelected() ? BanLevel.CHAT : BanLevel.GLOBAL);
+        if (chatOnlyBanRadioButton.isSelected()) {
+            banInfo.setLevel(BanLevel.CHAT);
+        } else if (vaultBanRadioButton.isSelected()) {
+            banInfo.setLevel(BanLevel.VAULT);
+        } else {
+            banInfo.setLevel(BanLevel.GLOBAL);
+        }
+
         if (!StringUtils.isBlank(reportIdTextField.getText())) {
             ModerationReportFX moderationReportFx = new ModerationReportFX();
             moderationReportFx.setId(reportIdTextField.getText());
@@ -203,7 +212,9 @@ public class BanInfoController implements Controller<Pane> {
             validationErrors.add("No ban duration is selected.");
         }
 
-        if (!chatOnlyBanRadioButton.isSelected() && !globalBanRadioButton.isSelected()) {
+        if (!chatOnlyBanRadioButton.isSelected() &&
+                !vaultBanRadioButton.isSelected() &&
+                !globalBanRadioButton.isSelected()) {
             validationErrors.add("No ban type is selected.");
         }
 

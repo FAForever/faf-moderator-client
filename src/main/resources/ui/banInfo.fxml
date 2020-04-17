@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" hgap="10.0" vgap="10.0"
-          xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.faforever.moderatorclient.ui.BanInfoController">
+<GridPane fx:id="root" hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/11.0.1"
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.BanInfoController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES"/>
         <ColumnConstraints hgrow="ALWAYS"/>
@@ -19,6 +27,7 @@
         <RowConstraints fillHeight="false"/>
         <RowConstraints/>
         <RowConstraints/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0"/>
     </rowConstraints>
     <children>
         <Label fx:id="userLabel" text="Affected User"/>
@@ -93,6 +102,11 @@
                         <Insets bottom="3.0" top="3.0"/>
                     </padding>
                 </RadioButton>
+                <RadioButton fx:id="vaultBanRadioButton" mnemonicParsing="false" text="Vault" toggleGroup="$banType">
+                    <padding>
+                        <Insets bottom="3.0" top="3.0"/>
+                    </padding>
+                </RadioButton>
                 <RadioButton fx:id="globalBanRadioButton" mnemonicParsing="false" text="Global" toggleGroup="$banType">
                     <padding>
                         <Insets bottom="3.0" top="3.0"/>
@@ -137,7 +151,7 @@
             </GridPane.margin>
         </VBox>
 
-        <HBox alignment="BOTTOM_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
             <children>
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes"/>
                 <Button cancelButton="true" mnemonicParsing="false" onAction="#onAbort" text="Abort editing">
@@ -150,7 +164,7 @@
                 <Insets/>
             </opaqueInsets>
             <GridPane.margin>
-                <Insets top="20.0"/>
+                <Insets bottom="20.0" top="20.0"/>
             </GridPane.margin>
         </HBox>
 

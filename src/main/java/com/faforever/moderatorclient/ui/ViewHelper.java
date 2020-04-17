@@ -1,26 +1,68 @@
 package com.faforever.moderatorclient.ui;
 
+import com.faforever.commons.api.dto.BanDurationType;
+import com.faforever.commons.api.dto.BanLevel;
+import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.ModerationReportStatus;
+import com.faforever.commons.api.dto.VotingChoice;
+import com.faforever.commons.api.dto.VotingQuestion;
+import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
-import com.faforever.moderatorclient.ui.domain.*;
+import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
+import com.faforever.moderatorclient.ui.domain.AvatarFX;
+import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.GameFX;
+import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.MapFX;
+import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import com.faforever.moderatorclient.ui.domain.MessageFx;
+import com.faforever.moderatorclient.ui.domain.ModFX;
+import com.faforever.moderatorclient.ui.domain.ModVersionFX;
+import com.faforever.moderatorclient.ui.domain.ModerationReportFX;
+import com.faforever.moderatorclient.ui.domain.NameRecordFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
+import com.faforever.moderatorclient.ui.domain.TutorialFx;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -41,7 +83,13 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -420,9 +468,23 @@ public class ViewHelper {
                         setStyle("-fx-font-weight: bold");
 
                         if (item.getBans().stream()
-                                .anyMatch(banInfo -> banInfo.getBanStatus() == BanStatus.BANNED && banInfo.getDuration() == BanDurationType.PERMANENT)) {
-                            tooltip.setText("Permanent ban");
+                                .anyMatch(banInfo -> banInfo.getLevel() == BanLevel.GLOBAL
+                                        && banInfo.getBanStatus() == BanStatus.BANNED
+                                        && banInfo.getDuration() == BanDurationType.PERMANENT)) {
+                            tooltip.setText("Permanent global ban");
                             setTextFill(Color.valueOf("#ca0000"));
+                        } else if (item.getBans().stream()
+                                .anyMatch(banInfo -> banInfo.getLevel() == BanLevel.CHAT
+                                        && banInfo.getBanStatus() == BanStatus.BANNED
+                                        && banInfo.getDuration() == BanDurationType.PERMANENT)) {
+                            tooltip.setText("Permanent chat ban");
+                            setTextFill(Color.valueOf("#ff8800"));
+                        } else if (item.getBans().stream()
+                                .anyMatch(banInfo -> banInfo.getLevel() == BanLevel.VAULT
+                                        && banInfo.getBanStatus() == BanStatus.BANNED
+                                        && banInfo.getDuration() == BanDurationType.PERMANENT)) {
+                            tooltip.setText("Permanent vault ban");
+                            setTextFill(Color.valueOf("#ff8800"));
                         } else if (item.getBans().stream()
                                 .allMatch(banInfo -> banInfo.getBanStatus() == BanStatus.EXPIRED || banInfo.getBanStatus() == BanStatus.DISABLED)) {
                             tooltip.setText("Expired ban");
