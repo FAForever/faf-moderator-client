@@ -5,6 +5,12 @@ This application enables faforever.com moderators to perform administrative acti
 - map & mod vault
 - checking recent activities
 
+# How to use / run it
+- Make sure you have Java 11 or higher installed (JRE or JDK does not matter). AdoptOpenJDK offers free installation packages [here](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot) (other Java flavours like Oracle should also work)
+- Download the right client version for your operating system from the release page
+- Unzip it
+- Go to the bin folder and run the .bat script (Windows) or the .sh script (Linux)
+- Login with your FAF credentials
 
 # Setting up your environment
 
