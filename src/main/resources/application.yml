@@ -9,6 +9,26 @@ faforever:
   vault:
     base-url: http://content.faforever.com
     replayDownloadUrlFormat: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s
+  environments:
+    "[faforever.com]":
+      base-url: https://api.faforever.com
+      client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
+      client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
+      access-token-uri: https://api.faforever.com/oauth/token
+      replay-download-url-format: https://replay.faforever.com/%s
+    "[test.faforever.com]":
+      base-url: https://api.test.faforever.com
+      client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
+      client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
+      access-token-uri: https://api.test.faforever.com/oauth/token
+      replay-download-url-format: https://replay.test.faforever.com/%s
+    "[localhost:8010]":
+      base-url: http://localhost:8010
+      client-id: postman
+      client-secret: postman
+      access-token-uri: http://localhost:8010/oauth/token
+      replay-download-url-format: https://replay.test.faforever.com/%s
+
 logging:
   level:
     com.faforever.moderatorclient: DEBUG

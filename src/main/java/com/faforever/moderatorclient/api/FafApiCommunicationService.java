@@ -8,6 +8,7 @@ import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.commons.api.update.UpdateDto;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
+import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
@@ -15,10 +16,14 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -31,7 +36,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -41,17 +50,16 @@ public class FafApiCommunicationService {
     private final ResourceConverter defaultResourceConverter;
     private final ResourceConverter updateResourceConverter;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final JsonApiMessageConverter jsonApiMessageConverter;
+    private final JsonApiErrorHandler jsonApiErrorHandler;
+    private final ApplicationContext applicationContext;
     @Getter
     private MeResult meResult;
     private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
-    private final RestTemplateBuilder restTemplateBuilder;
-    private final String apiClientId;
-    private final String apiClientSecret;
-    private final String apiAccessTokenUrl;
-    private final int apiMaxPageSize;
-    private final int apiMaxResultSize;
+    private RestTemplateBuilder restTemplateBuilder;
     private CountDownLatch authorizedLatch;
     private RestTemplate restTemplate;
+    private EnvironmentProperties environmentProperties;
 
 
     public FafApiCommunicationService(@Qualifier("defaultResourceConverter") ResourceConverter defaultResourceConverter,
@@ -59,36 +67,28 @@ public class FafApiCommunicationService {
                                       ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler,
-                                      @Value("${faforever.api.base-url}")
-                                              String apiBaseUrl,
-                                      @Value("${faforever.api.client-id}")
-                                              String apiClientId,
-                                      @Value("${faforever.api.client-secret}")
-                                              String apiClientSecret,
-                                      @Value("${faforever.api.access-token-uri}")
-                                              String apiAccessTokenUrl,
-                                      @Value("${faforever.api.max-page-size}")
-                                              int apiMaxPageSize,
-                                      @Value("${faforever.api.max-result-size}")
-                                              int apiMaxResultSize) {
+                                      ApplicationContext applicationContext) {
         this.defaultResourceConverter = defaultResourceConverter;
         this.updateResourceConverter = updateResourceConverter;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
-        this.apiClientId = apiClientId;
-        this.apiClientSecret = apiClientSecret;
-        this.apiAccessTokenUrl = apiAccessTokenUrl;
-        this.apiMaxPageSize = apiMaxPageSize;
-        this.apiMaxResultSize = apiMaxResultSize;
+        this.jsonApiMessageConverter = jsonApiMessageConverter;
+        this.jsonApiErrorHandler = jsonApiErrorHandler;
+        this.applicationContext = applicationContext;
+
         authorizedLatch = new CountDownLatch(1);
-        this.restTemplateBuilder = restTemplateBuilder
-                .additionalMessageConverters(jsonApiMessageConverter)
-                .errorHandler(jsonApiErrorHandler)
-                .rootUri(apiBaseUrl);
     }
 
     public RestOperations getRestTemplate() {
         return restTemplate;
+    }
+
+    public void initialize(EnvironmentProperties environmentProperties) {
+        this.environmentProperties = environmentProperties;
+        this.restTemplateBuilder = applicationContext.getBean(RestTemplateBuilder.class)
+                .additionalMessageConverters(jsonApiMessageConverter)
+                .errorHandler(jsonApiErrorHandler)
+                .rootUri(environmentProperties.getBaseUrl());
     }
 
     public boolean hasPermission(String... permissionTechnicalName) {
@@ -100,10 +100,10 @@ public class FafApiCommunicationService {
     private void authorize(String username, String password) {
         log.debug("Configuring OAuth2 login with player = '{}', password=[hidden]", username);
         ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
-        details.setClientId(apiClientId);
-        details.setClientSecret(apiClientSecret);
+        details.setClientId(environmentProperties.getClientId());
+        details.setClientSecret(environmentProperties.getClientSecret());
         details.setClientAuthenticationScheme(AuthenticationScheme.header);
-        details.setAccessTokenUri(apiAccessTokenUrl);
+        details.setAccessTokenUri(environmentProperties.getAccessTokenUri());
         details.setUsername(username);
         details.setPassword(password);
 
@@ -246,7 +246,7 @@ public class FafApiCommunicationService {
     }
 
     public <T extends ElideEntity> List<T> getAll(Class<T> clazz, ElideNavigatorOnCollection<T> routeBuilder, java.util.Map<String, Serializable> params) {
-        return getMany(clazz, routeBuilder, apiMaxResultSize, params);
+        return getMany(clazz, routeBuilder, environmentProperties.getMaxResultSize(), params);
     }
 
     @SneakyThrows
@@ -254,8 +254,8 @@ public class FafApiCommunicationService {
         List<T> result = new LinkedList<>();
         List<T> current = null;
         int page = 1;
-        while ((current == null || current.size() >= apiMaxPageSize) && result.size() < count) {
-            current = getPage(clazz, routeBuilder, apiMaxPageSize, page++, params);
+        while ((current == null || current.size() >= environmentProperties.getMaxPageSize()) && result.size() < count) {
+            current = getPage(clazz, routeBuilder, environmentProperties.getMaxPageSize(), page++, params);
             result.addAll(current);
         }
         return result;

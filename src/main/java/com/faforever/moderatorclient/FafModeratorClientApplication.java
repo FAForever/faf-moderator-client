@@ -1,6 +1,11 @@
 package com.faforever.moderatorclient;
 
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.config.ApplicationProperties;
+import com.faforever.moderatorclient.ui.MainController;
+import com.faforever.moderatorclient.ui.PlatformService;
+import com.faforever.moderatorclient.ui.PlatformServiceImpl;
+import com.faforever.moderatorclient.ui.StageHolder;
+import com.faforever.moderatorclient.ui.UiService;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -8,12 +13,14 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableConfigurationProperties(ApplicationProperties.class)
 @ComponentScan
 @Slf4j
 public class FafModeratorClientApplication extends Application {
