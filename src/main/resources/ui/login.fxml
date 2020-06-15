@@ -33,10 +33,14 @@
             <children>
                 <Label text="Username" GridPane.rowIndex="1"/>
                 <Label text="Password" GridPane.rowIndex="2"/>
+                <Label text="Environment" GridPane.rowIndex="3"/>
                 <TextField fx:id="usernameField" promptText="Your FAF account name" GridPane.columnIndex="1"
                            GridPane.rowIndex="1"/>
                 <PasswordField fx:id="passwordField" promptText="Your FAF password" GridPane.columnIndex="1"
                                GridPane.rowIndex="2"/>
+                <ComboBox fx:id="environmentComboBox" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
+                          GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3"
+                          GridPane.vgrow="ALWAYS"/>
                 <HBox alignment="TOP_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="5">
                     <children>
                         <Button defaultButton="true" mnemonicParsing="false" onAction="#onLoginClicked" text="Login">
@@ -65,10 +69,6 @@
                         <Font name="System Italic" size="13.0"/>
                     </font>
                 </Label>
-                <Label text="Environment" GridPane.rowIndex="3"/>
-                <ComboBox fx:id="environmentComboBox" maxHeight="-Infinity" maxWidth="1.7976931348623157E308"
-                          GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3"
-                          GridPane.vgrow="ALWAYS"/>
             </children>
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
