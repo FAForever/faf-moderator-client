@@ -11,16 +11,21 @@ import com.faforever.moderatorclient.ui.domain.ModVersionFX;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -41,6 +46,7 @@ public class ModVaultController implements Controller<SplitPane> {
     public ImageView modVersionPreviewImageView;
     public TableView<ModFX> modSearchTableView;
     public TableView<ModVersionFX> modVersionTableView;
+    public Button hideModButton;
     public Button toggleModVersionHidingButton;
     public Button toggleModVersionRatingButton;
 
@@ -56,8 +62,13 @@ public class ModVaultController implements Controller<SplitPane> {
 
         modSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             modVersions.clear();
-            Optional.ofNullable(newValue).ifPresent(mod -> modVersions.addAll(
-                    mod.getVersions()));
+
+            if (newValue == null) {
+                hideModButton.setDisable(true);
+            } else {
+                modVersions.addAll(newValue.getVersions());
+                hideModButton.setDisable(false);
+            }
         });
 
         modVersionTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -90,6 +101,23 @@ public class ModVaultController implements Controller<SplitPane> {
         }
 
         mods.addAll(modMapper.map(modsFound));
+    }
+
+    public void onHideAllVersions() {
+        ModFX mod = modSearchTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(mod, "You can only edit a selected Mod");
+
+        if (ViewHelper.confirmDialog("Bulk mod update", MessageFormat.format(
+                "You are about to update {0} mod versions.\n" +
+                        "This might take a while and the client will freeze.\n" +
+                        "Do you want to update now?",
+                mod.getVersions().size()))) {
+            mod.getVersions().parallelStream()
+                    .peek(mapVersionFX -> mapVersionFX.setHidden(true))
+                    .map(modVersionMapper::map)
+                    .forEach(modService::patchModVersion);
+        }
     }
 
     public void onToggleModVersionHiding() {

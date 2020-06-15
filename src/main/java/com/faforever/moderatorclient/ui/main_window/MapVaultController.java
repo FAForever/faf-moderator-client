@@ -11,7 +11,12 @@ import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -43,6 +48,7 @@ public class MapVaultController implements Controller<SplitPane> {
     public ImageView mapVersionPreviewImageView;
     public TableView<MapFX> mapSearchTableView;
     public TableView<MapVersionFX> mapVersionTableView;
+    public Button hideMapButton;
     public Button toggleMapVersionHidingButton;
     public Button toggleMapVersionRatingButton;
 
@@ -58,8 +64,13 @@ public class MapVaultController implements Controller<SplitPane> {
 
         mapSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             mapVersions.clear();
-            Optional.ofNullable(newValue).ifPresent(map -> mapVersions.addAll(
-                    map.getVersions()));
+
+            if (newValue == null) {
+                hideMapButton.setDisable(true);
+            } else {
+                mapVersions.addAll(newValue.getVersions());
+                hideMapButton.setDisable(false);
+            }
         });
 
         mapVersionTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -90,6 +101,23 @@ public class MapVaultController implements Controller<SplitPane> {
         }
 
         maps.addAll(mapMapper.map(mapsFound));
+    }
+
+    public void onHideAllVersions() {
+        MapFX map = mapSearchTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(map, "You can only edit a selected Map");
+
+        if (ViewHelper.confirmDialog("Bulk map update", MessageFormat.format(
+                "You are about to update {0} map versions.\n" +
+                        "This might take a while and the client will freeze.\n" +
+                        "Do you want to update now?",
+                map.getVersions().size()))) {
+            map.getVersions().parallelStream()
+                    .peek(mapVersionFX -> mapVersionFX.setHidden(true))
+                    .map(mapVersionMapper::map)
+                    .forEach(mapService::patchMapVersion);
+        }
     }
 
     public void onToggleMapVersionHiding() {
