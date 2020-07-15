@@ -4,10 +4,7 @@ import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.api.domain.UserService;
-import com.faforever.moderatorclient.ui.BanInfoController;
-import com.faforever.moderatorclient.ui.Controller;
-import com.faforever.moderatorclient.ui.UiService;
-import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.*;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
@@ -35,6 +32,7 @@ public class RecentActivityController implements Controller<VBox> {
     private final ObservableList<MapVersionFX> mapVersions = FXCollections.observableArrayList();
     private final FafApiCommunicationService communicationService;
     private final UiService uiService;
+    private final PlatformService platformService;
 
     public VBox root;
 
@@ -64,7 +62,7 @@ public class RecentActivityController implements Controller<VBox> {
     @FXML
     public void initialize() {
         if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS, userRegistrationFeedPane)) {
-            ViewHelper.buildUserTableView(userRegistrationFeedTableView, users, this::addBan);
+            ViewHelper.buildUserTableView(platformService, userRegistrationFeedTableView, users, this::addBan);
         }
 
         if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_TEAMKILL_REPORT, teamkillFeedPane)) {

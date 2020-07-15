@@ -31,7 +31,10 @@ import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
+import com.sun.javafx.application.HostServicesDelegate;
+import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -71,13 +74,17 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.awt.*;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
@@ -96,6 +103,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 public class ViewHelper {
     private ViewHelper() {
         // static class
@@ -504,7 +512,7 @@ public class ViewHelper {
      * @param data      data to be put in the tableView
      * @param onAddBan  if not null shows a ban button which triggers this consumer
      */
-    public static void buildUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
+    public static void buildUserTableView(PlatformService platformService, TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
         tableView.setItems(data);
         HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
 
@@ -583,7 +591,19 @@ public class ViewHelper {
             tableView.getColumns().add(banOptionColumn);
         }
 
-        applyCopyContextMenus(tableView, extractors);
+        ContextMenu contextMenu = applyCopyContextMenus(tableView, extractors);
+        MenuItem steamLookupMenuItem = new MenuItem("Lookup SteamID");
+        steamLookupMenuItem.disableProperty().bind(Bindings.createBooleanBinding(() -> {
+            PlayerFX selectedPlayer = tableView.getSelectionModel().getSelectedItem();
+            return selectedPlayer == null || selectedPlayer.getSteamId() == null;
+        }, tableView.getSelectionModel().selectedItemProperty()));
+        steamLookupMenuItem.setOnAction(action -> {
+            PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();
+            if (playerFX.getSteamId() != null) {
+                platformService.showDocument("https://steamidfinder.com/lookup/" + playerFX.getSteamId());
+            }
+        });
+        contextMenu.getItems().add(steamLookupMenuItem);
     }
 
     public static void buildUserAvatarsTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {

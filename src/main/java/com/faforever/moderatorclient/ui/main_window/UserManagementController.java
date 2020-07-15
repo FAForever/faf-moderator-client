@@ -113,7 +113,7 @@ public class UserManagementController implements Controller<SplitPane> {
         disableTabOnMissingPermission(teamkillsTab, GroupPermission.ROLE_READ_TEAMKILL_REPORT);
         disableTabOnMissingPermission(avatarsTab, GroupPermission.ROLE_WRITE_AVATAR);
 
-        ViewHelper.buildUserTableView(userSearchTableView, users, null);
+        ViewHelper.buildUserTableView(platformService, userSearchTableView, users, null);
         ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
         ViewHelper.buildBanTableView(userBansTableView, bans, false);
