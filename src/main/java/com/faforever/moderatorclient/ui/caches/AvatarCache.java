@@ -1,4 +1,4 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.caches;
 
 import javafx.scene.image.Image;
 
