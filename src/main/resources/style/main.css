@@ -2,3 +2,11 @@
     -fx-background-color: #cbfbc5;
     -fx-font-family: NotoEmoji-Regular;
 }
+
+.list-view .scroll-bar:vertical {
+    -fx-scale-x: 0;-fx-padding: -10; -fx-opacity: 0;
+}
+
+.list-cell:empty {
+    -fx-background-color: white;
+}

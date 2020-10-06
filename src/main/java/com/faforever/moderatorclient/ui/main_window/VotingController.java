@@ -2,9 +2,9 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.VotingService;
-import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
-import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
-import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
+import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
+import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.ViewHelper;
