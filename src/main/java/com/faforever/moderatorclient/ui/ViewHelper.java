@@ -11,55 +11,27 @@ import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
-import com.faforever.moderatorclient.mapstruct.VotingChoiceFX;
-import com.faforever.moderatorclient.mapstruct.VotingQuestionFX;
-import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
-import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
-import com.faforever.moderatorclient.ui.domain.AvatarFX;
-import com.faforever.moderatorclient.ui.domain.BanInfoFX;
-import com.faforever.moderatorclient.ui.domain.GameFX;
-import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
-import com.faforever.moderatorclient.ui.domain.MapFX;
-import com.faforever.moderatorclient.ui.domain.MapVersionFX;
-import com.faforever.moderatorclient.ui.domain.MessageFx;
-import com.faforever.moderatorclient.ui.domain.ModFX;
-import com.faforever.moderatorclient.ui.domain.ModVersionFX;
-import com.faforever.moderatorclient.ui.domain.ModerationReportFX;
-import com.faforever.moderatorclient.ui.domain.NameRecordFX;
-import com.faforever.moderatorclient.ui.domain.PlayerFX;
-import com.faforever.moderatorclient.ui.domain.TeamkillFX;
-import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
-import com.faforever.moderatorclient.ui.domain.TutorialFx;
-import com.faforever.moderatorclient.ui.domain.UserNoteFX;
-import com.sun.javafx.application.HostServicesDelegate;
-import javafx.application.HostServices;
+import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
+import com.faforever.moderatorclient.ui.data_cells.TextAreaTableCell;
+import com.faforever.moderatorclient.ui.data_cells.UrlImageViewTableCell;
+import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
+import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
+import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TablePosition;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -80,11 +52,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.awt.*;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
@@ -193,16 +162,43 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
+    public static void bindListViewToImageView(ListView<MapVersionFX> mapListView, ImageView imageView) {
+        ChangeListener<MapVersionFX> mapListener = (observable, oldValue, newValue) -> {
+            if (newValue == null) return;
+            URL thumbnailUrlLarge = newValue.getThumbnailUrlLarge();
+            if (thumbnailUrlLarge != null) {
+                imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(newValue.getId(), thumbnailUrlLarge.toString()));
+            } else {
+                imageView.setImage(null);
+            }
+        };
+        mapListView.focusedProperty().addListener((obs, oldValue, newValue) -> {
+            if (!newValue) {
+                mapListView.getSelectionModel().selectedItemProperty().removeListener(mapListener);
+                mapListView.getSelectionModel().clearSelection();
+            } else {
+                mapListView.getSelectionModel().selectedItemProperty().addListener(mapListener);
+                MapVersionFX item = mapListView.getSelectionModel().getSelectedItem();
+                if (item == null) return;
+                URL thumbnailUrlLarge = item.getThumbnailUrlLarge();
+                if (thumbnailUrlLarge != null) {
+                    imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(item.getId(), thumbnailUrlLarge.toString()));
+                } else {
+                    imageView.setImage(null);
+                }
+            }
+        });
+    }
+
     public static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
         mapTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null || newValue.getValue() == null) {
                 imageView.setImage(null);
                 return;
             }
-
             URL thumbnailUrlLarge = newValue.getValue().getThumbnailUrlLarge();
             if (thumbnailUrlLarge != null) {
-                imageView.setImage(new Image(thumbnailUrlLarge.toString(), true));
+                imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(newValue.getValue().getId(), thumbnailUrlLarge.toString()));
             } else {
                 imageView.setImage(null);
             }
@@ -759,7 +755,6 @@ public class ViewHelper {
             }
         };
     }
-
 
     public static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");

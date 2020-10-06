@@ -1,13 +1,22 @@
 package com.faforever.moderatorclient.api.domain;
 
+import com.faforever.commons.api.dto.AbstractEntity;
 import com.faforever.commons.api.dto.Ladder1v1Map;
 import com.faforever.commons.api.dto.Map;
 import com.faforever.commons.api.dto.MapVersion;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.common.MapPool;
+import com.faforever.moderatorclient.common.MatchmakerQueue;
+import com.faforever.moderatorclient.common.MatchmakerQueueMapPool;
+import com.faforever.moderatorclient.mapstruct.MapPoolMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
+import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
+import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import com.faforever.moderatorclient.ui.domain.MatchmakerQueueFX;
+import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -16,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +33,15 @@ import java.util.stream.Collectors;
 public class MapService {
     private final FafApiCommunicationService fafApi;
     private final MapVersionMapper mapVersionMapper;
+    private final MapPoolMapper mapPoolMapper;
+    private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
 
-    public MapService(FafApiCommunicationService fafApi, MapVersionMapper mapVersionMapper) {
+    public MapService(FafApiCommunicationService fafApi, MapVersionMapper mapVersionMapper, MapPoolMapper mapPoolMapper, MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper) {
         this.fafApi = fafApi;
         this.mapVersionMapper = mapVersionMapper;
+        this.mapPoolMapper = mapPoolMapper;
+        this.matchmakerQueueMapPoolMapper = matchmakerQueueMapPoolMapper;
     }
-
 
     private List<Map> findMapsByAttribute(@NotNull String attribute, @NotNull String pattern, boolean excludeHidden) {
         log.debug("Searching for maps by attribute '{}' with pattern: {}", attribute, pattern);
@@ -115,9 +128,46 @@ public class MapService {
         return result;
     }
 
+    public List<MatchmakerQueue> getAllMatchmakerQueues() {
+        log.debug("Searching for all matchmaker queues");
+        ElideNavigatorOnCollection<MatchmakerQueue> routeBuilder = ElideNavigator.of(MatchmakerQueue.class)
+                .collection();
+        List<MatchmakerQueue> queues = fafApi.getAll(MatchmakerQueue.class, routeBuilder);
+        log.debug("found {} matchmaker queues", queues.size());
+        return queues;
+    }
+
+    public List<MatchmakerQueueMapPool> getListOfBracketsInMatchmakerQueue(MatchmakerQueue queue) {
+        log.debug("Searching for all brackets in queue {}", queue.getId());
+        ElideNavigatorOnCollection<MatchmakerQueueMapPool> routeBuilder = ElideNavigator.of(MatchmakerQueueMapPool.class)
+                .collection()
+                .addFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()))
+                .addIncludeOnCollection("mapPool")
+                .addIncludeOnCollection("mapPool.mapVersions")
+                .addIncludeOnCollection("mapPool.mapVersions.map");
+        List<MatchmakerQueueMapPool> brackets = fafApi.getAll(MatchmakerQueueMapPool.class, routeBuilder);
+        for (MatchmakerQueueMapPool bracket : brackets) {
+            System.out.println("++++++++++++++++++");
+            System.out.println(bracket.toString());
+        }
+        return brackets;
+    }
+
     public void removeMapVersionFromLadderPool(MapVersion mapVersion) {
         log.debug("Deleting mapVersion from ladder pool: {}", mapVersion.getId());
         fafApi.delete(ElideNavigator.of(Ladder1v1Map.class).id(mapVersion.getLadder1v1Map().getId()));
+    }
+
+    public void patchBracket(MatchmakerQueueMapPoolFX bracketFX) {
+        log.debug("Updating matchmakerQueueMapPool (bracket) id: {}", bracketFX.getId());
+        var bracket = matchmakerQueueMapPoolMapper.mapToDto(bracketFX);
+        System.out.println(bracket.getMapPool().toString());
+        fafApi.patch(ElideNavigator.of(bracket),
+                (MatchmakerQueueMapPool) new MatchmakerQueueMapPool()
+                        .setMapPool(bracket.getMapPool())
+                        .setMaxRating(bracket.getMaxRating())
+                        .setMinRating(bracket.getMinRating())
+                        .setId(bracket.getId()));
     }
 
     public void addMapVersionToLadderPool(MapVersion mapVersion) {

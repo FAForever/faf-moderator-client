@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.mapstruct;
 
 import com.faforever.commons.api.dto.VotingChoice;
+import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import org.mapstruct.Mapper;
 
 import java.util.List;

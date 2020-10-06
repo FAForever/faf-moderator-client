@@ -1,6 +1,5 @@
-package com.faforever.moderatorclient.mapstruct;
+package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.ui.domain.AbstractEntityFX;
 import javafx.beans.property.*;
 
 public class VotingChoiceFX extends AbstractEntityFX {
