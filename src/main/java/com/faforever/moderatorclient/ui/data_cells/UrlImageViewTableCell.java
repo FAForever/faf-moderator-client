@@ -1,5 +1,6 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.data_cells;
 
+import com.faforever.moderatorclient.ui.caches.AvatarCache;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.AvatarFX;
 import javafx.scene.control.TableCell;
@@ -26,7 +27,7 @@ public class UrlImageViewTableCell<T> extends TableCell<T, String> {
                     if (AvatarCache.getInstance().containsKey(cacheKey)) {
                         img = AvatarCache.getInstance().get(cacheKey);
                     } else {
-                        img = new Image(item);
+                        img = new Image(item, true);
                         AvatarCache.getInstance().put(cacheKey, img);
                     }
                 } else {
