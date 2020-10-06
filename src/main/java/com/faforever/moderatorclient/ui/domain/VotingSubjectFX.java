@@ -1,6 +1,5 @@
-package com.faforever.moderatorclient.mapstruct;
+package com.faforever.moderatorclient.ui.domain;
 
-import com.faforever.moderatorclient.ui.domain.AbstractEntityFX;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

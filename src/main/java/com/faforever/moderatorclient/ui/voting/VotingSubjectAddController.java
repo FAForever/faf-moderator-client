@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.ui.voting;
 
 
 import com.faforever.moderatorclient.api.domain.VotingService;
-import com.faforever.moderatorclient.mapstruct.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.fxml.FXML;
