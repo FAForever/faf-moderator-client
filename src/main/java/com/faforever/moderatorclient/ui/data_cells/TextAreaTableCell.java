@@ -1,5 +1,6 @@
-package com.faforever.moderatorclient.ui;
+package com.faforever.moderatorclient.ui.data_cells;
 
+import com.faforever.moderatorclient.ui.ViewHelper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
