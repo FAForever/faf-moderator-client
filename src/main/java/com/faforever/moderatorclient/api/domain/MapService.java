@@ -158,10 +158,24 @@ public class MapService {
         fafApi.delete(ElideNavigator.of(Ladder1v1Map.class).id(mapVersion.getLadder1v1Map().getId()));
     }
 
+    public void patchMapPool(MapPoolFX mapPoolFX) {
+        patchMapPool(mapPoolMapper.mapToDto(mapPoolFX));
+
+    }
+
+    public void patchMapPool(MapPool mapPool) {
+        log.debug("Updating mapPool id: {}", mapPool.getId());
+        fafApi.patch(ElideNavigator.of(mapPool),
+                (MapPool) new MapPool()
+                        .setMapVersions(mapPool.getMapVersions())
+                        .setName(mapPool.getName())
+                        .setId(mapPool.getId()));
+    }
+
+
     public void patchBracket(MatchmakerQueueMapPoolFX bracketFX) {
         log.debug("Updating matchmakerQueueMapPool (bracket) id: {}", bracketFX.getId());
         var bracket = matchmakerQueueMapPoolMapper.mapToDto(bracketFX);
-        System.out.println(bracket.getMapPool().toString());
         fafApi.patch(ElideNavigator.of(bracket),
                 (MatchmakerQueueMapPool) new MatchmakerQueueMapPool()
                         .setMapPool(bracket.getMapPool())

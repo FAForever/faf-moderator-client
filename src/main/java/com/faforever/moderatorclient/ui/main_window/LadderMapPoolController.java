@@ -142,7 +142,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
             uploadToDatabaseButton.setOnAction(event -> {
                 for (MatchmakerQueueMapPoolFX bracket : bracketsFX) {
-                    mapService.patchBracket(bracket);
+                    mapService.patchMapPool(bracket.getMapPool());
                 }
             });
         }
