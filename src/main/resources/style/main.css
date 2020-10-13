@@ -10,3 +10,7 @@
 .list-cell:empty {
     -fx-background-color: white;
 }
+
+.list-view {
+    -fx-selection-bar-non-focused: white;
+}
