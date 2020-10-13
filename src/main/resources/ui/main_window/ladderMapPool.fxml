@@ -93,7 +93,7 @@
                 </HBox>
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false" text="filter by map name:">
+                        <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false" selected="true" text="filter by map name:">
                             <padding>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                             </padding>
