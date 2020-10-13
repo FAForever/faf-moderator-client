@@ -50,12 +50,10 @@
                         </ScrollPane>
                      </children>
                   </VBox>
-                  <VBox spacing="10.0">
+                  <VBox alignment="TOP_CENTER" spacing="10.0">
                      <children>
                               <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-                              <Button fx:id="ladderMapReview" mnemonicParsing="false" onAction="#generateLadderMapReviewVote" text="Generate Ladder Map Review Vote" VBox.vgrow="ALWAYS" />
-                              <Button fx:id="removeFromBracketButton" alignment="CENTER" mnemonicParsing="false" onAction="#onRemoveFromLadderPool" text="Remove From Bracket" />
-                        <Button fx:id="removeFromAllBracketsButton" alignment="CENTER" mnemonicParsing="false" text="Remove From All Brackets" />
+                        <VBox fx:id="addButtonsContainer" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -126,24 +124,6 @@
                 <HBox VBox.vgrow="ALWAYS">
                     <children>
                         <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS" />
-                  <VBox alignment="TOP_CENTER">
-                     <children>
-                              <ImageView fx:id="mapVaultImageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-                        <VBox fx:id="addButtonsContainer" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" />
-                     </children>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </VBox>
-                    </children>
-                </HBox>
-                <HBox alignment="CENTER">
-                    <children>
-                        <Button fx:id="addToPoolButton" disable="true" mnemonicParsing="false" onAction="#onAddToLadderPool" text="Add Selected Map To Pool">
-                            <HBox.margin>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </HBox.margin>
-                        </Button>
                     </children>
                 </HBox>
             </children>

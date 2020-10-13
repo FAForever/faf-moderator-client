@@ -5,13 +5,12 @@ import com.github.jasminb.jsonapi.annotations.Relationship;
 import com.github.jasminb.jsonapi.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @Type("matchmakerQueueMapPool")
 public class MatchmakerQueueMapPool extends AbstractEntity {
+
     private Double minRating;
     private Double maxRating;
 
@@ -20,4 +19,5 @@ public class MatchmakerQueueMapPool extends AbstractEntity {
 
     @Relationship("mapPool")
     private MapPool mapPool;
+
 }
