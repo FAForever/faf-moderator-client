@@ -19,6 +19,7 @@ public class AddBracketController implements Controller<GridPane> {
     @FXML GridPane root;
     @FXML Label bracketRatingLabel;
     @FXML public Button addToBracketButton;
+    @FXML public Button removeFromBracketButton;
 
     @Override
     public GridPane getRoot() {

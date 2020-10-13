@@ -162,34 +162,6 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    public static void bindListViewToImageView(ListView<MapVersionFX> mapListView, ImageView imageView) {
-        ChangeListener<MapVersionFX> mapListener = (observable, oldValue, newValue) -> {
-            if (newValue == null) return;
-            URL thumbnailUrlLarge = newValue.getThumbnailUrlLarge();
-            if (thumbnailUrlLarge != null) {
-                imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(newValue.getId(), thumbnailUrlLarge.toString()));
-            } else {
-                imageView.setImage(null);
-            }
-        };
-        mapListView.focusedProperty().addListener((obs, oldValue, newValue) -> {
-            if (!newValue) {
-                mapListView.getSelectionModel().selectedItemProperty().removeListener(mapListener);
-                mapListView.getSelectionModel().clearSelection();
-            } else {
-                mapListView.getSelectionModel().selectedItemProperty().addListener(mapListener);
-                MapVersionFX item = mapListView.getSelectionModel().getSelectedItem();
-                if (item == null) return;
-                URL thumbnailUrlLarge = item.getThumbnailUrlLarge();
-                if (thumbnailUrlLarge != null) {
-                    imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(item.getId(), thumbnailUrlLarge.toString()));
-                } else {
-                    imageView.setImage(null);
-                }
-            }
-        });
-    }
-
     public static void bindMapTreeViewToImageView(TreeTableView<MapTableItemAdapter> mapTreeView, ImageView imageView) {
         mapTreeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null || newValue.getValue() == null) {
