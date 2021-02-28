@@ -1,6 +1,8 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.commons.api.dto.Map;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
@@ -32,11 +34,14 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class MapVaultController implements Controller<SplitPane> {
+    private final FafApiCommunicationService communicationService;
     private final MapService mapService;
     private final MapMapper mapMapper;
     private final MapVersionMapper mapVersionMapper;
     private final ObservableList<MapFX> maps = FXCollections.observableArrayList();
     private final ObservableList<MapVersionFX> mapVersions = FXCollections.observableArrayList();
+
+    private boolean canEdit = false;
 
     public SplitPane root;
 
@@ -62,6 +67,8 @@ public class MapVaultController implements Controller<SplitPane> {
         ViewHelper.buildMapTableView(mapSearchTableView, maps);
         ViewHelper.buildMapVersionTableView(mapVersionTableView, mapVersions);
 
+        canEdit = communicationService.hasPermission(GroupPermission.ROLE_ADMIN_MAP);
+
         mapSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             mapVersions.clear();
 
@@ -69,7 +76,7 @@ public class MapVaultController implements Controller<SplitPane> {
                 hideMapButton.setDisable(true);
             } else {
                 mapVersions.addAll(newValue.getVersions());
-                hideMapButton.setDisable(false);
+                hideMapButton.setDisable(!canEdit);
             }
         });
 
@@ -80,8 +87,8 @@ public class MapVaultController implements Controller<SplitPane> {
                 toggleMapVersionRatingButton.setDisable(true);
             } else {
                 mapVersionPreviewImageView.setImage(new Image(newValue.getThumbnailUrlLarge().toString()));
-                toggleMapVersionHidingButton.setDisable(false);
-                toggleMapVersionRatingButton.setDisable(false);
+                toggleMapVersionHidingButton.setDisable(!canEdit);
+                toggleMapVersionRatingButton.setDisable(!canEdit);
             }
         });
     }

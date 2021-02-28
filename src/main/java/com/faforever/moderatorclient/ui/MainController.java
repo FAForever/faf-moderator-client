@@ -132,17 +132,13 @@ public class MainController implements Controller<TabPane> {
     }
 
     private void initMapVaultTab() {
-        if (checkPermissionForTab(mapVaultTab, GroupPermission.ROLE_ADMIN_MAP)) {
-            mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");
-            mapVaultTab.setContent(mapVaultController.getRoot());
-        }
+        mapVaultController = uiService.loadFxml("ui/main_window/mapVault.fxml");
+        mapVaultTab.setContent(mapVaultController.getRoot());
     }
 
     private void initModVaultTab() {
-        if (checkPermissionForTab(modVaultTab, GroupPermission.ROLE_ADMIN_MOD)) {
-            modVaultController = uiService.loadFxml("ui/main_window/modVault.fxml");
-            modVaultTab.setContent(modVaultController.getRoot());
-        }
+        modVaultController = uiService.loadFxml("ui/main_window/modVault.fxml");
+        modVaultTab.setContent(modVaultController.getRoot());
     }
 
     private void initAvatarTab() {

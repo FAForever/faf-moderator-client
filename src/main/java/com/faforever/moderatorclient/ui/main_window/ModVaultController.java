@@ -1,6 +1,8 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.commons.api.dto.Mod;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.ModService;
 import com.faforever.moderatorclient.mapstruct.ModMapper;
 import com.faforever.moderatorclient.mapstruct.ModVersionMapper;
@@ -30,11 +32,14 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ModVaultController implements Controller<SplitPane> {
+    private final FafApiCommunicationService communicationService;
     private final ModService modService;
     private final ModMapper modMapper;
     private final ModVersionMapper modVersionMapper;
     private final ObservableList<ModFX> mods = FXCollections.observableArrayList();
     private final ObservableList<ModVersionFX> modVersions = FXCollections.observableArrayList();
+
+    private boolean canEdit = false;
 
     public SplitPane root;
     public RadioButton searchModByModNameRadioButton;
@@ -60,6 +65,8 @@ public class ModVaultController implements Controller<SplitPane> {
         ViewHelper.buildModTableView(modSearchTableView, mods);
         ViewHelper.buildModVersionTableView(modVersionTableView, modVersions);
 
+        canEdit = communicationService.hasPermission(GroupPermission.ROLE_ADMIN_MOD);
+
         modSearchTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             modVersions.clear();
 
@@ -67,7 +74,7 @@ public class ModVaultController implements Controller<SplitPane> {
                 hideModButton.setDisable(true);
             } else {
                 modVersions.addAll(newValue.getVersions());
-                hideModButton.setDisable(false);
+                hideModButton.setDisable(!canEdit);
             }
         });
 
@@ -78,8 +85,8 @@ public class ModVaultController implements Controller<SplitPane> {
                 toggleModVersionRatingButton.setDisable(true);
             } else {
                 modVersionPreviewImageView.setImage(new Image(newValue.getThumbnailUrl().toString()));
-                toggleModVersionHidingButton.setDisable(false);
-                toggleModVersionRatingButton.setDisable(false);
+                toggleModVersionHidingButton.setDisable(!canEdit);
+                toggleModVersionRatingButton.setDisable(!canEdit);
             }
         });
     }
