@@ -3,10 +3,10 @@ package com.faforever.moderatorclient.api.elide;
 import com.faforever.commons.api.dto.Ladder1v1Map;
 import com.faforever.commons.api.dto.MapVersion;
 import com.faforever.commons.api.elide.ElideNavigator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ElideNavigatorTest {
     @Test
