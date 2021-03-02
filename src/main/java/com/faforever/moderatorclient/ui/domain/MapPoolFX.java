@@ -30,12 +30,4 @@ public class MapPoolFX extends AbstractEntityFX {
     public void setName(String name) {
         this.name.set(name);
     }
-
-    @Override
-    public String toString() {
-        return "MapPoolFX{" +
-                "name=" + name +
-                ", maps=" + mapVersions +
-                '}';
-    }
 }

@@ -69,14 +69,4 @@ public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
     public void setMapPool(MapPoolFX mapPool) {
         this.mapPool.set(mapPool);
     }
-
-    @Override
-    public String toString() {
-        return "MatchmakerQueueMapPoolFX{" +
-                "minRating=" + minRating +
-                ", maxRating=" + maxRating +
-                ", matchmakerQueue=" + matchmakerQueue +
-                ", mapPool=" + mapPool +
-                '}';
-    }
 }
