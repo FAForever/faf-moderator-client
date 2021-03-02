@@ -51,6 +51,8 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -72,11 +74,15 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Component
 @Slf4j
 public class ViewHelper {
     private ViewHelper() {
         // static class
     }
+
+    @Autowired
+    private static LargeThumbnailCache largeThumbnailCache;
 
     /**
      * Adds a context menu to a table view for predefined columns (with extractors for the columns)
@@ -170,7 +176,7 @@ public class ViewHelper {
             }
             URL thumbnailUrlLarge = newValue.getValue().getThumbnailUrlLarge();
             if (thumbnailUrlLarge != null) {
-                imageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(newValue.getValue().getId(), thumbnailUrlLarge.toString()));
+                imageView.setImage(largeThumbnailCache.fromIdAndString(newValue.getValue().getId(), thumbnailUrlLarge.toString()));
             } else {
                 imageView.setImage(null);
             }

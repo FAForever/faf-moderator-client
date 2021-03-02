@@ -1,25 +1,18 @@
 package com.faforever.moderatorclient.ui.caches;
 
 import javafx.scene.image.Image;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class SmallThumbnailCache extends ThumbnailCache {
 
     private final Map<String, Image> smallThumbnailCache;
 
-    private static SmallThumbnailCache singleton;
-
     private SmallThumbnailCache() {
         this.smallThumbnailCache = new HashMap<>();
-    }
-
-    public static synchronized SmallThumbnailCache getInstance() {
-        if (singleton == null) {
-            singleton = new SmallThumbnailCache();
-        }
-        return singleton;
     }
 
     @Override

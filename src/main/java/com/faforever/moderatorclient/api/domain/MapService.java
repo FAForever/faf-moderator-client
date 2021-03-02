@@ -17,6 +17,7 @@ import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -30,18 +31,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MapService {
     private final FafApiCommunicationService fafApi;
     private final MapVersionMapper mapVersionMapper;
     private final MapPoolMapper mapPoolMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
-
-    public MapService(FafApiCommunicationService fafApi, MapVersionMapper mapVersionMapper, MapPoolMapper mapPoolMapper, MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper) {
-        this.fafApi = fafApi;
-        this.mapVersionMapper = mapVersionMapper;
-        this.mapPoolMapper = mapPoolMapper;
-        this.matchmakerQueueMapPoolMapper = matchmakerQueueMapPoolMapper;
-    }
 
     private List<Map> findMapsByAttribute(@NotNull String attribute, @NotNull String pattern, boolean excludeHidden) {
         log.debug("Searching for maps by attribute '{}' with pattern: {}", attribute, pattern);
@@ -64,11 +59,7 @@ public class MapService {
 
         // filter empty mapVersions that were created by map relationships
         for (Map map : result) {
-            for (MapVersion mapVersion : new ArrayList<>(map.getVersions())) {
-                if (mapVersion.getMap() == null) {
-                    map.getVersions().remove(mapVersion);
-                }
-            }
+            map.getVersions().removeIf(mapVersion -> mapVersion.getMap() == null);
         }
 
         log.trace("found {} maps", result.size());
@@ -102,32 +93,6 @@ public class MapService {
         return result;
     }
 
-    public Set<Map> findMapsInLadder1v1Pool() {
-        log.debug("Searching for all ladder1v1 maps");
-        List<Ladder1v1Map> ladder1v1Maps = fafApi.getAll(Ladder1v1Map.class,
-                ElideNavigator.of(Ladder1v1Map.class)
-                        .collection()
-                        .addIncludeOnCollection("mapVersion")
-                        .addIncludeOnCollection("mapVersion.map"));
-
-        ladder1v1Maps.forEach(ladder1v1Map -> ladder1v1Map.getMapVersion().setLadder1v1Map(ladder1v1Map));
-
-        List<MapVersion> ladder1v1MapVersions = ladder1v1Maps.stream()
-                .map(Ladder1v1Map::getMapVersion)
-                .collect(Collectors.toList());
-        Set<Map> result = ladder1v1MapVersions.stream()
-                .map(mapVersion -> {
-                    Map map = mapVersion.getMap();
-                    map.setVersions(map.getVersions().stream()
-                            .filter(ladder1v1MapVersions::contains)
-                            .collect(Collectors.toList()));
-                    return map;
-                })
-                .collect(Collectors.toSet());
-        log.trace("found {} maps", result.size());
-        return result;
-    }
-
     public List<MatchmakerQueue> getAllMatchmakerQueues() {
         log.debug("Searching for all matchmaker queues");
         ElideNavigatorOnCollection<MatchmakerQueue> routeBuilder = ElideNavigator.of(MatchmakerQueue.class)
@@ -147,15 +112,9 @@ public class MapService {
                 .addIncludeOnCollection("mapPool.mapVersions.map");
         List<MatchmakerQueueMapPool> brackets = fafApi.getAll(MatchmakerQueueMapPool.class, routeBuilder);
         for (MatchmakerQueueMapPool bracket : brackets) {
-            System.out.println("++++++++++++++++++");
-            System.out.println(bracket.toString());
+            log.info("{}", bracket);
         }
         return brackets;
-    }
-
-    public void removeMapVersionFromLadderPool(MapVersion mapVersion) {
-        log.debug("Deleting mapVersion from ladder pool: {}", mapVersion.getId());
-        fafApi.delete(ElideNavigator.of(Ladder1v1Map.class).id(mapVersion.getLadder1v1Map().getId()));
     }
 
     public void patchMapPool(MapPoolFX mapPoolFX) {
@@ -182,12 +141,6 @@ public class MapService {
                         .setMaxRating(bracket.getMaxRating())
                         .setMinRating(bracket.getMinRating())
                         .setId(bracket.getId()));
-    }
-
-    public void addMapVersionToLadderPool(MapVersion mapVersion) {
-        log.debug("Adding mapVersion to ladder pool: {}", mapVersion.getId());
-        fafApi.post(ElideNavigator.of(Ladder1v1Map.class).collection(),
-                new Ladder1v1Map().setMapVersion(mapVersion));
     }
 
     public void patchMapVersion(MapVersionFX mapVersionFX) {

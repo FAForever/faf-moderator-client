@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.caches.SmallThumbnailCache;
 import com.faforever.moderatorclient.ui.data_cells.ListViewMapCell;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import javafx.beans.binding.Bindings;
@@ -23,6 +24,8 @@ public class BracketListViewController implements Controller<VBox> {
     @FXML VBox root;
     @FXML ListView<MapVersionFX> mapListView;
 
+    private final SmallThumbnailCache smallThumbnailCache;
+
     @Override
     public VBox getRoot() {
         return root;
@@ -30,7 +33,7 @@ public class BracketListViewController implements Controller<VBox> {
 
     @FXML
     public void initialize() {
-        mapListView.setCellFactory(mapListView -> new ListViewMapCell());
+        mapListView.setCellFactory(mapListView -> new ListViewMapCell(smallThumbnailCache));
     }
 
     public void setMaps(ObservableList<MapVersionFX> maps) {
