@@ -36,8 +36,8 @@ public class ListViewMapCell extends ListCell<MapVersionFX> {
                 }
             }
             mapNameLabel.setText(mapVersionFX.getMap().getDisplayName());
-            int mapWidth = mapVersionFX.getWidth()/100;
-            int mapHeight = mapVersionFX.getHeight()/100;
+            int mapWidth = Math.round(mapVersionFX.getWidth() / 51.2f);
+            int mapHeight = Math.round(mapVersionFX.getHeight() / 51.2f);
             mapSizeLabel.setText(String.format("%dx%dkm", mapWidth, mapHeight));
             previewImageView.setImage(SmallThumbnailCache.getInstance().fromIdAndString(mapVersionFX.getId(), mapVersionFX.getThumbnailUrlLarge().toString()));
             setText(null);
