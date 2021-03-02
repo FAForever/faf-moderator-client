@@ -72,12 +72,12 @@ public class MainController implements Controller<TabPane> {
     }
 
     private boolean checkPermissionForTab(Tab tab, String... permissionTechnicalName) {
-//        if (!communicationService.hasPermission(permissionTechnicalName)) {
-//            tab.setDisable(true);
-//            return false;
-//        }
-//
-//        tab.setDisable(false);
+        if (!communicationService.hasPermission(permissionTechnicalName)) {
+            tab.setDisable(true);
+            return false;
+        }
+
+        tab.setDisable(false);
         return true;
     }
 

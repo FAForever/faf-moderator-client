@@ -10,8 +10,7 @@ import lombok.Setter;
 @Type("leaderboard")
 public class Leaderboard extends AbstractEntity {
 
-    private String technical_name;
-    private String name_key;
-    private String description_key;
-
+    private String descriptionKey;
+    private String nameKey;
+    private String technicalName;
 }
