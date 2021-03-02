@@ -8,9 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+@Component
+@RequiredArgsConstructor
 public class ListViewMapCell extends ListCell<MapVersionFX> {
 
     @FXML private Label mapNameLabel;
@@ -18,6 +23,8 @@ public class ListViewMapCell extends ListCell<MapVersionFX> {
     @FXML private Pane cellContainer;
     @FXML private ImageView previewImageView;
     private FXMLLoader mLLoader;
+
+    private final SmallThumbnailCache smallThumbnailCache;
 
     @Override
     protected void updateItem(MapVersionFX mapVersionFX, boolean empty) {
@@ -39,7 +46,7 @@ public class ListViewMapCell extends ListCell<MapVersionFX> {
             int mapWidth = Math.round(mapVersionFX.getWidth() / 51.2f);
             int mapHeight = Math.round(mapVersionFX.getHeight() / 51.2f);
             mapSizeLabel.setText(String.format("%dx%dkm", mapWidth, mapHeight));
-            previewImageView.setImage(SmallThumbnailCache.getInstance().fromIdAndString(mapVersionFX.getId(), mapVersionFX.getThumbnailUrlLarge().toString()));
+            previewImageView.setImage(smallThumbnailCache.fromIdAndString(mapVersionFX.getId(), mapVersionFX.getThumbnailUrlLarge().toString()));
             setText(null);
             setGraphic(cellContainer);
         }

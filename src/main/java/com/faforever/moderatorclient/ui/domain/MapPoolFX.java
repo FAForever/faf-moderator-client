@@ -4,7 +4,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class MapPoolFX extends AbstractEntityFX {
 
     private final StringProperty name;
@@ -25,10 +29,6 @@ public class MapPoolFX extends AbstractEntityFX {
 
     public void setName(String name) {
         this.name.set(name);
-    }
-
-    public ObservableList<MapVersionFX> getMapVersions() {
-        return mapVersions;
     }
 
     @Override

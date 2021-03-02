@@ -42,6 +42,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     private final UiService uiService;
     private final MatchmakerQueueMapper matchmakerQueueMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
+    private final LargeThumbnailCache largeThumbnailCache;
 
     public SplitPane root;
 
@@ -147,7 +148,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             if (newValue == null) return;
             URL thumbnailUrlLarge = newValue.getThumbnailUrlLarge();
             if (thumbnailUrlLarge != null) {
-                ladderPoolImageView.setImage(LargeThumbnailCache.getInstance().fromIdAndString(newValue.getId(), thumbnailUrlLarge.toString()));
+                ladderPoolImageView.setImage(largeThumbnailCache.fromIdAndString(newValue.getId(), thumbnailUrlLarge.toString()));
             } else {
                 ladderPoolImageView.setImage(null);
             }
