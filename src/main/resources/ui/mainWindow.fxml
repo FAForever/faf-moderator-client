@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <TabPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
          maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0"
          prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111"
          fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
         <Tab fx:id="userManagementTab" closable="false" text="User Management"/>
-        <Tab fx:id="ladderMapPoolTab" closable="false" text="Ladder Map Pool"/>
+        <Tab fx:id="matchmakerMapPoolTab" closable="false" text="Matchmaker Map Pools"/>
         <Tab fx:id="mapVaultTab" closable="false" text="Map vault"/>
         <Tab fx:id="modVaultTab" closable="false" text="Mod vault"/>
         <Tab fx:id="avatarsTab" closable="false" text="Avatars"/>

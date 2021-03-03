@@ -38,7 +38,7 @@ public class MainController implements Controller<TabPane> {
 
     public TabPane root;
     public Tab userManagementTab;
-    public Tab ladderMapPoolTab;
+    public Tab matchmakerMapPoolTab;
     public Tab mapVaultTab;
     public Tab modVaultTab;
     public Tab avatarsTab;
@@ -83,7 +83,7 @@ public class MainController implements Controller<TabPane> {
 
     private void initializeAfterLogin() {
         initUserManagementTab();
-        initLadderMapPoolTab();
+        initMatchmakerMapPoolTab();
         initMapVaultTab();
         initModVaultTab();
         initAvatarTab();
@@ -115,11 +115,11 @@ public class MainController implements Controller<TabPane> {
         }
     }
 
-    private void initLadderMapPoolTab() {
-        if (checkPermissionForTab(ladderMapPoolTab, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)) {
+    private void initMatchmakerMapPoolTab() {
+        if (checkPermissionForTab(matchmakerMapPoolTab, GroupPermission.ROLE_WRITE_MATCHMAKER_MAP)) {
             ladderMapPoolController = uiService.loadFxml("ui/main_window/ladderMapPool.fxml");
-            ladderMapPoolTab.setContent(ladderMapPoolController.getRoot());
-            initLoading(ladderMapPoolTab, ladderMapPoolController::refresh);
+            matchmakerMapPoolTab.setContent(ladderMapPoolController.getRoot());
+            initLoading(matchmakerMapPoolTab, ladderMapPoolController::refresh);
         }
     }
 
