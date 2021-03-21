@@ -1,132 +1,171 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeTableView?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
-<SplitPane fx:id="root" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.main_window.LadderMapPoolController">
+<SplitPane fx:id="root" dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/11.0.1"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.faforever.moderatorclient.ui.main_window.LadderMapPoolController">
     <items>
-        <VBox>
-            <children>
-            <HBox>
-               <children>
-                      <Label text="Matchmaker Queue:">
-                          <font>
-                              <Font name="System Bold" size="15.0" />
-                          </font>
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                      </Label>
-                  <ComboBox fx:id="queueComboBox" onAction="#queueComboAction" prefHeight="25.0" prefWidth="100.0" promptText="Select...">
-                     <HBox.margin>
-                        <Insets left="10.0" />
-                     </HBox.margin>
-                  </ComboBox>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </HBox>
-                <HBox prefWidth="700.0" VBox.vgrow="ALWAYS">
-                    <children>
-                  <VBox HBox.hgrow="ALWAYS">
-                     <children>
-                        <HBox fx:id="bracketHeaderContainer" prefWidth="200.0" />
-                        <ScrollPane fx:id="bracketsScrollPane" VBox.vgrow="ALWAYS">
-                           <content>
-                              <HBox fx:id="bracketListContainer" />
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </VBox>
-                  <VBox alignment="TOP_CENTER" spacing="10.0">
-                     <children>
-                              <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-                        <VBox fx:id="addButtonsContainer" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" />
-                     </children>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </VBox>
-                    </children>
-                </HBox>
-                <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
-                    <children>
-                  <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refresh" text="Refresh" />
-                  <Button fx:id="uploadToDatabaseButton" mnemonicParsing="false" text="Upload To Database" />
-                    </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-                </HBox>
-            </children>
-        </VBox>
         <VBox>
             <children>
                 <HBox>
                     <children>
-                        <Label text="Map vault">
-                            <padding>
-                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                            </padding>
+                        <Label text="Matchmaker Queue:">
                             <font>
-                                <Font name="System Bold" size="15.0" />
+                                <Font name="System Bold" size="15.0"/>
                             </font>
+                            <HBox.margin>
+                                <Insets/>
+                            </HBox.margin>
                         </Label>
-                        <Label text="(only ranked and not hidden maps)">
-                            <padding>
-                                <Insets bottom="10.0" right="10.0" top="10.0" />
-                            </padding>
-                        </Label>
+                        <ComboBox fx:id="queueComboBox" onAction="#queueComboAction" prefHeight="25.0" prefWidth="100.0"
+                                  promptText="Select...">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </ComboBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
+                </HBox>
+                <HBox prefWidth="700.0" VBox.vgrow="ALWAYS">
+                    <children>
+                        <VBox HBox.hgrow="ALWAYS">
+                            <children>
+                                <HBox fx:id="bracketHeaderContainer" prefWidth="200.0"/>
+                                <ScrollPane fx:id="bracketsScrollPane" VBox.vgrow="ALWAYS">
+                                    <content>
+                                        <HBox fx:id="bracketListContainer"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" spacing="10.0">
+                            <children>
+                                <ImageView fx:id="ladderPoolImageView" fitHeight="150.0" fitWidth="200.0"
+                                           pickOnBounds="true" preserveRatio="true"/>
+                                <Label fx:id="mapParamsLabel" prefWidth="100" wrapText="true" minHeight="75" visible="false"/>
+                                <VBox fx:id="addButtonsContainer" alignment="TOP_CENTER" prefHeight="200.0"
+                                      prefWidth="100.0"/>
+                            </children>
+                        </VBox>
                     </children>
                 </HBox>
-                <HBox alignment="CENTER_LEFT">
+                <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
+                      spacing="10.0">
                     <children>
-                        <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false" selected="true" text="filter by map name:">
-                            <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </padding>
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </HBox.margin>
-                        </CheckBox>
-                        <TextField fx:id="mapNamePatternTextField" onAction="#onSearchMapVault">
-                            <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </padding>
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </HBox.margin>
-                        </TextField>
-                        <Button mnemonicParsing="false" onAction="#onSearchMapVault" text="Search">
-                            <padding>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </padding>
-                            <HBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                            </HBox.margin>
-                        </Button>
+                        <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#refresh" text="Refresh"/>
+                        <Button fx:id="uploadToDatabaseButton" mnemonicParsing="false" text="Upload To Database"/>
                     </children>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" prefWidth="200.0" />
-                <HBox alignment="CENTER_LEFT" prefWidth="200.0" />
-                <HBox VBox.vgrow="ALWAYS">
-                    <children>
-                        <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS" />
-                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+                    </padding>
                 </HBox>
             </children>
         </VBox>
+        <TabPane>
+            <Tab text="Map Vault">
+                <VBox>
+                    <children>
+                        <HBox>
+                            <children>
+                                <Label text="(only ranked and not hidden maps)">
+                                    <padding>
+                                        <Insets bottom="10.0" right="10.0" top="10.0"/>
+                                    </padding>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <CheckBox fx:id="filterByMapNameCheckBox" mnemonicParsing="false" selected="true"
+                                          text="filter by map name:">
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </CheckBox>
+                                <TextField fx:id="mapNamePatternTextField" onAction="#onSearchMapVault">
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </TextField>
+                                <Button mnemonicParsing="false" onAction="#onSearchMapVault" text="Search">
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </padding>
+                                    <HBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                    </HBox.margin>
+                                </Button>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
+                        <HBox alignment="CENTER_LEFT" prefWidth="200.0"/>
+                        <HBox VBox.vgrow="ALWAYS">
+                            <children>
+                                <TreeTableView fx:id="mapVaultView" HBox.hgrow="ALWAYS"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </Tab>
+            <Tab text="Generated Map">
+                <VBox>
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="Generator Version">
+                            <padding>
+                                <Insets bottom="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                        </Label>
+                        <ComboBox fx:id="neroxisVersionComboBox">
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </padding>
+                            <HBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </HBox.margin>
+                        </ComboBox>
+                        <Label text="Generator Spawn">
+                            <padding>
+                                <Insets bottom="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                        </Label>
+                        <Spinner fx:id="neroxisSpawnsSpinner" prefHeight="25.0" prefWidth="100.0">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </Spinner>
+                        <Label text="Generator Map Size">
+                            <padding>
+                                <Insets bottom="10.0" right="10.0" top="10.0"/>
+                            </padding>
+                        </Label>
+                        <Spinner fx:id="neroxisSizeSpinner" prefHeight="25.0" prefWidth="100.0">
+                            <HBox.margin>
+                                <Insets left="10.0"/>
+                            </HBox.margin>
+                        </Spinner>
+                        <Button mnemonicParsing="false" onAction="#onGeneratedMapButton" text="Select">
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </padding>
+                            <HBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                    </HBox>
+                </VBox>
+            </Tab>
+        </TabPane>
     </items>
 </SplitPane>

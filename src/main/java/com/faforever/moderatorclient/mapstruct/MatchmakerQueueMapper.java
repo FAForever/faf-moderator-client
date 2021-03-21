@@ -1,6 +1,6 @@
 package com.faforever.moderatorclient.mapstruct;
 
-import com.faforever.moderatorclient.common.MatchmakerQueue;
+import com.faforever.commons.api.dto.MatchmakerQueue;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueFX;
 import org.mapstruct.Mapper;
 

@@ -6,6 +6,10 @@ faforever:
     access-token-uri: ${faforever.api.base-url}/oauth/token
     max-page-size: 10_000
     max-result-size: 1_000_000
+  map-generator:
+    repoAndOwnerName: FAForever/Neroxis-Map-Generator
+    queryVersionsUrl: https://api.github.com/repos/${faforever.map-generator.repoAndOwnerName}/releases
+    minSupportedVersion: 1.4.3
   vault:
     base-url: http://content.faforever.com
     replayDownloadUrlFormat: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s
