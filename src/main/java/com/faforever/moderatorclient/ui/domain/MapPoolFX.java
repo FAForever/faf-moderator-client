@@ -7,16 +7,16 @@ import javafx.collections.ObservableList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+import java.util.List;
+
 public class MapPoolFX extends AbstractEntityFX {
 
     private final StringProperty name;
-    private final ObservableList<MapVersionFX> mapVersions;
+    private final ObservableList<MapPoolAssignmentFX> mapPoolAssignments;
 
     public MapPoolFX() {
         name = new SimpleStringProperty();
-        mapVersions = FXCollections.observableArrayList();
+        mapPoolAssignments = FXCollections.observableArrayList();
     }
 
     public String getName() {
@@ -27,7 +27,19 @@ public class MapPoolFX extends AbstractEntityFX {
         return name;
     }
 
-    public void setName(String name) {
+    public MapPoolFX setName(String name) {
         this.name.set(name);
+        return this;
+    }
+
+    public ObservableList<MapPoolAssignmentFX> getMapPoolAssignments() {
+        return mapPoolAssignments;
+    }
+
+    public MapPoolFX setMapPoolAssignments(List<MapPoolAssignmentFX> mapPoolAssignmentsFX) {
+        if (mapPoolAssignmentsFX != null) {
+            this.mapPoolAssignments.setAll(mapPoolAssignmentsFX);
+        }
+        return this;
     }
 }

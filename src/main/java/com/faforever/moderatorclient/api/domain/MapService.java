@@ -1,32 +1,34 @@
 package com.faforever.moderatorclient.api.domain;
 
-import com.faforever.commons.api.dto.AbstractEntity;
-import com.faforever.commons.api.dto.Ladder1v1Map;
-import com.faforever.commons.api.dto.Map;
-import com.faforever.commons.api.dto.MapVersion;
+import com.faforever.commons.api.dto.*;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.common.MapPool;
-import com.faforever.moderatorclient.common.MatchmakerQueue;
-import com.faforever.moderatorclient.common.MatchmakerQueueMapPool;
+import com.faforever.moderatorclient.config.GithubGeneratorRelease;
+import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MapPoolMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
+import com.faforever.moderatorclient.ui.domain.MapPoolAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
-import com.faforever.moderatorclient.ui.domain.MatchmakerQueueFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +38,13 @@ public class MapService {
     private final FafApiCommunicationService fafApi;
     private final MapVersionMapper mapVersionMapper;
     private final MapPoolMapper mapPoolMapper;
+    private final MapPoolAssignmentMapper mapPoolAssignmentMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
+
+    @Value("${faforever.map-generator.queryVersionsUrl}")
+    private String generatorVersionsURL;
+    @Value("${faforever.map-generator.minSupportedVersion}")
+    private String minGeneratorVersion;
 
     private List<Map> findMapsByAttribute(@NotNull String attribute, @NotNull String pattern, boolean excludeHidden) {
         log.debug("Searching for maps by attribute '{}' with pattern: {}", attribute, pattern);
@@ -106,10 +114,7 @@ public class MapService {
         log.debug("Searching for all brackets in queue {}", queue.getId());
         ElideNavigatorOnCollection<MatchmakerQueueMapPool> routeBuilder = ElideNavigator.of(MatchmakerQueueMapPool.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()))
-                .addIncludeOnCollection("mapPool")
-                .addIncludeOnCollection("mapPool.mapVersions")
-                .addIncludeOnCollection("mapPool.mapVersions.map");
+                .addFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()));
         List<MatchmakerQueueMapPool> brackets = fafApi.getAll(MatchmakerQueueMapPool.class, routeBuilder);
         for (MatchmakerQueueMapPool bracket : brackets) {
             log.info("{}", bracket);
@@ -117,18 +122,44 @@ public class MapService {
         return brackets;
     }
 
-    public void patchMapPool(MapPoolFX mapPoolFX) {
-        patchMapPool(mapPoolMapper.mapToDto(mapPoolFX));
-
+    public List<MapPoolAssignment> getListOfMapsInBrackets(List<MatchmakerQueueMapPool> brackets) {
+        List<String> poolIDs = brackets.stream()
+                .map(bracket -> bracket.getMapPool().getId())
+                .collect(Collectors.toList());
+        log.debug("Searching for all maps in pools {}", String.join(", ", poolIDs));
+        ElideNavigatorOnCollection<MapPoolAssignment> routeBuilder = ElideNavigator.of(MapPoolAssignment.class)
+                .collection()
+                .addFilter(ElideNavigator.qBuilder().string("mapPool.id").in(poolIDs))
+                .addIncludeOnCollection("mapVersion")
+                .addIncludeOnCollection("mapVersion.map")
+                .addSortingRule("mapVersion.width", false)
+                .addSortingRule("mapVersion.map.displayName", false);
+        List<MapPoolAssignment> mapAssignments = fafApi.getAll(MapPoolAssignment.class, routeBuilder);
+        for (MapPoolAssignment poolAssignment : mapAssignments) {
+            log.debug("Received from api {}", poolAssignment);
+        }
+        return mapAssignments;
     }
 
-    public void patchMapPool(MapPool mapPool) {
-        log.debug("Updating mapPool id: {}", mapPool.getId());
-        fafApi.patch(ElideNavigator.of(mapPool),
-                (MapPool) new MapPool()
-                        .setMapVersions(mapPool.getMapVersions())
-                        .setName(mapPool.getName())
-                        .setId(mapPool.getId()));
+    public void postMapPoolAssignments(List<MapPoolAssignment> mapPoolAssignments) {
+        mapPoolAssignments.forEach(mapPoolAssignment -> {
+            log.debug("Creating new mapPoolAssignment for pool: {}", mapPoolAssignment.getMapPool().getId());
+            fafApi.post(ElideNavigator.of(MapPoolAssignment.class).collection(), mapPoolAssignment);
+        });
+    }
+
+    public void patchMapPoolAssignments(List<MapPoolAssignment> mapPoolAssignments) {
+        mapPoolAssignments.forEach(mapPoolAssignment -> {
+            log.debug("Updating mapPoolAssignment id: {}", mapPoolAssignment.getId());
+            fafApi.patch(ElideNavigator.of(mapPoolAssignment), mapPoolAssignment);
+        });
+    }
+
+    public void deleteMapPoolAssignments(List<MapPoolAssignment> mapPoolAssignments) {
+        mapPoolAssignments.forEach(mapPoolAssignment -> {
+            log.debug("Deleting mapPoolAssignment id: {}", mapPoolAssignment.getId());
+            fafApi.delete(ElideNavigator.of(mapPoolAssignment));
+        });
     }
 
 
@@ -176,5 +207,25 @@ public class MapService {
         List<MapVersion> result = fafApi.getPage(MapVersion.class, navigator, 50, 1, Collections.emptyMap());
         log.trace("found {} teamkills", result.size());
         return mapVersionMapper.mapToFX(result);
+    }
+
+    public List<ComparableVersion> getGeneratorVersions() {
+        ComparableVersion minVersion = new ComparableVersion(minGeneratorVersion);
+        RestTemplate restTemplate = new RestTemplate();
+
+        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Accept", "application/vnd.github.v3+json");
+        HttpEntity<String> entity = new HttpEntity<>(null, headers);
+
+        ResponseEntity<List<GithubGeneratorRelease>> response = restTemplate.exchange(generatorVersionsURL, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GithubGeneratorRelease>>() {});
+        List<GithubGeneratorRelease> releases = response.getBody();
+        if (releases != null) {
+            return releases.stream()
+                    .map(release -> new ComparableVersion(release.getTagName()))
+                    .filter(version -> version.compareTo(minVersion) >= 0)
+                    .collect(Collectors.toList());
+        } else {
+            return List.of();
+        }
     }
 }

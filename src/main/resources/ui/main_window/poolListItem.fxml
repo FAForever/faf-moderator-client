@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.Pane?>
-
-<Pane fx:id="cellContainer" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="60.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.scene.layout.*?>
+<GridPane fx:id="cellContainer" maxHeight="Infinity" maxWidth="Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+      <ColumnConstraints hgrow="ALWAYS"/>
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints vgrow="SOMETIMES"/>
+      <RowConstraints vgrow="SOMETIMES"/>
+      <RowConstraints vgrow="SOMETIMES"/>
+   </rowConstraints>
    <children>
-      <ImageView fx:id="previewImageView" fitHeight="50.0" fitWidth="50.0" layoutX="5.0" layoutY="5.0" pickOnBounds="true" preserveRatio="true" />
-      <Label fx:id="mapNameLabel" layoutX="57.0" layoutY="2.0" text="Map Name" />
-      <Label fx:id="mapSizeLabel" layoutX="57.0" layoutY="17.0" text="Map Size" />
+      <ImageView fx:id="previewImageView" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true"
+      GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="3"/>
+      <Label fx:id="mapParamsLabel" text="Map Params" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2" GridPane.columnSpan="2" wrapText="true"/>
+      <Label fx:id="mapNameLabel" text="Map Name" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
+      <Label fx:id="mapSizeLabel" text="Map Size" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+      <HBox GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2" spacing="10.0" GridPane.hgrow="ALWAYS">
+         <Label text="Weight" HBox.hgrow="ALWAYS"/>
+         <Label fx:id="weightLabel" text="#" HBox.hgrow="ALWAYS"/>
+         <Button fx:id="weightDownButton" mnemonicParsing="false"  text="-" HBox.hgrow="ALWAYS"/>
+         <Button fx:id="weightUpButton" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS"/>
+      </HBox>
    </children>
-</Pane>
+</GridPane>

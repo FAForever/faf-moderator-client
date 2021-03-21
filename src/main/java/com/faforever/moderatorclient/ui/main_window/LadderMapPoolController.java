@@ -1,47 +1,54 @@
 package com.faforever.moderatorclient.ui.main_window;
 
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.domain.MapService;
-import com.faforever.moderatorclient.common.MatchmakerQueue;
-import com.faforever.moderatorclient.common.MatchmakerQueueMapPool;
-import com.faforever.moderatorclient.mapstruct.MapMapper;
-import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
+import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
-import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapper;
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.MapTableItemAdapter;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
-import com.faforever.moderatorclient.ui.domain.MapVersionFX;
+import com.faforever.moderatorclient.ui.domain.MapPoolAssignmentFX;
+import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LadderMapPoolController implements Controller<SplitPane> {
     private final MapService mapService;
-    private final MapMapper mapMapper;
-    private final MapVersionMapper mapVersionMapper;
     private final UiService uiService;
-    private final MatchmakerQueueMapper matchmakerQueueMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
+    private final MapPoolAssignmentMapper mapPoolAssignmentMapper;
     private final LargeThumbnailCache largeThumbnailCache;
 
     public SplitPane root;
@@ -57,8 +64,17 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public ComboBox<MatchmakerQueue> queueComboBox;
     public ScrollPane bracketsScrollPane;
     public VBox addButtonsContainer;
+    public ComboBox<ComparableVersion> neroxisVersionComboBox;
+    public Spinner<String> neroxisSizeSpinner;
+    public Spinner<Integer> neroxisSpawnsSpinner;
+    public Label mapParamsLabel;
 
-    private ObjectProperty<MapVersionFX> selectedMap = new SimpleObjectProperty<>();
+    private final ObjectProperty<MapPoolAssignmentFX> selectedMap = new SimpleObjectProperty<>();
+    private final BiPredicate<MapPoolAssignmentFX, MapPoolAssignmentFX> matchingPoolAssignmentPredicate = (assignmentFX1, assignmentFX2) ->
+            Objects.equals(assignmentFX1.getMapVersion(), assignmentFX2.getMapVersion())
+                    && Objects.equals(assignmentFX1.getMapParams(), assignmentFX2.getMapParams());
+    private final ObservableList<String> neroxisMapSizes = FXCollections.observableArrayList("5km", "10km", "20km");
+    private final int[] neroxisMapSizeValues = new int[]{256, 512, 1024};
 
     @Override
     public SplitPane getRoot() {
@@ -70,8 +86,11 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         ViewHelper.buildMapTreeView(mapVaultView);
         bindSelectedMapPropertyToImageView();
         mapVaultView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.getValue() == null || newValue.getValue().isMapVersion()) {
-                selectedMap.setValue(mapVersionMapper.map(newValue.getValue().getMapVersion()));
+            if (newValue != null && newValue.getValue() != null && newValue.getValue().isMapVersion()) {
+                MapVersion mapVersion = newValue.getValue().getMapVersion();
+                MapPoolAssignment mapPoolAssignment = new MapPoolAssignment();
+                mapPoolAssignment.setMapVersion(mapVersion);
+                selectedMap.setValue(mapPoolAssignmentMapper.map(mapPoolAssignment));
             }
         });
 
@@ -88,7 +107,13 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             }
         });
 
+        neroxisVersionComboBox.setItems(FXCollections.observableArrayList(mapService.getGeneratorVersions()));
+        neroxisVersionComboBox.getSelectionModel().selectFirst();
+        neroxisSpawnsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 16, 2, 2));
+        neroxisSizeSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(neroxisMapSizes));
+
         bracketsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        mapParamsLabel.managedProperty().bind(mapParamsLabel.visibleProperty());
     }
 
     public void queueComboAction(ActionEvent event) {
@@ -97,7 +122,9 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
     public void clearUiAndLoadQueue(MatchmakerQueue matchmakerQueue) {
         clearUI();
-        loadMatchMakerQueue(matchmakerQueue);
+        if (matchmakerQueue != null) {
+            loadMatchMakerQueue(matchmakerQueue);
+        }
     }
 
     private void clearUI() {
@@ -110,10 +137,17 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
     private void loadMatchMakerQueue(MatchmakerQueue matchmakerQueue) {
         List<MatchmakerQueueMapPool> brackets = mapService.getListOfBracketsInMatchmakerQueue(matchmakerQueue);
+        List<MapPoolAssignment> mapPoolAssignments = mapService.getListOfMapsInBrackets(brackets);
         List<MatchmakerQueueMapPoolFX> bracketsFX = matchmakerQueueMapPoolMapper.mapToFx(brackets);
+        List<MapPoolAssignmentFX> mapPoolAssignmentsFX = mapPoolAssignmentMapper.mapToFX(mapPoolAssignments);
+        List<List<MapPoolAssignmentFX>> bracketLists = new ArrayList<>();
 
         for (MatchmakerQueueMapPoolFX bracketFX : bracketsFX) {
-            ObservableList<MapVersionFX> mapList = bracketFX.getMapPool().getMapVersions();
+            List<MapPoolAssignmentFX> bracketAssignmentList = mapPoolAssignmentsFX.stream()
+                    .filter(mapPoolAssignmentFX -> bracketFX.getMapPool().getId().equals(mapPoolAssignmentFX.getMapPool().getId()))
+                    .collect(Collectors.toList());
+            ObservableList<MapPoolAssignmentFX> bracketAssignments = FXCollections.observableArrayList(bracketAssignmentList);
+            bracketLists.add(bracketAssignments);
 
             // create the bracket header labels
             BracketRatingController ratingLabelController = uiService.loadFxml("ui/main_window/bracketRatingLabel.fxml");
@@ -123,7 +157,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
             // create the bracket list views
             BracketListViewController listViewController = uiService.loadFxml("ui/main_window/bracketListView.fxml");
-            listViewController.setMaps(mapList);
+            listViewController.setMaps(bracketAssignments);
             listViewController.mapListView.prefWidthProperty().bind((bracketsScrollPane.widthProperty().divide(bracketsFX.size())).subtract(16 / bracketsFX.size()));
             bracketListContainer.getChildren().add(listViewController.getRoot());
 
@@ -133,37 +167,69 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             addButtonsContainer.getChildren().add(addBracketController.getRoot());
 
             bindListViewSelectionToSelectedMapProperty(listViewController.mapListView);
-            bindSelectedMapPropertyToAddRemoveButtons(mapList, addBracketController);
-
-            uploadToDatabaseButton.setOnAction(event -> {
-                for (MatchmakerQueueMapPoolFX bracket : bracketsFX) {
-                    mapService.patchMapPool(bracket.getMapPool());
-                }
-            });
+            bindSelectedMapPropertyToAddRemoveButtons(bracketAssignments, addBracketController, bracketFX.getMapPool());
         }
+        uploadToDatabaseButton.setOnAction(event -> {
+            List<MapPoolAssignment> oldMapPoolAssignments = mapService.getListOfMapsInBrackets(brackets);
+            List<MapPoolAssignmentFX> oldMapPoolAssignmentsFX = mapPoolAssignmentMapper.mapToFX(oldMapPoolAssignments);
+            List<MapPoolAssignmentFX> bracketMapPoolAssignments = bracketLists.stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            List<MapPoolAssignmentFX> newMapPoolAssignments = bracketMapPoolAssignments.stream()
+                    .filter(mapPoolAssignment -> !oldMapPoolAssignmentsFX.contains(mapPoolAssignment))
+                    .collect(Collectors.toList());
+            List<MapPoolAssignmentFX> removedMapPoolAssignments = oldMapPoolAssignmentsFX.stream()
+                    .filter(mapPoolAssignment -> !bracketMapPoolAssignments.contains(mapPoolAssignment))
+                    .collect(Collectors.toList());
+            List<MapPoolAssignmentFX> changedMapPoolAssignments = bracketMapPoolAssignments.stream()
+                    .filter(mapPoolAssignment -> oldMapPoolAssignmentsFX.stream()
+                            .anyMatch(assignmentFX -> Objects.equals(mapPoolAssignment, assignmentFX)
+                                    && !mapPoolAssignment.getWeight().equals(assignmentFX.getWeight())))
+                    .collect(Collectors.toList());
+            mapService.postMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(newMapPoolAssignments));
+            mapService.patchMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(changedMapPoolAssignments));
+            mapService.deleteMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(removedMapPoolAssignments));
+            refresh();
+        });
     }
 
     private void bindSelectedMapPropertyToImageView() {
-        selectedMap.addListener( (observable, oldValue, newValue) -> {
+        selectedMap.addListener((observable) -> {
+            MapPoolAssignmentFX newValue = selectedMap.getValue();
             if (newValue == null) return;
-            URL thumbnailUrlLarge = newValue.getThumbnailUrlLarge();
-            if (thumbnailUrlLarge != null) {
-                ladderPoolImageView.setImage(largeThumbnailCache.fromIdAndString(newValue.getId(), thumbnailUrlLarge.toString()));
-            } else {
-                ladderPoolImageView.setImage(null);
+            if (newValue.getMapVersion() != null) {
+                URL thumbnailUrlLarge = newValue.getMapVersion().getThumbnailUrlLarge();
+                if (thumbnailUrlLarge != null) {
+                    ladderPoolImageView.setImage(largeThumbnailCache.fromIdAndString(newValue.getMapVersion().getId(), thumbnailUrlLarge.toString()));
+                } else {
+                    ladderPoolImageView.setImage(null);
+                }
+                mapParamsLabel.setVisible(false);
+            } else if (newValue.getMapParams() instanceof NeroxisGeneratorParams) {
+                NeroxisGeneratorParams neroxisParams = (NeroxisGeneratorParams) newValue.getMapParams();
+                try {
+                    ladderPoolImageView.setImage(new Image(new ClassPathResource("/media/generatedMapIcon.png").getURL().toString(), true));
+                } catch (IOException e) {
+                    log.warn("Could not load generated map icon", e);
+                }
+                mapParamsLabel.setText(String.format("Version: %s\nSpawns: %d\nSize: %d\n",
+                        neroxisParams.getVersion(),
+                        neroxisParams.getSpawns(),
+                        neroxisParams.getSize()));
+                mapParamsLabel.setVisible(true);
             }
         });
     }
 
-    private void bindListViewSelectionToSelectedMapProperty(ListView<MapVersionFX> listView) {
-        ChangeListener<MapVersionFX> listener = (observable, oldValue, newValue) -> {
+    private void bindListViewSelectionToSelectedMapProperty(ListView<MapPoolAssignmentFX> listView) {
+        ChangeListener<MapPoolAssignmentFX> listener = (observable, oldValue, newValue) -> {
             if (newValue == null) return;
             selectedMap.setValue(newValue);
         };
 
         listView.focusedProperty().addListener(((observable, oldValue, newValue) -> {
-            MultipleSelectionModel<MapVersionFX> selectionModel = listView.getSelectionModel();
-            ReadOnlyObjectProperty<MapVersionFX> selectedItemProperty = selectionModel.selectedItemProperty();
+            MultipleSelectionModel<MapPoolAssignmentFX> selectionModel = listView.getSelectionModel();
+            ReadOnlyObjectProperty<MapPoolAssignmentFX> selectedItemProperty = selectionModel.selectedItemProperty();
             if (newValue) {
                 selectedItemProperty.addListener(listener);
                 if (selectedItemProperty.getValue() != null) {
@@ -176,40 +242,51 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         }));
     }
 
-    private void bindSelectedMapPropertyToAddRemoveButtons(ObservableList<MapVersionFX> mapList, AddBracketController controller) {
-        selectedMap.addListener((observable, oldValue, newValue) -> {
-            if (newValue == null) return;
+    private void bindSelectedMapPropertyToAddRemoveButtons(ObservableList<MapPoolAssignmentFX> mapList, AddBracketController controller, MapPoolFX bracketPool) {
+        selectedMap.addListener((observable) -> {
+            MapPoolAssignmentFX newValue = selectedMap.getValue();
+            if (newValue == null) {
+                return;
+            }
             Button addButton = controller.addToBracketButton;
             Button removeButton = controller.removeFromBracketButton;
             // enable add/remove buttons
-            addButton.setDisable(mapList.contains(newValue));
-            removeButton.setDisable(!mapList.contains(newValue));
+            addButton.setDisable(mapList.stream().anyMatch(assignmentFX -> matchingPoolAssignmentPredicate.test(newValue, assignmentFX)));
+            removeButton.setDisable(!addButton.isDisable());
             //bind actions for add and remove buttons
             addButton.setOnAction(event -> {
-                    mapList.add(newValue);
-                    addButton.setDisable(true);
-                    removeButton.setDisable(false);
+                MapPoolAssignmentFX newAssignment = new MapPoolAssignmentFX()
+                        .setWeight(1)
+                        .setMapParams(newValue.getMapParams())
+                        .setMapVersion(newValue.getMapVersion())
+                        .setMapPool(bracketPool);
+                mapList.add(newAssignment);
+                addButton.setDisable(true);
+                removeButton.setDisable(false);
             });
             removeButton.setOnAction(event -> {
-                    mapList.remove(newValue);
-                    // prevents the client from changing the selection when removing the currently selected map
-                    selectedMap.setValue(newValue);
-                    removeButton.setDisable(true);
-                    addButton.setDisable(false);
+                mapList.removeIf(assignmentFX -> matchingPoolAssignmentPredicate.test(newValue, assignmentFX));
+                // prevents the client from changing the selection when removing the currently selected map
+                selectedMap.setValue(newValue);
+                removeButton.setDisable(true);
+                addButton.setDisable(false);
             });
         });
     }
 
     private String getBracketRatingString(MatchmakerQueueMapPoolFX bracket) {
-        var min = bracket.getMinRating();
-        var max = bracket.getMaxRating();
-        if (min == 0) return String.format("<%d", (int)max);
-        if (max == 0) return String.format(">%d", (int)min);
-        return String.format("%d - %d", (int)min, (int)max);
+        int min = (int) bracket.getMinRating();
+        int max = (int) bracket.getMaxRating();
+        if (min == 0) return String.format("<%d", max);
+        if (max == 0) return String.format(">%d", min);
+        return String.format("%d - %d", min, max);
     }
 
     public void refresh() {
-        clearUI();
+        MapPoolAssignmentFX currentMap = selectedMap.getValue();
+        selectedMap.setValue(null);
+        queueComboAction(null);
+        selectedMap.setValue(currentMap);
     }
 
     public void onSearchMapVault() {
@@ -223,6 +300,16 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
         ViewHelper.fillMapTreeView(mapVaultView,
                 mapService.findMaps(mapNamePattern).stream());
+    }
+
+    public void onGeneratedMapButton() {
+        NeroxisGeneratorParams neroxisGeneratorParams = new NeroxisGeneratorParams(
+                neroxisSpawnsSpinner.getValue(),
+                neroxisMapSizeValues[neroxisMapSizes.indexOf(neroxisSizeSpinner.getValue())],
+                neroxisVersionComboBox.getValue().toString());
+        MapPoolAssignment mapPoolAssignment = new MapPoolAssignment();
+        mapPoolAssignment.setMapParams(neroxisGeneratorParams);
+        selectedMap.setValue(mapPoolAssignmentMapper.map(mapPoolAssignment));
     }
 
 }

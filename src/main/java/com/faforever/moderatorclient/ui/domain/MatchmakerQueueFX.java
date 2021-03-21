@@ -5,11 +5,9 @@ import javafx.beans.property.StringProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 public class MatchmakerQueueFX extends AbstractEntityFX {
-    private StringProperty technicalName;
-    private StringProperty nameKey;
+    private final StringProperty technicalName;
+    private final StringProperty nameKey;
 
     public MatchmakerQueueFX() {
         technicalName = new SimpleStringProperty();

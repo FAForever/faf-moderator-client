@@ -7,13 +7,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
-    private DoubleProperty minRating;
-    private DoubleProperty maxRating;
-    private ObjectProperty<MatchmakerQueueFX> matchmakerQueue;
-    private ObjectProperty<MapPoolFX> mapPool;
+    private final DoubleProperty minRating;
+    private final DoubleProperty maxRating;
+    private final ObjectProperty<MatchmakerQueueFX> matchmakerQueue;
+    private final ObjectProperty<MapPoolFX> mapPool;
 
     public MatchmakerQueueMapPoolFX() {
         minRating = new SimpleDoubleProperty();
