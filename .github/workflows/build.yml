@@ -16,7 +16,7 @@ jobs:
     container: adoptopenjdk:11-jdk-hotspot-bionic
     steps:
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
       - name: Run Checks
         run: ./gradlew --stacktrace -PjavafxPlatform=linux
