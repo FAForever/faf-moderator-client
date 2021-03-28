@@ -1,0 +1,22 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Build
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  checks:
+
+    runs-on: ubuntu-latest
+    container: adoptopenjdk:11-jdk-hotspot-bionic
+    steps:
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Checks
+        run: ./gradlew --stacktrace -PjavafxPlatform=linux
