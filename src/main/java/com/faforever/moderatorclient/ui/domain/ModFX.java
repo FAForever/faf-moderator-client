@@ -1,13 +1,11 @@
 package com.faforever.moderatorclient.ui.domain;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ModFX extends AbstractEntityFX {
+    private final BooleanProperty recommended;
     private final StringProperty displayName;
     private final StringProperty author;
     private final ObjectProperty<PlayerFX> uploader;
@@ -15,11 +13,24 @@ public class ModFX extends AbstractEntityFX {
     private final ObjectProperty<ModVersionFX> latestVersion;
 
     public ModFX() {
+        recommended = new SimpleBooleanProperty();
         uploader = new SimpleObjectProperty<>();
         versions = FXCollections.observableArrayList();
         latestVersion = new SimpleObjectProperty<>();
         displayName = new SimpleStringProperty();
         author = new SimpleStringProperty();
+    }
+
+    public boolean isRecommended() {
+        return recommended.get();
+    }
+
+    public void setRecommended(boolean recommended) {
+        this.recommended.set(recommended);
+    }
+
+    public BooleanProperty recommendedProperty() {
+        return recommended;
     }
 
     public String getDisplayName() {

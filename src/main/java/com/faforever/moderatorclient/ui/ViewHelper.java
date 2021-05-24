@@ -1,43 +1,25 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.BanDurationType;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
-import com.faforever.commons.api.dto.ModerationReportStatus;
-import com.faforever.commons.api.dto.VotingChoice;
-import com.faforever.commons.api.dto.VotingQuestion;
-import com.faforever.commons.api.dto.VotingSubject;
+import com.faforever.commons.api.dto.*;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
 import com.faforever.moderatorclient.ui.data_cells.TextAreaTableCell;
 import com.faforever.moderatorclient.ui.data_cells.UrlImageViewTableCell;
-import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
-import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
-import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
@@ -61,13 +43,7 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -651,6 +627,13 @@ public class ViewHelper {
         tableView.getColumns().add(authorColumn);
         extractors.put(authorColumn, mapFX -> mapFX.getAuthor().getLogin());
 
+        TableColumn<MapFX, Boolean> recommendColumn = new TableColumn<>("Recommended");
+        recommendColumn.setCellValueFactory(o -> o.getValue().recommendedProperty());
+        recommendColumn.setCellFactory(CheckBoxTableCell.forTableColumn(recommendColumn));
+        recommendColumn.setMinWidth(100);
+        tableView.getColumns().add(recommendColumn);
+        extractors.put(recommendColumn, MapFX::isRecommended);
+
         TableColumn<MapFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
         createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         createTimeColumn.setMinWidth(160);
@@ -694,6 +677,13 @@ public class ViewHelper {
         authorColumn.setMinWidth(200);
         tableView.getColumns().add(authorColumn);
         extractors.put(authorColumn, modFX -> modFX.getUploader().getLogin());
+
+        TableColumn<ModFX, Boolean> recommendColumn = new TableColumn<>("Recommended");
+        recommendColumn.setCellValueFactory(o -> o.getValue().recommendedProperty());
+        recommendColumn.setCellFactory(CheckBoxTableCell.forTableColumn(recommendColumn));
+        recommendColumn.setMinWidth(100);
+        tableView.getColumns().add(recommendColumn);
+        extractors.put(recommendColumn, ModFX::isRecommended);
 
         TableColumn<ModFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
         createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
