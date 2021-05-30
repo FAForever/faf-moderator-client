@@ -1,9 +1,0 @@
-language: java
-
-before_install:
-  - chmod +x ./gradlew
-
-install: skip
-
-script:
-  - ./gradlew build -PjavafxPlatform=linux
