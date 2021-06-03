@@ -211,7 +211,7 @@ public class UserService {
         return userNoteMapper.map(fafApi.patch(ElideNavigator.of(UserNote.class).id(userNote.getId()), userNote));
     }
 
-    public void forceRename(String id, String newName) {
+    public void updatePlayer(String id, String newName) {
         log.debug("Update of player of player id: " + id);
         fafApi.forceRenameUserName(id, newName);
     }

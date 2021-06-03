@@ -16,6 +16,8 @@ build
 
 # Sensitive or high-churn files:
 .idea/dataSources
+.idea/dataSources*
+.idea/shelf
 .idea/dataSources.ids
 .idea/dataSources.xml
 .idea/sqlDataSources.xml
@@ -23,3 +25,4 @@ build
 .idea/uiDesigner.xml
 .idea/inspectionProfiles/
 .idea/libraries
+.idea/libraries-with-intellij-classes.xml

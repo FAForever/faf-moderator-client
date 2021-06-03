@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <GridPane fx:id="root" hgap="10.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/16"
           xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.ForceRenameController">
     <columnConstraints>
@@ -22,7 +27,7 @@
         <HBox alignment="CENTER_RIGHT" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2"
               GridPane.vgrow="NEVER">
             <children>
-                <Button onAction="#abort" mnemonicParsing="false" text="Cancel"/>
+                <Button onAction="#close" mnemonicParsing="false" text="Cancel"/>
                 <Button onAction="#submit" alignment="TOP_RIGHT" contentDisplay="CENTER" defaultButton="true"
                         mnemonicParsing="false" text="Forcibly Rename"/>
             </children>

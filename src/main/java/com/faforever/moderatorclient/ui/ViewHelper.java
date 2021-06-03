@@ -569,8 +569,8 @@ public class ViewHelper {
         });
 
         contextMenu.getItems().add(steamLookupMenuItem);
-
-        if (communicationService.hasPermission(GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE)) {
+        //TODO: update to constant once included in faf-java-commons
+        if (communicationService.hasPermission("ROLE_ADMIN_ACCOUNT_NAME_CHANGE")) {
             MenuItem forceRenameMenuItem = new MenuItem("Rename");
             forceRenameMenuItem.setOnAction(action -> {
                 PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();

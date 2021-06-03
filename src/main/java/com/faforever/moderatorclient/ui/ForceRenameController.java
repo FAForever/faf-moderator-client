@@ -29,14 +29,13 @@ public class ForceRenameController implements Controller<Parent> {
         return root;
     }
 
-    public void abort() {
+    public void close() {
         ((Stage) root.getScene().getWindow()).close();
     }
 
     public void submit() {
-        userService.forceRename(player.getId(), newNameTextField.getText());
-        abort();
-        player.setLogin(newNameTextField.getText());
+        userService.updatePlayer(player.getId(), newNameTextField.getText());
+        close();
     }
 
     public void setPlayer(PlayerFX player) {
