@@ -27,19 +27,11 @@ jobs:
 
       - name: Build Windows Files
         run: |
-          ./gradlew -Pversion="${{ github.event.inputs.version }}" \
-          -PjavafxPlatform=win
-          --info \
-          --stacktrace \
-          distZip
+          ./gradlew -Pversion="${{ github.event.inputs.version }}" -PjavafxPlatform=win --stacktrace distZip
 
       - name: Build Linux Files
         run: |
-          ./gradlew -Pversion="${{ github.event.inputs.version }}" \
-          -PjavafxPlatform=linux \
-          --info \
-          --stacktrace \
-          distZip
+          ./gradlew -Pversion="${{ github.event.inputs.version }}" -PjavafxPlatform=linux --stacktrace distZip
 
       - name: Create Draft Release
         id: create_release
