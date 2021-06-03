@@ -22,7 +22,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -651,6 +650,12 @@ public class ViewHelper {
         tableView.getColumns().add(authorColumn);
         extractors.put(authorColumn, mapFX -> mapFX.getAuthor().getLogin());
 
+        TableColumn<MapFX, Boolean> recommendColumn = new TableColumn<>("Recommended");
+        recommendColumn.setCellValueFactory(o -> o.getValue().recommendedProperty());
+        recommendColumn.setCellFactory(CheckBoxTableCell.forTableColumn(recommendColumn));
+        recommendColumn.setMinWidth(100);
+        tableView.getColumns().add(recommendColumn);
+
         TableColumn<MapFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
         createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         createTimeColumn.setMinWidth(160);
@@ -694,6 +699,12 @@ public class ViewHelper {
         authorColumn.setMinWidth(200);
         tableView.getColumns().add(authorColumn);
         extractors.put(authorColumn, modFX -> modFX.getUploader().getLogin());
+
+        TableColumn<ModFX, Boolean> recommendColumn = new TableColumn<>("Recommended");
+        recommendColumn.setCellValueFactory(o -> o.getValue().recommendedProperty());
+        recommendColumn.setCellFactory(CheckBoxTableCell.forTableColumn(recommendColumn));
+        recommendColumn.setMinWidth(100);
+        tableView.getColumns().add(recommendColumn);
 
         TableColumn<ModFX, OffsetDateTime> createTimeColumn = new TableColumn<>("First upload");
         createTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());

@@ -5,12 +5,10 @@ import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.config.GithubGeneratorRelease;
-import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
-import com.faforever.moderatorclient.mapstruct.MapPoolMapper;
+import com.faforever.moderatorclient.mapstruct.MapMapper;
 import com.faforever.moderatorclient.mapstruct.MapVersionMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
-import com.faforever.moderatorclient.ui.domain.MapPoolAssignmentFX;
-import com.faforever.moderatorclient.ui.domain.MapPoolFX;
+import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,8 +34,7 @@ import java.util.stream.Collectors;
 public class MapService {
     private final FafApiCommunicationService fafApi;
     private final MapVersionMapper mapVersionMapper;
-    private final MapPoolMapper mapPoolMapper;
-    private final MapPoolAssignmentMapper mapPoolAssignmentMapper;
+    private final MapMapper mapMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
 
     @Value("${faforever.map-generator.queryVersionsUrl}")
@@ -185,6 +181,19 @@ public class MapService {
                         .setHidden(mapVersion.isHidden())
                         .setRanked(mapVersion.isRanked())
                         .setId(mapVersion.getId()
+                        ));
+    }
+
+    public void patchMap(MapFX mapFX) {
+        patchMap(mapMapper.map(mapFX));
+    }
+
+    public void patchMap(Map map) {
+        log.debug("Updating map id: {}", map.getId());
+        fafApi.patch(ElideNavigator.of(map),
+                (Map) new Map()
+                        .setRecommended(map.isRecommended())
+                        .setId(map.getId()
                         ));
     }
 

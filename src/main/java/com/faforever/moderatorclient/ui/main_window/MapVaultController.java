@@ -54,6 +54,7 @@ public class MapVaultController implements Controller<SplitPane> {
     public TableView<MapFX> mapSearchTableView;
     public TableView<MapVersionFX> mapVersionTableView;
     public Button hideMapButton;
+    public Button toggleMapRecommendationButton;
     public Button toggleMapVersionHidingButton;
     public Button toggleMapVersionRatingButton;
 
@@ -74,9 +75,11 @@ public class MapVaultController implements Controller<SplitPane> {
 
             if (newValue == null) {
                 hideMapButton.setDisable(true);
+                toggleMapRecommendationButton.setDisable(true);
             } else {
                 mapVersions.addAll(newValue.getVersions());
                 hideMapButton.setDisable(!canEdit);
+                toggleMapRecommendationButton.setDisable(!canEdit);
             }
         });
 
@@ -143,5 +146,14 @@ public class MapVaultController implements Controller<SplitPane> {
 
         mapVersion.setRanked(!mapVersion.isRanked());
         mapService.patchMapVersion(mapVersionMapper.map(mapVersion));
+    }
+
+    public void onToggleMapRecommendation() {
+        MapFX map = mapSearchTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(map, "You can only edit a selected Map");
+
+        map.setRecommended(!map.isRecommended());
+        mapService.patchMap(mapMapper.map(map));
     }
 }

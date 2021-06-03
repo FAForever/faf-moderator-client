@@ -52,6 +52,7 @@ public class ModVaultController implements Controller<SplitPane> {
     public TableView<ModFX> modSearchTableView;
     public TableView<ModVersionFX> modVersionTableView;
     public Button hideModButton;
+    public Button toggleModRecommendationButton;
     public Button toggleModVersionHidingButton;
     public Button toggleModVersionRatingButton;
 
@@ -72,9 +73,11 @@ public class ModVaultController implements Controller<SplitPane> {
 
             if (newValue == null) {
                 hideModButton.setDisable(true);
+                toggleModRecommendationButton.setDisable(true);
             } else {
                 modVersions.addAll(newValue.getVersions());
                 hideModButton.setDisable(!canEdit);
+                toggleModRecommendationButton.setDisable(!canEdit);
             }
         });
 
@@ -143,5 +146,14 @@ public class ModVaultController implements Controller<SplitPane> {
 
         modVersion.setRanked(!modVersion.isRanked());
         modService.patchModVersion(modVersionMapper.map(modVersion));
+    }
+
+    public void onToggleModRecommendation() {
+        ModFX mod = modSearchTableView.getSelectionModel().getSelectedItem();
+
+        Assert.notNull(mod, "You can only edit a selected Mod");
+
+        mod.setRecommended(!mod.isRecommended());
+        modService.patchMod(modMapper.map(mod));
     }
 }

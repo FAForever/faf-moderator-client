@@ -4,12 +4,15 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
 
 public class MapFX extends AbstractEntityFX {
+    private final BooleanProperty recommended;
     private final StringProperty battleType;
     private final StringProperty displayName;
     private final ObjectProperty<PlayerFX> author;
@@ -18,12 +21,25 @@ public class MapFX extends AbstractEntityFX {
     private final ObservableList<MapVersionFX> versions;
 
     public MapFX() {
+        recommended = new SimpleBooleanProperty();
         battleType = new SimpleStringProperty();
         displayName = new SimpleStringProperty();
         author = new SimpleObjectProperty<>();
         mapType = new SimpleStringProperty();
         latestVersion = new SimpleObjectProperty<>();
         versions = FXCollections.observableArrayList();
+    }
+
+    public boolean isRecommended() {
+        return recommended.get();
+    }
+
+    public void setRecommended(boolean recommended) {
+        this.recommended.set(recommended);
+    }
+
+    public BooleanProperty recommendedProperty() {
+        return recommended;
     }
 
     public String getBattleType() {

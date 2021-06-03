@@ -70,6 +70,12 @@
                                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                                             </VBox.margin>
                                         </Button>
+                                        <Button fx:id="toggleModRecommendationButton" disable="true" mnemonicParsing="false"
+                                                onAction="#onToggleModRecommendation" text="recommend / unrecommend">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+                                            </VBox.margin>
+                                        </Button>
                                         <Button fx:id="hideModButton" disable="true" mnemonicParsing="false"
                                                 onAction="#onHideAllVersions" text="hide all versions">
                                             <VBox.margin>

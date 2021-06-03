@@ -5,8 +5,11 @@ import com.faforever.commons.api.dto.ModVersion;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.mapstruct.ModMapper;
 import com.faforever.moderatorclient.mapstruct.ModVersionMapper;
+import com.faforever.moderatorclient.ui.domain.ModFX;
 import com.faforever.moderatorclient.ui.domain.ModVersionFX;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -18,14 +21,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ModService {
     private final FafApiCommunicationService communicationService;
+    private final ModMapper modMapper;
     private final ModVersionMapper modVersionMapper;
-
-    public ModService(FafApiCommunicationService communicationService, ModVersionMapper modVersionMapper) {
-        this.communicationService = communicationService;
-        this.modVersionMapper = modVersionMapper;
-    }
 
 
     private List<Mod> findModsByAttribute(@NotNull String attribute, @NotNull String pattern, boolean excludeHidden) {
@@ -89,6 +89,19 @@ public class ModService {
         List<Mod> result = communicationService.getAll(Mod.class, routeBuilder);
         log.trace("found {} mods", result.size());
         return result;
+    }
+
+    public void patchMod(ModFX modFX) {
+        patchMod(modMapper.map(modFX));
+    }
+
+    public void patchMod(Mod mod) {
+        log.debug("Updating mod id: {}", mod.getId());
+        communicationService.patch(ElideNavigator.of(mod),
+                (Mod) new Mod()
+                        .setRecommended(mod.isRecommended())
+                        .setId(mod.getId()
+                        ));
     }
 
     public void patchModVersion(ModVersionFX modVersionFX) {
