@@ -87,7 +87,6 @@ dependencies {
 mainClassName = 'com.faforever.moderatorclient.Launcher'
 
 group = 'com.faforever'
-version = '0.9.1'
 description = 'faf-moderator-client'
 sourceCompatibility = '11'
 
