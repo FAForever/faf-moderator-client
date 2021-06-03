@@ -12,18 +12,16 @@ import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
 import com.github.jasminb.jsonapi.ResourceConverter;
+import com.github.jasminb.jsonapi.exceptions.DocumentSerializationException;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
@@ -33,14 +31,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -141,9 +136,24 @@ public class FafApiCommunicationService {
         }
     }
 
+    public void forceRenameUserName(String userId, String newName) {
+        String path = String.format("/users/%s/forceChangeUsername", userId);
+        String url = UriComponentsBuilder.fromPath(path).queryParam("newUsername", newName).toUriString();
+        try {
+            restTemplate.exchange(url, HttpMethod.POST, null, Void.class, Map.of());
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, Void.class, url));
+            throw t;
+        }
+    }
+
     @SneakyThrows
     public <T extends ElideEntity> T post(ElideNavigatorOnCollection<T> navigator, T object) {
-        String url = navigator.build();
+        return post(navigator.build(), navigator.getDtoClass(), object);
+    }
+
+    @Nullable
+    private <T, E> E post(String url, Class<E> returnType, T object) throws DocumentSerializationException, InterruptedException {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -153,13 +163,13 @@ public class FafApiCommunicationService {
             String dataString = new String(defaultResourceConverter.writeDocument(data));
             authorizedLatch.await();
             HttpEntity<String> httpEntity = new HttpEntity<>(dataString, httpHeaders);
-            ResponseEntity<T> entity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, navigator.getDtoClass());
+            ResponseEntity<E> entity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, returnType);
 
             cycleAvoidingMappingContext.clearCache();
 
             return entity.getBody();
         } catch (Throwable t) {
-            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, navigator.getDtoClass(), url));
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, returnType, url));
             throw t;
         }
     }

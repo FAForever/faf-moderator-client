@@ -1,47 +1,33 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.BanDurationType;
-import com.faforever.commons.api.dto.BanLevel;
-import com.faforever.commons.api.dto.BanStatus;
 import com.faforever.commons.api.dto.Map;
-import com.faforever.commons.api.dto.ModerationReportStatus;
-import com.faforever.commons.api.dto.VotingChoice;
-import com.faforever.commons.api.dto.VotingQuestion;
-import com.faforever.commons.api.dto.VotingSubject;
+import com.faforever.commons.api.dto.*;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MessagesService;
 import com.faforever.moderatorclient.api.domain.TutorialService;
 import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
 import com.faforever.moderatorclient.ui.data_cells.TextAreaTableCell;
 import com.faforever.moderatorclient.ui.data_cells.UrlImageViewTableCell;
-import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
-import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
-import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import com.faforever.moderatorclient.ui.domain.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
@@ -60,13 +46,7 @@ import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -480,12 +460,23 @@ public class ViewHelper {
         };
     }
 
+
+    public static void loadForceRenameDialog(UiService uiService, PlayerFX playerFX) {
+        ForceRenameController forceRenameController = uiService.loadFxml("ui/forceRename.fxml");
+        forceRenameController.setPlayer(playerFX);
+        Stage newCategoryDialog = new Stage();
+        newCategoryDialog.setTitle("Force rename");
+        newCategoryDialog.setScene(new Scene(forceRenameController.getRoot()));
+        newCategoryDialog.showAndWait();
+    }
+
     /**
-     * @param tableView The tableview to be populated
-     * @param data      data to be put in the tableView
-     * @param onAddBan  if not null shows a ban button which triggers this consumer
+     * @param tableView            The tableview to be populated
+     * @param data                 data to be put in the tableView
+     * @param onAddBan             if not null shows a ban button which triggers this consumer
+     * @param communicationService
      */
-    public static void buildUserTableView(PlatformService platformService, TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan) {
+    public static void buildUserTableView(PlatformService platformService, TableView<PlayerFX> tableView, ObservableList<PlayerFX> data, Consumer<PlayerFX> onAddBan, Consumer<PlayerFX> onForceRename, FafApiCommunicationService communicationService) {
         tableView.setItems(data);
         HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
 
@@ -545,7 +536,7 @@ public class ViewHelper {
         if (onAddBan != null) {
             TableColumn<PlayerFX, PlayerFX> banOptionColumn = new TableColumn<>("Ban");
             banOptionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-            banOptionColumn.setCellFactory(param -> new TableCell<PlayerFX, PlayerFX>() {
+            banOptionColumn.setCellFactory(param -> new TableCell<>() {
 
                 @Override
                 protected void updateItem(PlayerFX item, boolean empty) {
@@ -576,7 +567,17 @@ public class ViewHelper {
                 platformService.showDocument("https://steamidfinder.com/lookup/" + playerFX.getSteamId());
             }
         });
+
         contextMenu.getItems().add(steamLookupMenuItem);
+
+        if (communicationService.hasPermission(GroupPermission.ROLE_ADMIN_ACCOUNT_NAME_CHANGE)) {
+            MenuItem forceRenameMenuItem = new MenuItem("Rename");
+            forceRenameMenuItem.setOnAction(action -> {
+                PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();
+                onForceRename.accept(playerFX);
+            });
+            contextMenu.getItems().add(forceRenameMenuItem);
+        }
     }
 
     public static void buildUserAvatarsTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
