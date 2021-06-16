@@ -37,9 +37,9 @@ public class MapService {
     private final MapMapper mapMapper;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
 
-    @Value("${faforever.map-generator.queryVersionsUrl}")
+    @Value("${faforever.map-generator.query-versions-url}")
     private String generatorVersionsURL;
-    @Value("${faforever.map-generator.minSupportedVersion}")
+    @Value("${faforever.map-generator.min-supported-version}")
     private String minGeneratorVersion;
 
     private List<Map> findMapsByAttribute(@NotNull String attribute, @NotNull String pattern, boolean excludeHidden) {

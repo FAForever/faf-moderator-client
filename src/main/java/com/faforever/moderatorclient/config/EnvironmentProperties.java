@@ -11,18 +11,16 @@ public class EnvironmentProperties {
 
     @NotBlank
     private String baseUrl;
-
     @NotBlank
     private String clientId;
-
-    @NotBlank
-    private String clientSecret;
-
-    @NotBlank
-    private String accessTokenUri;
-
     @NotBlank
     private String replayDownloadUrlFormat;
+    @NotBlank
+    private String oauthBaseUrl;
+    @NotBlank
+    private String oauthRedirectUrl;
+    @NotBlank
+    private String oauthScopes;
 
     private int maxPageSize = 10_000;
     private int maxResultSize = 1_000_000;
