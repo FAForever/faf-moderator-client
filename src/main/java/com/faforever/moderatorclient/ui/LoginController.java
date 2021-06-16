@@ -18,8 +18,15 @@ import javafx.scene.web.WebView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -52,17 +59,20 @@ public class LoginController implements Controller<Pane> {
         loginWebView.getEngine().load(getHydraUrl());
 
         loginWebView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {
-            int codeIndex = newValue.indexOf("code=");
-            if (codeIndex >= 0) {
-                int codeEnd = newValue.indexOf("&", codeIndex);
-                String code = newValue.substring(codeIndex + 5, codeEnd);
-                int stateIndex = newValue.indexOf("state=");
-                int stateEnd = newValue.indexOf("&", stateIndex);
-                String reportedState;
-                if (stateEnd > 0) {
-                    reportedState = newValue.substring(stateIndex + 6, stateEnd);
-                } else {
-                    reportedState = newValue.substring(stateIndex + 6);
+            try {
+                List<NameValuePair> params = URLEncodedUtils.parse(new URI(newValue), StandardCharsets.UTF_8);
+
+                String code = params.stream().filter(param -> param.getName().equals("code"))
+                        .map(NameValuePair::getValue)
+                        .findFirst()
+                        .orElse(null);
+                String reportedState = params.stream().filter(param -> param.getName().equals("state"))
+                        .map(NameValuePair::getValue)
+                        .findFirst()
+                        .orElse(null);
+
+                if (code == null || reportedState == null) {
+                    return;
                 }
 
                 if (!state.equals(reportedState)) {
@@ -71,6 +81,8 @@ public class LoginController implements Controller<Pane> {
                 }
 
                 tokenService.loginWithAuthorizationCode(code);
+            } catch (URISyntaxException e) {
+                log.error("Unable to parse url", e);
             }
         });
     }

@@ -16,23 +16,23 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
+import java.util.List;
 
 @Service
 @Slf4j
 public class TokenService {
   private final ApplicationEventPublisher applicationEventPublisher;
-  private final RestTemplate restTemplate;
+  private RestTemplate restTemplate;
   private EnvironmentProperties environmentProperties;
   private OAuth2AccessToken tokenCache;
 
   public TokenService(ApplicationEventPublisher applicationEventPublisher) {
     this.applicationEventPublisher = applicationEventPublisher;
-    this.restTemplate = new RestTemplateBuilder().build();
   }
 
   public void prepare(EnvironmentProperties environmentProperties) {
     this.environmentProperties = environmentProperties;
+    this.restTemplate = new RestTemplateBuilder().rootUri(environmentProperties.getOauthBaseUrl()).build();
   }
 
   @SneakyThrows
@@ -50,7 +50,7 @@ public class TokenService {
   public void loginWithAuthorizationCode(String code) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+    headers.setAccept(List.of(MediaType.APPLICATION_JSON_UTF8));
 
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add("code", code);
@@ -61,7 +61,7 @@ public class TokenService {
     HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
     tokenCache = restTemplate.postForObject(
-        String.format("%s/oauth2/token", environmentProperties.getOauthBaseUrl()),
+        "/oauth2/token",
         request,
         OAuth2AccessToken.class
     );
