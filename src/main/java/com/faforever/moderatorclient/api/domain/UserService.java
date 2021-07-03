@@ -1,6 +1,11 @@
 package com.faforever.moderatorclient.api.domain;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.FeaturedMod;
+import com.faforever.commons.api.dto.GamePlayerStats;
+import com.faforever.commons.api.dto.NameRecord;
+import com.faforever.commons.api.dto.Player;
+import com.faforever.commons.api.dto.Teamkill;
+import com.faforever.commons.api.dto.UserNote;
 import com.faforever.commons.api.elide.ElideEntity;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
