@@ -32,9 +32,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -55,6 +53,8 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
     private final ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
 
+    private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
+
     @Value("${faforever.vault.replayDownloadUrlFormat}")
     private String replayDownLoadFormat;
     private final FafApiCommunicationService communicationService;
@@ -68,12 +68,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public Tab lastGamesTab;
     public Tab avatarsTab;
 
-    public RadioButton searchUserByIdRadioButton;
-    public RadioButton searchUserByCurrentNameRadioButton;
-    public RadioButton searchUserByPreviousNamesRadioButton;
-    public RadioButton searchUserByEmailRadioButton;
-    public RadioButton searchUserBySteamIdRadioButton;
-    public RadioButton searchUserByIpRadioButton;
+    public ComboBox<String> searchUserProperties;
     public TextField userSearchTextField;
     public TableView<UserNoteFX> userNoteTableView;
     public Button addNoteButton;
@@ -158,6 +153,30 @@ public class UserManagementController implements Controller<SplitPane> {
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
         editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        initializeSearchProperties();
+    }
+
+    private void initializeSearchProperties() {
+        searchUserPropertyMapping.put("Name", "login");
+        searchUserPropertyMapping.put("Id", "id");
+        searchUserPropertyMapping.put("Email", "email");
+        searchUserPropertyMapping.put("Steam Id", "steamId");
+        searchUserPropertyMapping.put("Ip Address", "recentIpAddress");
+        searchUserPropertyMapping.put("Previous Name", "names.name");
+        searchUserPropertyMapping.put("UID Hash", "uniqueIds.hash");
+        searchUserPropertyMapping.put("Device Id", "uniqueIds.deviceId");
+        searchUserPropertyMapping.put("CPU Name", "uniqueIds.name");
+        searchUserPropertyMapping.put("UUID", "uniqueIds.uuid");
+        searchUserPropertyMapping.put("Serial Number", "uniqueIds.serialNumber");
+        searchUserPropertyMapping.put("Processor Id", "uniqueIds.processorId");
+        searchUserPropertyMapping.put("Bios Version", "uniqueIds.SMBIOSBIOSVersion");
+        searchUserPropertyMapping.put("Volume Serial Number", "uniqueIds.volumeSerialNumber");
+        searchUserPropertyMapping.put("Memory Serial Number", "uniqueIds.memorySerialNumber");
+        searchUserPropertyMapping.put("Manfacturer", "uniqueIds.manufacturer");
+
+        searchUserProperties.getItems().addAll(searchUserPropertyMapping.keySet());
+        searchUserProperties.getSelectionModel().select(0);
     }
 
     @EventListener
@@ -203,21 +222,9 @@ public class UserManagementController implements Controller<SplitPane> {
         users.clear();
         userSearchTableView.getSortOrder().clear();
 
-        List<PlayerFX> usersFound = Collections.emptyList();
+        String property = searchUserPropertyMapping.get(searchUserProperties.getValue());
         String searchPattern = userSearchTextField.getText();
-        if (searchUserByIdRadioButton.isSelected()) {
-            usersFound = userService.findUserById(searchPattern);
-        } else if (searchUserByCurrentNameRadioButton.isSelected()) {
-            usersFound = userService.findUserByName(searchPattern);
-        } else if (searchUserByPreviousNamesRadioButton.isSelected()) {
-            usersFound = userService.findUsersByPreviousName(searchPattern);
-        } else if (searchUserByEmailRadioButton.isSelected()) {
-            usersFound = userService.findUserByEmail(searchPattern);
-        } else if (searchUserBySteamIdRadioButton.isSelected()) {
-            usersFound = userService.findUserBySteamId(searchPattern);
-        } else if (searchUserByIpRadioButton.isSelected()) {
-            usersFound = userService.findUserByIP(searchPattern);
-        }
+        List<PlayerFX> usersFound = userService.findUsersByAttribute(property, searchPattern);
 
         users.addAll(usersFound);
     }

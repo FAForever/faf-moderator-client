@@ -28,8 +28,8 @@ faforever:
       replay-download-url-format: https://replay.test.faforever.com/%s
     "[localhost:8010]":
       base-url: http://localhost:8010
-      client-id: postman
-      client-secret: postman
+      client-id: test
+      client-secret: test
       access-token-uri: http://localhost:8010/oauth/token
       replay-download-url-format: https://replay.test.faforever.com/%s
 

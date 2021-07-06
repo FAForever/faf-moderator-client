@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 
 import java.time.OffsetDateTime;
 
@@ -20,6 +21,7 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty recentIpAddress;
     private final StringProperty representation;
     private final ObjectProperty<OffsetDateTime> lastLogin;
+    private final ObservableSet<UniqueIdFx> uniqueIds;
     private final ObservableList<NameRecordFX> names;
     private final ObservableList<BanInfoFX> bans;
     private final ObservableList<AvatarAssignmentFX> avatarAssignments;
@@ -38,13 +40,8 @@ public class PlayerFX extends AbstractEntityFX {
         names = FXCollections.observableArrayList();
         bans = FXCollections.observableArrayList();
         avatarAssignments = FXCollections.observableArrayList();
+        uniqueIds = FXCollections.observableSet();
     }
-
-//    @Relationship("globalRating")
-//    private GlobalRating globalRating;
-//
-//    @Relationship("ladder1v1Rating")
-//    private Ladder1v1Rating ladder1v1Rating;
 
 
     public String getLogin() {
@@ -123,6 +120,18 @@ public class PlayerFX extends AbstractEntityFX {
         names.clear();
         if (nameRecordFXObservableList != null) {
             names.addAll(nameRecordFXObservableList);
+        }
+    }
+
+    public ObservableSet<UniqueIdFx> getUniqueIds() {
+        return uniqueIds;
+    }
+
+    public void setUniqueIds(ObservableSet<UniqueIdFx> uniqueIdFxObservableList) {
+        uniqueIds.clear();
+
+        if (uniqueIdFxObservableList != null) {
+            uniqueIds.addAll(uniqueIdFxObservableList);
         }
     }
 

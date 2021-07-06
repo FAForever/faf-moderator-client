@@ -545,7 +545,7 @@ public class ViewHelper {
         if (onAddBan != null) {
             TableColumn<PlayerFX, PlayerFX> banOptionColumn = new TableColumn<>("Ban");
             banOptionColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
-            banOptionColumn.setCellFactory(param -> new TableCell<PlayerFX, PlayerFX>() {
+            banOptionColumn.setCellFactory(param -> new TableCell<>() {
 
                 @Override
                 protected void updateItem(PlayerFX item, boolean empty) {
@@ -563,6 +563,96 @@ public class ViewHelper {
             });
             tableView.getColumns().add(banOptionColumn);
         }
+
+        TableColumn<PlayerFX, String> hashColumn = new TableColumn<>("Hash");
+        hashColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getHash)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        hashColumn.setMinWidth(200);
+        tableView.getColumns().add(hashColumn);
+        extractors.put(hashColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getHash).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> uuidColumn = new TableColumn<>("UUID");
+        uuidColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getUuid)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        uuidColumn.setMinWidth(200);
+        tableView.getColumns().add(uuidColumn);
+        extractors.put(uuidColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getUuid).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> memorySerialColumn = new TableColumn<>("Memory S/N");
+        memorySerialColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getMemorySerialNumber)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        memorySerialColumn.setMinWidth(200);
+        tableView.getColumns().add(memorySerialColumn);
+        extractors.put(memorySerialColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getMemorySerialNumber).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> deviceIdColumn = new TableColumn<>("Device ID");
+        deviceIdColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getDeviceId)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        deviceIdColumn.setMinWidth(200);
+        tableView.getColumns().add(deviceIdColumn);
+        extractors.put(deviceIdColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getDeviceId).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> manufacturerColumn = new TableColumn<>("Manufacturer");
+        manufacturerColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getManufacturer)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        manufacturerColumn.setMinWidth(200);
+        tableView.getColumns().add(manufacturerColumn);
+        extractors.put(manufacturerColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getManufacturer).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> cpuNameColumn = new TableColumn<>("Cpu Name");
+        cpuNameColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getName)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        cpuNameColumn.setMinWidth(200);
+        tableView.getColumns().add(cpuNameColumn);
+        extractors.put(cpuNameColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getName).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> processorIdColumn = new TableColumn<>("Processor Id");
+        processorIdColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getProcessorId)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        processorIdColumn.setMinWidth(200);
+        tableView.getColumns().add(processorIdColumn);
+        extractors.put(processorIdColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getProcessorId).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> biosVersionColumn = new TableColumn<>("BIOS Version");
+        biosVersionColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getSMBIOSBIOSVersion)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        biosVersionColumn.setMinWidth(200);
+        tableView.getColumns().add(biosVersionColumn);
+        extractors.put(biosVersionColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getSMBIOSBIOSVersion).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> serialColumn = new TableColumn<>("S/N");
+        serialColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getSerialNumber)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        serialColumn.setMinWidth(200);
+        tableView.getColumns().add(serialColumn);
+        extractors.put(serialColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getSerialNumber).collect(Collectors.toList()));
+
+        TableColumn<PlayerFX, String> volumeSerialNumber = new TableColumn<>("Volume S/N");
+        volumeSerialNumber.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getUniqueIds().stream().map(UniqueIdFx::getVolumeSerialNumber)
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        volumeSerialNumber.setMinWidth(200);
+        tableView.getColumns().add(volumeSerialNumber);
+        extractors.put(volumeSerialNumber, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getVolumeSerialNumber).collect(Collectors.toList()));
 
         ContextMenu contextMenu = applyCopyContextMenus(tableView, extractors);
         MenuItem steamLookupMenuItem = new MenuItem("Lookup SteamID");
