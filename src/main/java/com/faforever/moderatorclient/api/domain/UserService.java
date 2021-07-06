@@ -62,6 +62,7 @@ public class UserService {
                 .addIncludeOnCollection(variablePrefix + "ladder1v1Rating")
                 .addIncludeOnCollection(variablePrefix + "avatarAssignments")
                 .addIncludeOnCollection(variablePrefix + "avatarAssignments.avatar")
+                .addIncludeOnCollection(variablePrefix + "uniqueIds")
                 .addIncludeOnCollection(variablePrefix + "bans")
                 .addIncludeOnCollection(variablePrefix + "bans.author")
                 .addIncludeOnCollection(variablePrefix + "bans.revokeAuthor");
@@ -81,7 +82,7 @@ public class UserService {
         return playerMapper.mapToFx(result);
     }
 
-    private List<PlayerFX> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
+    public List<PlayerFX> findUsersByAttribute(@NotNull String attribute, @NotNull String pattern) {
         log.debug("Searching for player by attribute '{}' with pattern: {}", attribute, pattern);
         ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
                 .collection()
@@ -91,43 +92,6 @@ public class UserService {
         List<Player> result = fafApi.getAll(Player.class, navigator);
         log.trace("found {} users", result.size());
         return playerMapper.mapToFx(result);
-    }
-
-    public List<PlayerFX> findUserById(@NotNull String pattern) {
-        return findUsersByAttribute("id", pattern);
-    }
-
-    public List<PlayerFX> findUserByName(@NotNull String pattern) {
-        return findUsersByAttribute("login", pattern);
-    }
-
-    public List<PlayerFX> findUserByEmail(@NotNull String pattern) {
-        return findUsersByAttribute("email", pattern);
-    }
-
-    public List<PlayerFX> findUserBySteamId(@NotNull String pattern) {
-        return findUsersByAttribute("steamId", pattern);
-    }
-
-    public List<PlayerFX> findUserByIP(@NotNull String pattern) {
-        return findUsersByAttribute("recentIpAddress", pattern);
-    }
-
-    public List<PlayerFX> findUsersByPreviousName(@NotNull String pattern) {
-        log.debug("Searching for player by previous name with pattern: {}", pattern);
-        ElideNavigatorOnCollection<NameRecord> navigator = ElideNavigator.of(NameRecord.class)
-                .collection()
-                .addIncludeOnCollection("player")
-                .addFilter(ElideNavigator.qBuilder().string("name").eq(pattern));
-        addModeratorIncludes(navigator, "player");
-
-        List<NameRecord> result = fafApi.getAll(NameRecord.class, navigator);
-        log.trace("found {} name records", result.size());
-        return result.stream()
-                .map(NameRecord::getPlayer)
-                .distinct()
-                .map(playerMapper::map)
-                .collect(Collectors.toList());
     }
 
     public List<TeamkillFX> findLatestTeamkills() {

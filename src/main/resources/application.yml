@@ -9,10 +9,10 @@ faforever:
   map-generator:
     repo-and-owner-name: FAForever/Neroxis-Map-Generator
     query-versions-url: https://api.github.com/repos/${faforever.map-generator.repo-and-owner-name}/releases
-    minSupportedVersion: 1.4.3
+    min-supported-version: 1.4.3
   vault:
     base-url: http://content.faforever.com
-    replayDownloadUrlFormat: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s
+    replay-download-url-format: ${faforever.vault.base-url}/faf/vault/replay_vault/replay.php?id=%s
   environments:
     "[faforever.com]":
       base-url: https://api.faforever.com
