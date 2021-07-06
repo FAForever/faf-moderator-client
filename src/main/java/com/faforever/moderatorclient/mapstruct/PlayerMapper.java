@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 import java.util.Set;
 
-@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, NameRecordMapper.class, BanInfoMapper.class, AvatarAssignmentMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, UniqueIdMapper.class, NameRecordMapper.class, BanInfoMapper.class, AvatarAssignmentMapper.class, CycleAvoidingMappingContext.class})
 public abstract class PlayerMapper {
     public abstract PlayerFX map(Player dto);
 

@@ -11,62 +11,25 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ComboBox?>
 <SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.3" orientation="VERTICAL"
            prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.171"
            fx:controller="com.faforever.moderatorclient.ui.main_window.UserManagementController">
     <items>
         <HBox>
             <children>
-                <VBox minWidth="220.0">
+                <VBox minWidth="220.0" spacing="5.0" alignment="CENTER">
                     <children>
-                        <RadioButton fx:id="searchUserByCurrentNameRadioButton" mnemonicParsing="false" selected="true"
-                                     text="search by current name">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                            <toggleGroup>
-                                <ToggleGroup fx:id="userSearch"/>
-                            </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="searchUserByPreviousNamesRadioButton" mnemonicParsing="false"
-                                     text="search by previous names" toggleGroup="$userSearch">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </RadioButton>
-                        <RadioButton fx:id="searchUserByIdRadioButton" mnemonicParsing="false" text="search by id"
-                                     toggleGroup="$userSearch">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </RadioButton>
-                        <RadioButton fx:id="searchUserByEmailRadioButton" mnemonicParsing="false" text="search by email"
-                                     toggleGroup="$userSearch">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </RadioButton>
-                        <RadioButton fx:id="searchUserBySteamIdRadioButton" mnemonicParsing="false"
-                                     text="search by Steam ID" toggleGroup="$userSearch">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </RadioButton>
-                        <RadioButton fx:id="searchUserByIpRadioButton" mnemonicParsing="false"
-                                     text="search by IP address" toggleGroup="$userSearch">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </RadioButton>
+                        <Label text="Search By"/>
+                        <ComboBox fx:id="searchUserProperties"/>
                         <TextField fx:id="userSearchTextField" onAction="#onUserSearch">
                             <VBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </VBox.margin>
                         </TextField>
-                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="search player">
+                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="Search">
                             <VBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </VBox.margin>
