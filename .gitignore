@@ -1,4 +1,6 @@
 target/
+build
+.gradle
 !.mvn/wrapper/maven-wrapper.jar
 
 ### IntelliJ IDEA ###
@@ -14,6 +16,8 @@ target/
 
 # Sensitive or high-churn files:
 .idea/dataSources
+.idea/dataSources*
+.idea/shelf
 .idea/dataSources.ids
 .idea/dataSources.xml
 .idea/sqlDataSources.xml
@@ -21,3 +25,4 @@ target/
 .idea/uiDesigner.xml
 .idea/inspectionProfiles/
 .idea/libraries
+.idea/libraries-with-intellij-classes.xml

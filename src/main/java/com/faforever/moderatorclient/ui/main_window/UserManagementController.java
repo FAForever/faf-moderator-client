@@ -96,7 +96,6 @@ public class UserManagementController implements Controller<SplitPane> {
     private Runnable loadMoreGamesRunnable;
     private int userGamesPage = 1;
 
-
     @Override
     public SplitPane getRoot() {
         return root;
@@ -113,7 +112,8 @@ public class UserManagementController implements Controller<SplitPane> {
         disableTabOnMissingPermission(teamkillsTab, GroupPermission.ROLE_READ_TEAMKILL_REPORT);
         disableTabOnMissingPermission(avatarsTab, GroupPermission.ROLE_WRITE_AVATAR);
 
-        ViewHelper.buildUserTableView(platformService, userSearchTableView, users, null);
+        ViewHelper.buildUserTableView(platformService, userSearchTableView, users, null,
+                playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), communicationService);
         ViewHelper.buildNotesTableView(userNoteTableView, userNotes, false);
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
         ViewHelper.buildBanTableView(userBansTableView, bans, false);

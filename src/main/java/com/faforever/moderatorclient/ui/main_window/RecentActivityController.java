@@ -62,7 +62,8 @@ public class RecentActivityController implements Controller<VBox> {
     @FXML
     public void initialize() {
         if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_ACCOUNT_PRIVATE_DETAILS, userRegistrationFeedPane)) {
-            ViewHelper.buildUserTableView(platformService, userRegistrationFeedTableView, users, this::addBan);
+            ViewHelper.buildUserTableView(platformService, userRegistrationFeedTableView, users, this::addBan,
+                    playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), communicationService);
         }
 
         if (checkPermissionForTitledPane(GroupPermission.ROLE_READ_TEAMKILL_REPORT, teamkillFeedPane)) {

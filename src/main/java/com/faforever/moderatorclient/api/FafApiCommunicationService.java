@@ -33,6 +33,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -138,6 +139,17 @@ public class FafApiCommunicationService {
         } catch (OAuth2AccessDeniedException e) {
             log.error("login failed", e);
             return null;
+        }
+    }
+
+    public void forceRenameUserName(String userId, String newName) {
+        String path = String.format("/users/%s/forceChangeUsername", userId);
+        String url = UriComponentsBuilder.fromPath(path).queryParam("newUsername", newName).toUriString();
+        try {
+            restTemplate.exchange(url, HttpMethod.POST, null, Void.class, Map.of());
+        } catch (Throwable t) {
+            applicationEventPublisher.publishEvent(new FafApiFailModifyEvent(t, Void.class, url));
+            throw t;
         }
     }
 
