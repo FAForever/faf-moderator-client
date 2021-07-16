@@ -2,25 +2,19 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<DialogPane fx:id="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.faforever.moderatorclient.ui.LoginController" minHeight="100">
-    <content>
-        <VBox spacing="5.0">
-            <children>
-                <WebView fx:id="loginWebView" VBox.vgrow="ALWAYS" maxHeight="Infinity" minHeight="800" minWidth="600"/>
-                <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" minHeight="50">
-                    <Label text="Environment" HBox.hgrow="ALWAYS"/>
-                    <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS" />
-                </HBox>
-            </children>
-            <padding>
-                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
-            </padding>
-        </VBox>
-    </content>
-</DialogPane>
+<VBox fx:id="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.faforever.moderatorclient.ui.LoginController" spacing="5.0">
+    <children>
+        <WebView fx:id="loginWebView" prefHeight="800"/>
+        <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" maxHeight="50">
+            <Label text="Environment" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS"/>
+        </HBox>
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+    </padding>
+</VBox>

@@ -1,19 +1,15 @@
 package com.faforever.moderatorclient.ui;
 
-import com.faforever.commons.api.dto.MeResult;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.ApiAuthorizedEvent;
-import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
 import com.faforever.moderatorclient.config.ApplicationProperties;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +22,9 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
@@ -36,10 +34,12 @@ public class LoginController implements Controller<Pane> {
     private final FafApiCommunicationService fafApiCommunicationService;
     private final TokenService tokenService;
 
-    public DialogPane root;
+    public VBox root;
     public ComboBox<String> environmentComboBox;
     public WebView loginWebView;
     public String state;
+
+    private CompletableFuture<Void> resetPageFuture;
 
     @Override
     public Pane getRoot() {
@@ -52,39 +52,79 @@ public class LoginController implements Controller<Pane> {
                 (key, environmentProperties) -> environmentComboBox.getItems().add(key)
         );
 
+        resetPageFuture = new CompletableFuture<>();
+
         environmentComboBox.setOnAction((event) -> loginWebView.getEngine().load(getHydraUrl()));
 
         environmentComboBox.getSelectionModel().select(0);
 
         loginWebView.getEngine().load(getHydraUrl());
 
+        loginWebView.getEngine().getLoadWorker().runningProperty().addListener(((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                resetPageFuture.complete(null);
+            }
+        }));
+
         loginWebView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {
+            List<NameValuePair> params;
             try {
-                List<NameValuePair> params = URLEncodedUtils.parse(new URI(newValue), StandardCharsets.UTF_8);
+                params = URLEncodedUtils.parse(new URI(newValue), StandardCharsets.UTF_8);
+            } catch (URISyntaxException e) {
+                log.warn("Could not parse webpage url: {}", newValue, e);
+                reloadLogin();
+                onFailedLogin("Could not parse url");
+                return;
+            }
 
-                String code = params.stream().filter(param -> param.getName().equals("code"))
-                        .map(NameValuePair::getValue)
-                        .findFirst()
-                        .orElse(null);
-                String reportedState = params.stream().filter(param -> param.getName().equals("state"))
-                        .map(NameValuePair::getValue)
-                        .findFirst()
-                        .orElse(null);
+            if (params.stream().anyMatch(param -> param.getName().equals("error"))) {
+                String error = params.stream().filter(param -> param.getName().equals("error"))
+                        .findFirst().map(NameValuePair::getValue).orElse(null);
+                String errorDescription = params.stream().filter(param -> param.getName().equals("error_description"))
+                        .findFirst().map(NameValuePair::getValue).orElse(null);
+                log.warn("Error during login error: url {}; error {}; {}", newValue, error, errorDescription);
+                reloadLogin();
+                onFailedLogin(MessageFormat.format("{0}; {1}", error, errorDescription));
+                return;
+            }
 
-                if (code == null || reportedState == null) {
-                    return;
-                }
+            String reportedState = params.stream().filter(param -> param.getName().equals("state"))
+                    .map(NameValuePair::getValue)
+                    .findFirst()
+                    .orElse(null);
+
+            String code = params.stream().filter(param -> param.getName().equals("code"))
+                    .map(NameValuePair::getValue)
+                    .findFirst()
+                    .orElse(null);
+
+            if (reportedState != null) {
 
                 if (!state.equals(reportedState)) {
-                    log.error("States do not match We are under attack!");
+                    log.warn("Reported state does not match there is something fishy going on. Saved State `{}`, Returned State `{}`, Location `{}`", state, reportedState, newValue);
+                    reloadLogin();
+                    onFailedLogin("State returned by user service does not match initial state");
                     return;
                 }
 
-                tokenService.loginWithAuthorizationCode(code);
-            } catch (URISyntaxException e) {
-                log.error("Unable to parse url", e);
+                if (code != null) {
+                    tokenService.loginWithAuthorizationCode(code);
+                }
             }
         });
+    }
+
+    private void reloadLogin() {
+        resetPageFuture = new CompletableFuture<>();
+        resetPageFuture.thenAccept(aVoid -> Platform.runLater(() -> loginWebView.getEngine().load(getHydraUrl())));
+        if (!loginWebView.getEngine().getLoadWorker().isRunning()) {
+            resetPageFuture.complete(null);
+        }
+    }
+
+    private void onFailedLogin(String message) {
+        Platform.runLater(() ->
+                ViewHelper.errorDialog("Login Failed", MessageFormat.format("Something went wrong while logging in please see the details from the user service. Error: {0}", message)));
     }
 
     public String getHydraUrl() {

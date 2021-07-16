@@ -5,15 +5,7 @@ import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
-import com.faforever.moderatorclient.ui.main_window.AvatarsController;
-import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
-import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
-import com.faforever.moderatorclient.ui.main_window.MapVaultController;
-import com.faforever.moderatorclient.ui.main_window.ModVaultController;
-import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
-import com.faforever.moderatorclient.ui.main_window.TutorialController;
-import com.faforever.moderatorclient.ui.main_window.UserManagementController;
-import com.faforever.moderatorclient.ui.main_window.VotingController;
+import com.faforever.moderatorclient.ui.main_window.*;
 import com.faforever.moderatorclient.ui.moderation_reports.ModerationReportController;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -204,7 +196,6 @@ public class MainController implements Controller<TabPane> {
 
         Stage loginDialog = new Stage();
         loginDialog.setOnCloseRequest(event -> System.exit(0));
-        loginDialog.setAlwaysOnTop(true);
         loginDialog.setTitle("FAF Moderator Client");
         Scene scene = new Scene(loginController.getRoot());
         scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
