@@ -3,7 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 <VBox fx:id="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.faforever.moderatorclient.ui.LoginController" spacing="5.0">
@@ -11,7 +12,7 @@
         <WebView fx:id="loginWebView" prefHeight="800"/>
         <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" maxHeight="50">
             <Label text="Environment" HBox.hgrow="ALWAYS"/>
-            <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS" onAction="#reloadLogin"/>
         </HBox>
     </children>
     <padding>

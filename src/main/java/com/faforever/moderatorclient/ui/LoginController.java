@@ -52,13 +52,9 @@ public class LoginController implements Controller<Pane> {
                 (key, environmentProperties) -> environmentComboBox.getItems().add(key)
         );
 
-        resetPageFuture = new CompletableFuture<>();
-
-        environmentComboBox.setOnAction((event) -> loginWebView.getEngine().load(getHydraUrl()));
+        reloadLogin();
 
         environmentComboBox.getSelectionModel().select(0);
-
-        loginWebView.getEngine().load(getHydraUrl());
 
         loginWebView.getEngine().getLoadWorker().runningProperty().addListener(((observable, oldValue, newValue) -> {
             if (!newValue) {
@@ -114,12 +110,16 @@ public class LoginController implements Controller<Pane> {
         });
     }
 
-    private void reloadLogin() {
+    public void reloadLogin() {
         resetPageFuture = new CompletableFuture<>();
-        resetPageFuture.thenAccept(aVoid -> Platform.runLater(() -> loginWebView.getEngine().load(getHydraUrl())));
+        resetPageFuture.thenAccept(aVoid -> Platform.runLater(this::loadLoginPage));
         if (!loginWebView.getEngine().getLoadWorker().isRunning()) {
             resetPageFuture.complete(null);
         }
+    }
+
+    private void loadLoginPage() {
+        loginWebView.getEngine().load(getHydraUrl());
     }
 
     private void onFailedLogin(String message) {

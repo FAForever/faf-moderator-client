@@ -32,7 +32,7 @@ faforever:
       base-url: http://localhost:8010
       client-id: faf-moderator-client
       replay-download-url-format: https://replay.test.faforever.com/%s
-      oauth-base-url: http://localhost:4445
+      oauth-base-url: http://localhost:4444
       oauth-redirect-url: http://localhost
       oauth-scopes: moderation upload_avatar administrative_actions read_sensible_userdata manage_vault
 
