@@ -21,6 +21,8 @@ public class EnvironmentProperties {
     private String oauthRedirectUrl;
     @NotBlank
     private String oauthScopes;
+    @NotBlank
+    private String userBaseUrl;
 
     private int maxPageSize = 10_000;
     private int maxResultSize = 1_000_000;

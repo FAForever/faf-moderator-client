@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -154,7 +153,6 @@ public class BanInfoController implements Controller<Pane> {
         if (!validate()) {
             return;
         }
-        ZoneId zoneId = ZoneOffset.systemDefault();
         if (banInfo.getPlayer() == null) {
             PlayerFX playerFX = new PlayerFX();
             playerFX.setId(affectedUserTextField.getText());

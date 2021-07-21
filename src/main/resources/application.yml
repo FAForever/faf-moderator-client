@@ -21,6 +21,7 @@ faforever:
       oauth-base-url: https://hydra.faforever.com
       oauth-redirect-url: http://localhost
       oauth-scopes: moderation upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: https://user.faforever.com
     "[test.faforever.com]":
       base-url: https://api.test.faforever.com
       client-id: faf-moderator-client
@@ -28,6 +29,7 @@ faforever:
       oauth-base-url: https://hydra.test.faforever.com
       oauth-redirect-url: http://localhost
       oauth-scopes: moderation upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: https://user.test.faforever.com
     "[localhost:8010]":
       base-url: http://localhost:8010
       client-id: faf-moderator-client
@@ -35,6 +37,7 @@ faforever:
       oauth-base-url: http://localhost:4444
       oauth-redirect-url: http://localhost
       oauth-scopes: moderation upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: http://localhost:8080
 
 logging:
   level:

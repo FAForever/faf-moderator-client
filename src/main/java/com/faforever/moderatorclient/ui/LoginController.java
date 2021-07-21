@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.FafUserCommunicationService;
 import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.ApiAuthorizedEvent;
 import com.faforever.moderatorclient.config.ApplicationProperties;
@@ -32,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 public class LoginController implements Controller<Pane> {
     private final ApplicationProperties applicationProperties;
     private final FafApiCommunicationService fafApiCommunicationService;
+    private final FafUserCommunicationService fafUserCommunicationService;
     private final TokenService tokenService;
 
     public VBox root;
@@ -130,6 +132,7 @@ public class LoginController implements Controller<Pane> {
     public String getHydraUrl() {
         EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environmentComboBox.getValue());
         fafApiCommunicationService.initialize(environmentProperties);
+        fafUserCommunicationService.initialize(environmentProperties);
         tokenService.prepare(environmentProperties);
         state = RandomStringUtils.randomAlphanumeric(50, 100);
         return String.format("%s/oauth2/auth?response_type=code&client_id=%s" +

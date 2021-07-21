@@ -4,9 +4,9 @@ import lombok.Value;
 
 @Value
 public class FafApiFailModifyEvent {
-    private final Throwable cause;
-    private final String url;
-    private final Class<?> entityClass;
+    Throwable cause;
+    String url;
+    Class<?> entityClass;
 
     public FafApiFailModifyEvent(Throwable cause, Class<?> entityClass, String url) {
         this.cause = cause;

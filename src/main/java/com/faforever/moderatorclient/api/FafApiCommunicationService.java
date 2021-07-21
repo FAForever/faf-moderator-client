@@ -19,7 +19,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
@@ -27,10 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
-import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
-import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -56,12 +52,11 @@ public class FafApiCommunicationService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final JsonApiMessageConverter jsonApiMessageConverter;
     private final JsonApiErrorHandler jsonApiErrorHandler;
-    private final ApplicationContext applicationContext;
+    private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
+    private final RestTemplateBuilder restTemplateBuilder;
+    private final CountDownLatch authorizedLatch;
     @Getter
     private MeResult meResult;
-    private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
-    private RestTemplateBuilder restTemplateBuilder;
-    private CountDownLatch authorizedLatch;
     private RestTemplate restTemplate;
     private EnvironmentProperties environmentProperties;
 
@@ -71,15 +66,13 @@ public class FafApiCommunicationService {
                                       OAuthTokenInterceptor oAuthTokenInterceptor, ApplicationEventPublisher applicationEventPublisher,
                                       CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
-                                      JsonApiErrorHandler jsonApiErrorHandler,
-                                      ApplicationContext applicationContext) {
+                                      JsonApiErrorHandler jsonApiErrorHandler) {
         this.defaultResourceConverter = defaultResourceConverter;
         this.updateResourceConverter = updateResourceConverter;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.jsonApiMessageConverter = jsonApiMessageConverter;
         this.jsonApiErrorHandler = jsonApiErrorHandler;
-        this.applicationContext = applicationContext;
         this.oAuthTokenInterceptor = oAuthTokenInterceptor;
         this.restTemplateBuilder = restTemplateBuilder;
 
@@ -101,7 +94,7 @@ public class FafApiCommunicationService {
 
     @SneakyThrows
     @EventListener
-    private void authorize(HydraAuthorizedEvent event) {
+    public void authorize(HydraAuthorizedEvent event) {
         meResult = null;
 
         restTemplate = restTemplateBuilder.additionalMessageConverters(jsonApiMessageConverter)
