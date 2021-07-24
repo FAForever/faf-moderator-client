@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class BanService {
-    private static final String REVOKE_ENDPOINT = "/revokeTokens";
+    private static final String REVOKE_ENDPOINT = "/oauth2/revokeTokens";
 
     private final BanInfoMapper banInfoMapper;
     private final FafApiCommunicationService fafApi;
