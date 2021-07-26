@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui.moderation_reports;
 
 import com.faforever.commons.api.dto.ModerationReportStatus;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.ModerationReportService;
 import com.faforever.moderatorclient.ui.*;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Component;
 public class ModerationReportController implements Controller<Region> {
 	private final ModerationReportService moderationReportService;
 	private final UiService uiService;
+	private final FafApiCommunicationService communicationService;
 	private final PlatformService platformService;
 	private final ObservableList<PlayerFX> reportedPlayersOfCurrentlySelectedReport = FXCollections.observableArrayList();
 
@@ -75,7 +77,8 @@ public class ModerationReportController implements Controller<Region> {
 					}
 				});
 
-		ViewHelper.buildUserTableView(platformService, reportedPlayerView, reportedPlayersOfCurrentlySelectedReport, this::addBan);
+		ViewHelper.buildUserTableView(platformService, reportedPlayerView, reportedPlayersOfCurrentlySelectedReport, this::addBan,
+				playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), communicationService);
 	}
 
 	private void addBan(PlayerFX accountFX) {

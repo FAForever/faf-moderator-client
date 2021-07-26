@@ -215,4 +215,9 @@ public class UserService {
         log.debug("Patching UserNote of id: " + userNote.getId());
         return userNoteMapper.map(fafApi.patch(ElideNavigator.of(UserNote.class).id(userNote.getId()), userNote));
     }
+
+    public void updatePlayer(String id, String newName) {
+        log.debug("Update of player of player id: " + id);
+        fafApi.forceRenameUserName(id, newName);
+    }
 }
