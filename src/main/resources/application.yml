@@ -7,8 +7,8 @@ faforever:
     max-page-size: 10_000
     max-result-size: 1_000_000
   map-generator:
-    repoAndOwnerName: FAForever/Neroxis-Map-Generator
-    queryVersionsUrl: https://api.github.com/repos/${faforever.map-generator.repoAndOwnerName}/releases
+    repo-and-owner-name: FAForever/Neroxis-Map-Generator
+    query-versions-url: https://api.github.com/repos/${faforever.map-generator.repo-and-owner-name}/releases
     minSupportedVersion: 1.4.3
   vault:
     base-url: http://content.faforever.com
@@ -16,22 +16,28 @@ faforever:
   environments:
     "[faforever.com]":
       base-url: https://api.faforever.com
-      client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
-      client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
-      access-token-uri: https://api.faforever.com/oauth/token
+      client-id: faf-moderator-client
       replay-download-url-format: https://replay.faforever.com/%s
+      oauth-base-url: https://hydra.faforever.com
+      oauth-redirect-url: http://localhost
+      oauth-scopes: upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: https://user.faforever.com
     "[test.faforever.com]":
       base-url: https://api.test.faforever.com
-      client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
-      client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
-      access-token-uri: https://api.test.faforever.com/oauth/token
+      client-id: faf-moderator-client
       replay-download-url-format: https://replay.test.faforever.com/%s
+      oauth-base-url: https://hydra.test.faforever.com
+      oauth-redirect-url: http://localhost
+      oauth-scopes: upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: https://user.test.faforever.com
     "[localhost:8010]":
       base-url: http://localhost:8010
-      client-id: postman
-      client-secret: postman
-      access-token-uri: http://localhost:8010/oauth/token
+      client-id: faf-moderator-client
       replay-download-url-format: https://replay.test.faforever.com/%s
+      oauth-base-url: http://localhost:4444
+      oauth-redirect-url: http://localhost
+      oauth-scopes: upload_avatar administrative_actions read_sensible_userdata manage_vault
+      user-base-url: http://localhost:8080
 
 logging:
   level:

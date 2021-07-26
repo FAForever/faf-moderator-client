@@ -5,9 +5,12 @@ import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.FafUserCommunicationService;
+import com.faforever.moderatorclient.api.dto.hydra.RevokeRefreshTokenRequest;
 import com.faforever.moderatorclient.mapstruct.BanInfoMapper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.google.common.collect.ImmutableMap;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
@@ -18,19 +21,18 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class BanService {
+    private static final String REVOKE_ENDPOINT = "/oauth2/revokeTokens";
 
     private final BanInfoMapper banInfoMapper;
     private final FafApiCommunicationService fafApi;
-
-    public BanService(BanInfoMapper banInfoMapper, FafApiCommunicationService fafApi) {
-        this.banInfoMapper = banInfoMapper;
-        this.fafApi = fafApi;
-    }
+    private final FafUserCommunicationService fafUser;
 
     public BanInfo patchBanInfo(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
-        log.debug("Patching BanInfo of id: ", banInfo.getId());
+        log.debug("Patching BanInfo of id: {}", banInfo.getId());
+        fafUser.post(REVOKE_ENDPOINT, RevokeRefreshTokenRequest.allClientsOf(banInfo.getPlayer().getId()));
         banInfo.setAuthor(null);
         banInfo.setPlayer(null);
         return fafApi.patch(ElideNavigator.of(BanInfo.class).id(banInfo.getId()), banInfo);
@@ -39,7 +41,17 @@ public class BanService {
     public String createBan(@NotNull BanInfoFX banInfoFX) {
         BanInfo banInfo = banInfoMapper.map(banInfoFX);
         log.debug("Creating ban");
+        fafUser.post(REVOKE_ENDPOINT, RevokeRefreshTokenRequest.allClientsOf(banInfo.getPlayer().getId()));
         return fafApi.post(ElideNavigator.of(BanInfo.class).collection(), banInfo).getId();
+    }
+
+    public void updateBan(BanInfo banInfoUpdate) {
+        log.debug("Update for ban id: " + banInfoUpdate.getId());
+        ElideNavigatorOnId<BanInfo> navigator = ElideNavigator.of(BanInfo.class)
+                .id(banInfoUpdate.getId());
+
+        fafUser.post(REVOKE_ENDPOINT, RevokeRefreshTokenRequest.allClientsOf(banInfoUpdate.getPlayer().getId()));
+        fafApi.patch(navigator, banInfoUpdate);
     }
 
     public CompletableFuture<List<BanInfoFX>> getLatestBans() {
@@ -65,14 +77,6 @@ public class BanService {
                 .addIncludeOnId("player")
                 .addIncludeOnId("author");
         return banInfoMapper.map(fafApi.getOne(navigator));
-    }
-
-    public void updateBan(BanInfo banInfoUpdate) {
-        log.debug("Update for ban id: " + banInfoUpdate.getId());
-        ElideNavigatorOnId<BanInfo> navigator = ElideNavigator.of(BanInfo.class)
-                .id(banInfoUpdate.getId());
-
-        fafApi.patch(navigator, banInfoUpdate);
     }
 
     public List<BanInfoFX> getBanInfoByBannedPlayerNameContains(String name) {

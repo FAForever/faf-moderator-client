@@ -3,8 +3,8 @@ package com.faforever.moderatorclient.api.event;
 import lombok.Value;
 
 @Value
-public class FafApiFailModifyEvent {
+public class FafUserFailModifyEvent {
     Throwable cause;
-    Class<?> entityClass;
+    Class<?> objectClass;
     String url;
 }

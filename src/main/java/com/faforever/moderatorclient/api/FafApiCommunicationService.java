@@ -6,8 +6,10 @@ import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.commons.api.elide.ElideNavigatorOnId;
 import com.faforever.commons.api.update.UpdateDto;
+import com.faforever.moderatorclient.api.event.ApiAuthorizedEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
+import com.faforever.moderatorclient.api.event.HydraAuthorizedEvent;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.mapstruct.CycleAvoidingMappingContext;
 import com.github.jasminb.jsonapi.JSONAPIDocument;
@@ -17,17 +19,14 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
-import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
-import org.springframework.security.oauth2.common.AuthenticationScheme;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -49,32 +48,33 @@ import java.util.stream.Collectors;
 public class FafApiCommunicationService {
     private final ResourceConverter defaultResourceConverter;
     private final ResourceConverter updateResourceConverter;
+    private final OAuthTokenInterceptor oAuthTokenInterceptor;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final JsonApiMessageConverter jsonApiMessageConverter;
     private final JsonApiErrorHandler jsonApiErrorHandler;
-    private final ApplicationContext applicationContext;
+    private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
+    private final RestTemplateBuilder restTemplateBuilder;
+    private final CountDownLatch authorizedLatch;
     @Getter
     private MeResult meResult;
-    private final CycleAvoidingMappingContext cycleAvoidingMappingContext;
-    private RestTemplateBuilder restTemplateBuilder;
-    private CountDownLatch authorizedLatch;
     private RestTemplate restTemplate;
     private EnvironmentProperties environmentProperties;
 
 
     public FafApiCommunicationService(@Qualifier("defaultResourceConverter") ResourceConverter defaultResourceConverter,
                                       @Qualifier("updateResourceConverter") ResourceConverter updateResourceConverter,
-                                      ApplicationEventPublisher applicationEventPublisher, CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
+                                      OAuthTokenInterceptor oAuthTokenInterceptor, ApplicationEventPublisher applicationEventPublisher,
+                                      CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
-                                      JsonApiErrorHandler jsonApiErrorHandler,
-                                      ApplicationContext applicationContext) {
+                                      JsonApiErrorHandler jsonApiErrorHandler) {
         this.defaultResourceConverter = defaultResourceConverter;
         this.updateResourceConverter = updateResourceConverter;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.jsonApiMessageConverter = jsonApiMessageConverter;
         this.jsonApiErrorHandler = jsonApiErrorHandler;
-        this.applicationContext = applicationContext;
+        this.oAuthTokenInterceptor = oAuthTokenInterceptor;
+        this.restTemplateBuilder = restTemplateBuilder;
 
         authorizedLatch = new CountDownLatch(1);
     }
@@ -85,10 +85,6 @@ public class FafApiCommunicationService {
 
     public void initialize(EnvironmentProperties environmentProperties) {
         this.environmentProperties = environmentProperties;
-        this.restTemplateBuilder = applicationContext.getBean(RestTemplateBuilder.class)
-                .additionalMessageConverters(jsonApiMessageConverter)
-                .errorHandler(jsonApiErrorHandler)
-                .rootUri(environmentProperties.getBaseUrl());
     }
 
     public boolean hasPermission(String... permissionTechnicalName) {
@@ -97,18 +93,14 @@ public class FafApiCommunicationService {
     }
 
     @SneakyThrows
-    private void authorize(String username, String password) {
-        log.debug("Configuring OAuth2 login with player = '{}', password=[hidden]", username);
-        ResourceOwnerPasswordResourceDetails details = new ResourceOwnerPasswordResourceDetails();
-        details.setClientId(environmentProperties.getClientId());
-        details.setClientSecret(environmentProperties.getClientSecret());
-        details.setClientAuthenticationScheme(AuthenticationScheme.header);
-        details.setAccessTokenUri(environmentProperties.getAccessTokenUri());
-        details.setUsername(username);
-        details.setPassword(password);
+    @EventListener
+    public void authorize(HydraAuthorizedEvent event) {
+        meResult = null;
 
-        restTemplate = restTemplateBuilder.configure(new OAuth2RestTemplate(details));
-        restTemplate.setInterceptors(Collections.singletonList(
+        restTemplate = restTemplateBuilder.additionalMessageConverters(jsonApiMessageConverter)
+                .errorHandler(jsonApiErrorHandler)
+                .rootUri(environmentProperties.getBaseUrl())
+                .interceptors(List.of(oAuthTokenInterceptor,
                 (request, body, execution) -> {
                     HttpHeaders headers = request.getHeaders();
 
@@ -122,23 +114,17 @@ public class FafApiCommunicationService {
                     }
                     return execution.execute(request, body);
                 }
-        ));
+        )).build();
 
-        authorizedLatch.countDown();
-    }
-
-    /**
-     * @return MeResult of the player if login was successful, else null
-     */
-    public MeResult login(String username, String password) {
-        authorize(username, password);
         try {
             meResult = getOne("/me", MeResult.class);
-            return meResult;
         } catch (OAuth2AccessDeniedException e) {
             log.error("login failed", e);
-            return null;
+            return;
         }
+
+        authorizedLatch.countDown();
+        applicationEventPublisher.publishEvent(new ApiAuthorizedEvent());
     }
 
     @SneakyThrows

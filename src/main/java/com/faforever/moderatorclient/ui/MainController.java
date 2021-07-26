@@ -4,6 +4,8 @@ import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
+import com.faforever.moderatorclient.api.event.FafUserFailModifyEvent;
+import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
 import com.faforever.moderatorclient.ui.main_window.AvatarsController;
 import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
 import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
@@ -203,7 +205,6 @@ public class MainController implements Controller<TabPane> {
 
         Stage loginDialog = new Stage();
         loginDialog.setOnCloseRequest(event -> System.exit(0));
-        loginDialog.setAlwaysOnTop(true);
         loginDialog.setTitle("FAF Moderator Client");
         Scene scene = new Scene(loginController.getRoot());
         scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
@@ -224,5 +225,16 @@ public class MainController implements Controller<TabPane> {
     public void onFafApiGetFailed(FafApiFailModifyEvent event) {
         Platform.runLater(() ->
                 ViewHelper.exceptionDialog("Sending updated data to API failed", MessageFormat.format("Something went wrong while sending data of type ''{0}'' to the API. The related change was not saved. You might wanna try again. Please check if the data you entered is valid. \n\nPlease contact the maintainer and give him the details from the box below.", event.getEntityClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
+    }
+
+    @EventListener
+    public void onFafUserGetFailed(FafUserFailModifyEvent event) {
+        Platform.runLater(() ->
+                ViewHelper.exceptionDialog("Sending updated data to User Service failed", MessageFormat.format("Something went wrong while sending data of type ''{0}'' to the User Service. The related change was not saved. You might wanna try again. Please check if the data you entered is valid. \n\nPlease contact the maintainer and give him the details from the box below.", event.getObjectClass().getSimpleName()), event.getCause(), Optional.of(event.getUrl())));
+    }
+
+    @EventListener
+    public void onTokenExpired(TokenExpiredEvent event) {
+        display();
     }
 }
