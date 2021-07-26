@@ -31,6 +31,7 @@ import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
+import com.faforever.moderatorclient.ui.domain.UniqueIdFx;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
