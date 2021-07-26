@@ -6,8 +6,21 @@ import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
-import com.faforever.moderatorclient.ui.*;
-import com.faforever.moderatorclient.ui.domain.*;
+import com.faforever.moderatorclient.ui.BanInfoController;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.PlatformService;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.UserNoteController;
+import com.faforever.moderatorclient.ui.ViewHelper;
+import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
+import com.faforever.moderatorclient.ui.domain.AvatarFX;
+import com.faforever.moderatorclient.ui.domain.BanInfoFX;
+import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
+import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.NameRecordFX;
+import com.faforever.moderatorclient.ui.domain.PlayerFX;
+import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -17,7 +30,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +51,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -55,7 +77,7 @@ public class UserManagementController implements Controller<SplitPane> {
 
     private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
 
-    @Value("${faforever.vault.replayDownloadUrlFormat}")
+    @Value("${faforever.vault.replay-download-url-format}")
     private String replayDownLoadFormat;
     private final FafApiCommunicationService communicationService;
 
