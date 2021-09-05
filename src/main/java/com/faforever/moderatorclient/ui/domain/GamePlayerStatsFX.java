@@ -2,9 +2,17 @@ package com.faforever.moderatorclient.ui.domain;
 
 import com.faforever.commons.api.dto.Faction;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public class GamePlayerStatsFX extends AbstractEntityFX {
     private final StringProperty id;
@@ -13,18 +21,14 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
     private final ObjectProperty<Byte> color;
     private final ObjectProperty<Byte> team;
     private final ObjectProperty<Byte> startSpot;
-    private final FloatProperty beforeMean;
-    private final FloatProperty beforeDeviation;
-    private final ObjectProperty<Float> afterMean;
-    private final ObjectProperty<Float> afterDeviation;
     private final ObjectProperty<Byte> score;
     private final ObjectProperty<OffsetDateTime> scoreTime;
     private final ObjectProperty<GameFX> game;
     private final ObjectProperty<PlayerFX> player;
     private final ObjectProperty<Number> ratingChange;
-    private final IntegerProperty beforeRating;
+    private final ObjectProperty<Integer> beforeRating;
     private final ObjectProperty<Integer> afterRating;
-
+    private final ObservableList<LeaderboardRatingJournalFX> leaderboardRatingJournals;
 
     public GamePlayerStatsFX() {
         id = new SimpleStringProperty();
@@ -33,37 +37,47 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         color = new SimpleObjectProperty<>();
         team = new SimpleObjectProperty<>();
         startSpot = new SimpleObjectProperty<>();
-        beforeMean = new SimpleFloatProperty();
-        beforeDeviation = new SimpleFloatProperty();
-        afterMean = new SimpleObjectProperty<>();
-        afterDeviation = new SimpleObjectProperty<>();
         score = new SimpleObjectProperty<>();
         scoreTime = new SimpleObjectProperty<>();
         game = new SimpleObjectProperty<>();
         player = new SimpleObjectProperty<>();
+        leaderboardRatingJournals = FXCollections.observableArrayList();
         ratingChange = new SimpleObjectProperty<>();
-        beforeRating = new SimpleIntegerProperty();
+        beforeRating = new SimpleObjectProperty<>();
         afterRating = new SimpleObjectProperty<>();
-        beforeRating.bind(beforeMean.subtract(beforeDeviation.multiply(3)));
+        leaderboardRatingJournals.stream().findFirst().ifPresent(ratingJournal -> {
+            beforeRating.bind(Bindings.createObjectBinding(() -> {
+                Double beforeDeviation = ratingJournal.getDeviationBefore();
+                Double beforeMean = ratingJournal.getMeanBefore();
 
-        afterRating.bind(Bindings.createObjectBinding(() -> {
-            Float afterDeviation = this.afterDeviation.get();
-            Float afterMean = this.afterMean.get();
+                if (beforeDeviation == null || beforeMean == null) {
+                    return null;
+                }
 
-            if (afterDeviation != null && afterMean != null) {
+                return (int) (beforeMean - 3 * beforeDeviation);
+            }, ratingJournal.deviationBeforeProperty(), ratingJournal.meanBeforeProperty()));
+
+            afterRating.bind(Bindings.createObjectBinding(() -> {
+                Double afterDeviation = ratingJournal.getDeviationAfter();
+                Double afterMean = ratingJournal.getMeanAfter();
+
+                if (afterDeviation == null || afterMean == null) {
+                    return null;
+                }
+
                 return (int) (afterMean - 3 * afterDeviation);
-            }
-            return null;
-        }, afterMean, afterDeviation));
-        ratingChange.bind(Bindings.createObjectBinding(() -> {
-            Integer after = afterRating.get();
-            Integer before = beforeRating.get();
-            if (after != null) {
+            }, ratingJournal.deviationAfterProperty(), ratingJournal.meanAfterProperty()));
+            ratingChange.bind(Bindings.createObjectBinding(() -> {
+                Integer after = afterRating.get();
+                Integer before = beforeRating.get();
+
+                if (after == null || before == null) {
+                    return null;
+                }
+
                 return after - before;
-            } else {
-                return null;
-            }
-        }, afterRating, beforeRating));
+            }, afterRating, beforeRating));
+        });
     }
 
     public int getBeforeRating() {
@@ -74,7 +88,7 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         this.beforeRating.set(beforeRating);
     }
 
-    public IntegerProperty beforeRatingProperty() {
+    public ObjectProperty<Integer> beforeRatingProperty() {
         return beforeRating;
     }
 
@@ -176,54 +190,6 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
         return startSpot;
     }
 
-    public float getBeforeMean() {
-        return beforeMean.get();
-    }
-
-    public void setBeforeMean(float beforeMean) {
-        this.beforeMean.set(beforeMean);
-    }
-
-    public FloatProperty beforeMeanProperty() {
-        return beforeMean;
-    }
-
-    public float getBeforeDeviation() {
-        return beforeDeviation.get();
-    }
-
-    public void setBeforeDeviation(float beforeDeviation) {
-        this.beforeDeviation.set(beforeDeviation);
-    }
-
-    public FloatProperty beforeDeviationProperty() {
-        return beforeDeviation;
-    }
-
-    public float getAfterMean() {
-        return afterMean.get();
-    }
-
-    public void setAfterMean(float afterMean) {
-        this.afterMean.set(afterMean);
-    }
-
-    public ObjectProperty<Float> afterMeanProperty() {
-        return afterMean;
-    }
-
-    public float getAfterDeviation() {
-        return afterDeviation.get();
-    }
-
-    public void setAfterDeviation(float afterDeviation) {
-        this.afterDeviation.set(afterDeviation);
-    }
-
-    public ObjectProperty<Float> afterDeviationProperty() {
-        return afterDeviation;
-    }
-
     public Byte getScore() {
         return score.get();
     }
@@ -270,5 +236,15 @@ public class GamePlayerStatsFX extends AbstractEntityFX {
 
     public ObjectProperty<PlayerFX> playerProperty() {
         return player;
+    }
+
+    public ObservableList<LeaderboardRatingJournalFX> getLeaderboardRatingJournals() {
+        return leaderboardRatingJournals;
+    }
+
+    public void setLeaderboardRatingJournals(List<LeaderboardRatingJournalFX> ratingJournals) {
+        if (ratingJournals != null) {
+            this.leaderboardRatingJournals.setAll(ratingJournals);
+        }
     }
 }
