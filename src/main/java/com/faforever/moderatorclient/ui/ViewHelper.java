@@ -1137,7 +1137,7 @@ public class ViewHelper {
         tableView.getColumns().add(rankedColumn);
         extractors.put(rankedColumn, gamePlayerStatsFX -> gamePlayerStatsFX.getGame().getValidity());
 
-        TableColumn<GamePlayerStatsFX, Number> beforeGameRatingColumn = new TableColumn<>("Rating Before Game");
+        TableColumn<GamePlayerStatsFX, Integer> beforeGameRatingColumn = new TableColumn<>("Rating Before Game");
         beforeGameRatingColumn.setCellValueFactory(o -> o.getValue().beforeRatingProperty());
         beforeGameRatingColumn.setMinWidth(150);
         tableView.getColumns().add(beforeGameRatingColumn);

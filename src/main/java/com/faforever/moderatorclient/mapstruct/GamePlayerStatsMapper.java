@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, GameMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, GameMapper.class, PlayerMapper.class, LeaderboardRatingJournalMapper.class, CycleAvoidingMappingContext.class})
 public abstract class GamePlayerStatsMapper {
 
     @Mapping(target = "beforeRating", ignore = true)
