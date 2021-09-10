@@ -43,8 +43,8 @@ if (javafxPlatform == "unspecified") {
 println "Platform is: ${javafxPlatform}"
 
 dependencies {
-    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.4.3"))
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.4.3"))
+    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.5.2"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.2"))
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
@@ -53,17 +53,17 @@ dependencies {
     implementation 'org.jetbrains:annotations:13.0'
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.2'
+    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.2'
     implementation 'javax.inject:javax.inject:1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
-    implementation 'com.github.jasminb:jsonapi-converter:0.10'
+    implementation 'com.github.jasminb:jsonapi-converter:0.11'
     implementation 'com.github.FAForever.faf-java-commons:faf-commons-data:758a7c1f83b5ccf2d42fb10a6e9fc78b59cee3ed'
     implementation 'com.github.FAForever.faf-java-commons:faf-commons-api:758a7c1f83b5ccf2d42fb10a6e9fc78b59cee3ed'
     implementation 'com.github.micheljung:nocatch:1.1'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.11'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'com.github.rutledgepaulv:q-builders:1.6'
-    implementation 'com.google.guava:guava:29.0-jre'
+    implementation 'com.google.guava:guava:30.1-jre'
     implementation 'org.mapstruct:mapstruct:1.3.1.Final'
     implementation "org.openjfx:javafx-base:${javafxVersion}:${javafxPlatform}"
     implementation "org.openjfx:javafx-controls:${javafxVersion}:${javafxPlatform}"
