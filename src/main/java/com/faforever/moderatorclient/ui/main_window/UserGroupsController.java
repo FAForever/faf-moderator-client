@@ -85,7 +85,7 @@ public class UserGroupsController implements Controller<HBox> {
 
         GroupAddPermissionController groupPermissionController = uiService.loadFxml("ui/groupAddPermission.fxml");
         groupPermissionController.setGroup(selectedGroup);
-        groupPermissionController.addAddedListener(groupPermissions::addAll);
+        groupPermissionController.addAddedListener(group -> onRefreshGroups());
 
         Stage userGroupDialog = new Stage();
         userGroupDialog.setTitle("Add Permission");
@@ -99,7 +99,7 @@ public class UserGroupsController implements Controller<HBox> {
 
         GroupAddChildController groupChildController = uiService.loadFxml("ui/groupAddChildren.fxml");
         groupChildController.setGroup(selectedGroup);
-        groupChildController.addAddedListener(childUserGroups::addAll);
+        groupChildController.addAddedListener(group -> onRefreshGroups());
 
         Stage userGroupDialog = new Stage();
         userGroupDialog.setTitle("Add Permission");

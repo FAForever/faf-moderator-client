@@ -69,8 +69,10 @@ public class GroupAddChildController implements Controller<Pane> {
         Assert.notNull(userGroupFX, "You can't save if userGroupFX is null.");
 
         if (!childrenToAdd.isEmpty()) {
-            userGroupFX.getChildren().addAll(childrenToAdd);
-            permissionService.patchUserGroup(userGroupFX);
+            childrenToAdd.forEach(childGroup -> {
+                childGroup.setParent(userGroupFX);
+                permissionService.patchUserGroup(childGroup);
+            });
 
             if (addedListener != null) {
                 addedListener.accept(childrenToAdd);

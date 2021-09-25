@@ -207,7 +207,7 @@ public class MainController implements Controller<TabPane> {
     private void initPermissionTab() {
         if (checkPermissionForTab(permissionTab, GroupPermission.ROLE_READ_USER_GROUP)
         && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
-            userGroupsController = uiService.loadFxml("ui/main_window/permission.fxml");
+            userGroupsController = uiService.loadFxml("ui/main_window/userGroups.fxml");
             permissionTab.setContent(userGroupsController.getRoot());
             initLoading(permissionTab, userGroupsController::onRefreshGroups);
         }

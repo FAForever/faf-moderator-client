@@ -238,6 +238,9 @@ public class UserManagementController implements Controller<SplitPane> {
         avatarAssignments.clear();
         userAvatarsTableView.getSortOrder().clear();
 
+        userGroups.clear();
+        userGroupsTableView.getSortOrder().clear();
+
         if (newValue != null) {
             teamkills.addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userNotes.addAll(userService.getUserNotes(newValue.getId()));

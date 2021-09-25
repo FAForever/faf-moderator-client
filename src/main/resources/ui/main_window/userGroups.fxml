@@ -36,7 +36,7 @@
             </HBox>
         </VBox>
         <VBox spacing="5.0" alignment="CENTER" HBox.hgrow="ALWAYS">
-            <Label text="Children"/>
+            <Label text="Members"/>
             <TableView fx:id="membersTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
             <HBox spacing="2.0">
                 <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#onRemoveMember" text="Remove Member"/>
