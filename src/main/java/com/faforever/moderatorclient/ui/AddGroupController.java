@@ -73,11 +73,15 @@ public class AddGroupController implements Controller<Pane> {
         List<UserGroupFX> childrenToAdd = groupChildrenListView.getSelectionModel().getSelectedItems();
 
         userGroupFX.getPermissions().addAll(permissionsToAdd);
-        userGroupFX.getChildren().addAll(childrenToAdd);
         userGroupFX.setPublic_(publicCheckBox.isSelected());
         userGroupFX.setTechnicalName(technicalName.getText());
         userGroupFX.setNameKey(nameKey.getText());
-        permissionService.postUserGroup(userGroupFX);
+        UserGroupFX newGroup = permissionService.postUserGroup(userGroupFX);
+
+        childrenToAdd.forEach(child -> {
+            child.setParent(newGroup);
+            permissionService.patchUserGroup(child);
+        });
 
         if (addedListener != null) {
             addedListener.accept(userGroupFX);

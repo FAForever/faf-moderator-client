@@ -56,13 +56,13 @@ public class PermissionService {
 						.setId(userGroup.getId()));
 	}
 
-	public void postUserGroup(UserGroupFX userGroupFX) {
-		postUserGroup(userGroupMapper.map(userGroupFX));
+	public UserGroupFX postUserGroup(UserGroupFX userGroupFX) {
+		return postUserGroup(userGroupMapper.map(userGroupFX));
 	}
 
-	public void postUserGroup(UserGroup userGroup) {
+	public UserGroupFX postUserGroup(UserGroup userGroup) {
 		log.debug("Creating userGroup: {}", userGroup.getTechnicalName());
-		fafApi.post(ElideNavigator.of(UserGroup.class).collection(), userGroup);
+		return userGroupMapper.map(fafApi.post(ElideNavigator.of(UserGroup.class).collection(), userGroup));
 	}
 
 	public CompletableFuture<List<GroupPermissionFX>> getAllGroupPermissions() {
