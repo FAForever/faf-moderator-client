@@ -21,8 +21,8 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -219,10 +219,10 @@ public class MainController implements Controller<TabPane> {
         Stage loginDialog = new Stage();
         loginDialog.setOnCloseRequest(event -> System.exit(0));
         loginDialog.setTitle("FAF Moderator Client");
+        loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
         Scene scene = new Scene(loginController.getRoot());
         scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
         loginDialog.setScene(scene);
-        loginDialog.initStyle(StageStyle.UTILITY);
         loginDialog.showAndWait();
 
         initializeAfterLogin();
