@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<GridPane fx:id="root" hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.UserGroupController">
+<GridPane fx:id="root" hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.GroupAddUserController">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" />
         <ColumnConstraints hgrow="ALWAYS" />
@@ -28,16 +28,10 @@
         <Label text="Group To Add" GridPane.rowIndex="1" />
         <ComboBox fx:id="groupComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1" minWidth="200"/>
         <Label text="Group Properties" GridPane.rowIndex="2" />
-        <HBox GridPane.columnIndex="1" GridPane.rowIndex="2" spacing="10.0">
-            <VBox spacing="5.0">
-                <Label text="Permissions"/>
-                <ListView fx:id="groupPermissionsListView" prefHeight="200.0" prefWidth="200.0"/>
-            </VBox>
-            <VBox spacing="5.0">
-                <Label text="Children"/>
-                <ListView fx:id="groupChildrenListView" prefHeight="200.0" prefWidth="200.0"/>
-            </VBox>
-        </HBox>
+        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Permissions"/>
+            <ListView fx:id="groupPermissionsListView" prefHeight="200.0" prefWidth="200.0"/>
+        </VBox>
 
         <HBox alignment="BOTTOM_RIGHT" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
             <children>

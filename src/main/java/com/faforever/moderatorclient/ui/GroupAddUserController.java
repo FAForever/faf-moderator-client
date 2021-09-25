@@ -2,6 +2,7 @@ package com.faforever.moderatorclient.ui;
 
 import com.faforever.moderatorclient.api.domain.PermissionService;
 import com.faforever.moderatorclient.ui.data_cells.StringListCell;
+import com.faforever.moderatorclient.ui.data_cells.UserGroupStringConverter;
 import com.faforever.moderatorclient.ui.domain.GroupPermissionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.UserGroupFX;
@@ -12,7 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +28,13 @@ import java.util.function.Consumer;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @Slf4j
 @RequiredArgsConstructor
-public class UserGroupController implements Controller<Pane> {
+public class GroupAddUserController implements Controller<Pane> {
     private final PermissionService permissionService;
 
     public GridPane root;
     public TextField affectedUserTextField;
     public ComboBox<UserGroupFX> groupComboBox;
     public ListView<GroupPermissionFX> groupPermissionsListView;
-    public ListView<UserGroupFX> groupChildrenListView;
 
     @Getter
     private PlayerFX playerFX;
@@ -48,17 +47,14 @@ public class UserGroupController implements Controller<Pane> {
     @FXML
     public void initialize() {
         permissionService.getAllUserGroups().thenAccept(userGroups -> groupComboBox.getItems().addAll(userGroups));
-        groupComboBox.setConverter(getUserGroupConverter());
+        groupComboBox.setConverter(new UserGroupStringConverter());
         groupComboBox.setCellFactory(param -> new StringListCell<>(UserGroupFX::getTechnicalName));
-        groupChildrenListView.setCellFactory(param -> new StringListCell<>(UserGroupFX::getTechnicalName));
         groupPermissionsListView.setCellFactory(param -> new StringListCell<>(GroupPermissionFX::getTechnicalName));
         groupComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             groupPermissionsListView.getItems().clear();
-            groupChildrenListView.getItems().clear();
 
             if (newValue != null) {
                 groupPermissionsListView.getItems().addAll(newValue.getPermissions());
-                groupChildrenListView.getItems().addAll(newValue.getChildren());
             }
         });
     }
@@ -100,22 +96,5 @@ public class UserGroupController implements Controller<Pane> {
     private void close() {
         Stage stage = (Stage) root.getScene().getWindow();
         stage.close();
-    }
-
-    private StringConverter<UserGroupFX> getUserGroupConverter() {
-        return new StringConverter<>() {
-            @Override
-            public String toString(UserGroupFX userGroupFX) {
-                if (userGroupFX == null) {
-                    return "";
-                }
-                return userGroupFX.getTechnicalName();
-            }
-
-            @Override
-            public UserGroupFX fromString(String s) {
-                throw new UnsupportedOperationException();
-            }
-        };
     }
 }

@@ -33,6 +33,15 @@ public class PermissionService {
 		this.fafApi = fafApi;
 	}
 
+	public void deleteUserGroup(UserGroupFX userGroupFX) {
+		deleteUserGroup(userGroupMapper.map(userGroupFX));
+	}
+
+	public void deleteUserGroup(UserGroup userGroup) {
+		log.debug("Deleting userGroup id: {}", userGroup.getId());
+		fafApi.delete(ElideNavigator.of(userGroup));
+	}
+
 	public void patchUserGroup(UserGroupFX userGroupFX) {
 		patchUserGroup(userGroupMapper.map(userGroupFX));
 	}
@@ -45,6 +54,15 @@ public class PermissionService {
 						.setPermissions(userGroup.getPermissions())
 						.setPublic_(userGroup.isPublic_())
 						.setId(userGroup.getId()));
+	}
+
+	public void postUserGroup(UserGroupFX userGroupFX) {
+		postUserGroup(userGroupMapper.map(userGroupFX));
+	}
+
+	public void postUserGroup(UserGroup userGroup) {
+		log.debug("Creating userGroup: {}", userGroup.getTechnicalName());
+		fafApi.post(ElideNavigator.of(UserGroup.class).collection(), userGroup);
 	}
 
 	public CompletableFuture<List<GroupPermissionFX>> getAllGroupPermissions() {

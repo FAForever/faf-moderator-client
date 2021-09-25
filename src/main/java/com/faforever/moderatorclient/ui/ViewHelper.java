@@ -776,7 +776,7 @@ public class ViewHelper {
         tableView.setItems(data);
         HashMap<TableColumn<UserGroupFX, ?>, Function<UserGroupFX, ?>> extractors = new HashMap<>();
 
-        TableColumn<UserGroupFX, String> idColumn = new TableColumn<>("Group ID");
+        TableColumn<UserGroupFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setMinWidth(50);
@@ -790,12 +790,12 @@ public class ViewHelper {
         tableView.getColumns().add(nameColumn);
         extractors.put(nameColumn, UserGroupFX::getTechnicalName);
 
-        TableColumn<UserGroupFX, String> parentColumn = new TableColumn<>("Parent Group");
-        parentColumn.setCellValueFactory(o -> Optional.ofNullable(o.getValue().getParent()).map(UserGroupFX::technicalNameProperty).orElse(new SimpleStringProperty()));
-        parentColumn.setComparator(Comparator.naturalOrder());
-        parentColumn.setMinWidth(150);
-        tableView.getColumns().add(parentColumn);
-        extractors.put(parentColumn, userGroupFX -> Optional.ofNullable(userGroupFX.getParent()).map(UserGroupFX::getTechnicalName).orElse(""));
+        TableColumn<UserGroupFX, Boolean> publicColumn = new TableColumn<>("Public");
+        publicColumn.setCellValueFactory(o -> o.getValue().public_Property());
+        publicColumn.setComparator(Comparator.naturalOrder());
+        publicColumn.setMinWidth(50);
+        tableView.getColumns().add(publicColumn);
+        extractors.put(publicColumn, UserGroupFX::getPublic_);
 
         applyCopyContextMenus(tableView, extractors);
     }
@@ -804,10 +804,10 @@ public class ViewHelper {
         tableView.setItems(data);
         HashMap<TableColumn<GroupPermissionFX, ?>, Function<GroupPermissionFX, ?>> extractors = new HashMap<>();
 
-        TableColumn<GroupPermissionFX, String> idColumn = new TableColumn<>("Permission ID");
+        TableColumn<GroupPermissionFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
-        idColumn.setMinWidth(100);
+        idColumn.setMinWidth(50);
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, GroupPermissionFX::getId);
 
@@ -817,6 +817,27 @@ public class ViewHelper {
         nameColumn.setMinWidth(150);
         tableView.getColumns().add(nameColumn);
         extractors.put(nameColumn, GroupPermissionFX::getTechnicalName);
+
+        applyCopyContextMenus(tableView, extractors);
+    }
+
+    public static void buildSimpleUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data) {
+        tableView.setItems(data);
+        HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        idColumn.setCellFactory(tableColumn -> ViewHelper.playerFXCellFactory(tableColumn, PlayerFX::getId));
+        idColumn.setComparator(Comparator.comparingInt(o -> Integer.parseInt(o.getId())));
+        idColumn.setMinWidth(70);
+        tableView.getColumns().add(idColumn);
+        extractors.put(idColumn, PlayerFX::getId);
+
+        TableColumn<PlayerFX, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().loginProperty());
+        nameColumn.setMinWidth(150);
+        tableView.getColumns().add(nameColumn);
+        extractors.put(nameColumn, PlayerFX::getLogin);
 
         applyCopyContextMenus(tableView, extractors);
     }

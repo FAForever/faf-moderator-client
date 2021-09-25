@@ -11,9 +11,9 @@ import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
 import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
 import com.faforever.moderatorclient.ui.main_window.MapVaultController;
 import com.faforever.moderatorclient.ui.main_window.ModVaultController;
-import com.faforever.moderatorclient.ui.main_window.PermissionController;
 import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
 import com.faforever.moderatorclient.ui.main_window.TutorialController;
+import com.faforever.moderatorclient.ui.main_window.UserGroupsController;
 import com.faforever.moderatorclient.ui.main_window.UserManagementController;
 import com.faforever.moderatorclient.ui.main_window.VotingController;
 import com.faforever.moderatorclient.ui.moderation_reports.ModerationReportController;
@@ -66,7 +66,7 @@ public class MainController implements Controller<TabPane> {
     private VotingController votingController;
     private TutorialController tutorialController;
     private MessagesController messagesController;
-    private PermissionController permissionController;
+    private UserGroupsController userGroupsController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
     private final FafApiCommunicationService communicationService;
@@ -207,9 +207,9 @@ public class MainController implements Controller<TabPane> {
     private void initPermissionTab() {
         if (checkPermissionForTab(permissionTab, GroupPermission.ROLE_READ_USER_GROUP)
         && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
-            permissionController = uiService.loadFxml("ui/main_window/permission.fxml");
-            permissionTab.setContent(permissionController.getRoot());
-            initLoading(permissionTab, permissionController::onRefreshPermissions);
+            userGroupsController = uiService.loadFxml("ui/main_window/permission.fxml");
+            permissionTab.setContent(userGroupsController.getRoot());
+            initLoading(permissionTab, userGroupsController::onRefreshGroups);
         }
     }
 

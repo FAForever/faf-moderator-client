@@ -9,9 +9,9 @@ import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.GroupAddUserController;
 import com.faforever.moderatorclient.ui.PlatformService;
 import com.faforever.moderatorclient.ui.UiService;
-import com.faforever.moderatorclient.ui.UserGroupController;
 import com.faforever.moderatorclient.ui.UserNoteController;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
@@ -382,13 +382,13 @@ public class UserManagementController implements Controller<SplitPane> {
         PlayerFX selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
         Assert.notNull(selectedPlayer, "You need to select a player.");
 
-        UserGroupController userGroupController = uiService.loadFxml("ui/userGroup.fxml");
-        userGroupController.setPlayer(selectedPlayer);
-        userGroupController.addAddedListener(userGroups::add);
+        GroupAddUserController groupAddUserController = uiService.loadFxml("ui/groupAddUser.fxml");
+        groupAddUserController.setPlayer(selectedPlayer);
+        groupAddUserController.addAddedListener(userGroups::add);
 
         Stage userGroupDialog = new Stage();
         userGroupDialog.setTitle("Add User Group");
-        userGroupDialog.setScene(new Scene(userGroupController.getRoot()));
+        userGroupDialog.setScene(new Scene(groupAddUserController.getRoot()));
         userGroupDialog.showAndWait();
     }
 
