@@ -5,12 +5,12 @@ import com.faforever.commons.api.dto.VotingQuestion;
 import com.faforever.commons.api.dto.VotingSubject;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
-import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import com.faforever.moderatorclient.mapstruct.VotingChoiceMapper;
-import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
 import com.faforever.moderatorclient.mapstruct.VotingQuestionMapper;
-import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import com.faforever.moderatorclient.mapstruct.VotingSubjectMapper;
+import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
+import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
+import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -76,9 +76,9 @@ public class VotingService {
         log.debug("Retrieving all questions");
         List<VotingQuestion> result = fafApi.getAll(VotingQuestion.class, ElideNavigator.of(VotingQuestion.class)
                 .collection()
-                .addIncludeOnCollection("winners")
-                .addIncludeOnCollection("votingChoices")
-                .addIncludeOnCollection("votingSubject"));
+                .addInclude("winners")
+                .addInclude("votingChoices")
+                .addInclude("votingSubject"));
         log.trace("found {} questions", result.size());
         return result;
     }
@@ -121,7 +121,7 @@ public class VotingService {
         log.debug("Retrieving all choices");
         List<VotingChoice> result = fafApi.getAll(VotingChoice.class, ElideNavigator.of(VotingChoice.class)
                 .collection()
-                .addIncludeOnCollection("votingQuestion"));
+                .addInclude("votingQuestion"));
         log.trace("found {} choices", result.size());
         return result;
     }

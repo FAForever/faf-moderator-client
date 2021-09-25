@@ -2,7 +2,6 @@ package com.faforever.moderatorclient.api.domain;
 
 import com.faforever.commons.api.dto.FeaturedMod;
 import com.faforever.commons.api.dto.GamePlayerStats;
-import com.faforever.commons.api.dto.NameRecord;
 import com.faforever.commons.api.dto.Player;
 import com.faforever.commons.api.dto.Teamkill;
 import com.faforever.commons.api.dto.UserNote;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -57,22 +55,22 @@ public class UserService {
         }
 
         return builder
-                .addIncludeOnCollection(variablePrefix + "names")
-                .addIncludeOnCollection(variablePrefix + "globalRating")
-                .addIncludeOnCollection(variablePrefix + "ladder1v1Rating")
-                .addIncludeOnCollection(variablePrefix + "avatarAssignments")
-                .addIncludeOnCollection(variablePrefix + "avatarAssignments.avatar")
-                .addIncludeOnCollection(variablePrefix + "uniqueIds")
-                .addIncludeOnCollection(variablePrefix + "bans")
-                .addIncludeOnCollection(variablePrefix + "bans.author")
-                .addIncludeOnCollection(variablePrefix + "bans.revokeAuthor");
+                .addInclude(variablePrefix + "names")
+                .addInclude(variablePrefix + "globalRating")
+                .addInclude(variablePrefix + "ladder1v1Rating")
+                .addInclude(variablePrefix + "avatarAssignments")
+                .addInclude(variablePrefix + "avatarAssignments.avatar")
+                .addInclude(variablePrefix + "uniqueIds")
+                .addInclude(variablePrefix + "bans")
+                .addInclude(variablePrefix + "bans.author")
+                .addInclude(variablePrefix + "bans.revokeAuthor");
     }
 
     public List<PlayerFX> findLatestRegistrations() {
         log.debug("Searching for latest registrations");
         ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
                 .collection()
-                .addIncludeOnCollection("bans")
+                .addInclude("bans")
                 .addSortingRule("id", false)
                 .pageSize(50);
         addModeratorIncludes(navigator);
@@ -86,7 +84,7 @@ public class UserService {
         log.debug("Searching for player by attribute '{}' with pattern: {}", attribute, pattern);
         ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
+                .setFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
         addModeratorIncludes(navigator);
 
         List<Player> result = fafApi.getAll(Player.class, navigator);
@@ -98,9 +96,9 @@ public class UserService {
         log.debug("Searching for latest teamkills ");
         ElideNavigatorOnCollection<Teamkill> navigator = ElideNavigator.of(Teamkill.class)
                 .collection()
-                .addIncludeOnCollection("teamkiller")
-                .addIncludeOnCollection("teamkiller.bans")
-                .addIncludeOnCollection("victim")
+                .addInclude("teamkiller")
+                .addInclude("teamkiller.bans")
+                .addInclude("victim")
                 .addSortingRule("id", false);
 
         List<Teamkill> result = fafApi.getPage(Teamkill.class, navigator, 100, 1, Collections.emptyMap());
@@ -112,9 +110,9 @@ public class UserService {
         log.debug("Searching for teamkills invoked by player id: {}", userId);
         ElideNavigatorOnCollection<Teamkill> navigator = ElideNavigator.of(Teamkill.class)
                 .collection()
-                .addIncludeOnCollection("teamkiller")
-                .addIncludeOnCollection("victim")
-                .addFilter(ElideNavigator.qBuilder().string("teamkiller.id").eq(userId));
+                .addInclude("teamkiller")
+                .addInclude("victim")
+                .setFilter(ElideNavigator.qBuilder().string("teamkiller.id").eq(userId));
 
         List<Teamkill> result = fafApi.getAll(Teamkill.class, navigator);
         log.trace("found {} teamkills", result.size());
@@ -125,18 +123,18 @@ public class UserService {
         log.debug("Searching for games played by player id: {}", userId);
         ElideNavigatorOnCollection<GamePlayerStats> navigator = ElideNavigator.of(GamePlayerStats.class)
                 .collection()
-                .addIncludeOnCollection("game")
-                .addIncludeOnCollection("player")
-                .addIncludeOnCollection("game.host")
-                .addIncludeOnCollection("game.featuredMod")
-                .addIncludeOnCollection("game.mapVersion")
-                .addIncludeOnCollection("game.mapVersion.map")
+                .addInclude("game")
+                .addInclude("player")
+                .addInclude("game.host")
+                .addInclude("game.featuredMod")
+                .addInclude("game.mapVersion")
+                .addInclude("game.mapVersion.map")
                 .addSortingRule("scoreTime", false);
         if (featuredModFX != null) {
-            navigator.addFilter(ElideNavigator.qBuilder().string("game.featuredMod.technicalName").eq(featuredModFX.getTechnicalName())
+            navigator.setFilter(ElideNavigator.qBuilder().string("game.featuredMod.technicalName").eq(featuredModFX.getTechnicalName())
                     .and().string("player.id").eq(userId));
         } else {
-            navigator.addFilter(ElideNavigator.qBuilder().string("player.id").eq(userId));
+            navigator.setFilter(ElideNavigator.qBuilder().string("player.id").eq(userId));
         }
         return fafApi.getPage(GamePlayerStats.class, navigator, 100, page, Collections.emptyMap());
     }
@@ -155,8 +153,8 @@ public class UserService {
         log.debug("Search for player note id: " + userNoteId);
         ElideNavigatorOnId<UserNote> navigator = ElideNavigator.of(UserNote.class)
                 .id(userNoteId)
-                .addIncludeOnId("player")
-                .addIncludeOnId("author");
+                .addInclude("player")
+                .addInclude("author");
         return userNoteMapper.map(fafApi.getOne(navigator));
     }
 
@@ -164,9 +162,9 @@ public class UserService {
         log.debug("Search for all note of player id: " + userId);
         ElideNavigatorOnCollection<UserNote> navigator = ElideNavigator.of(UserNote.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("player.id").eq(userId))
-                .addIncludeOnCollection("player")
-                .addIncludeOnCollection("author");
+                .setFilter(ElideNavigator.qBuilder().string("player.id").eq(userId))
+                .addInclude("player")
+                .addInclude("author");
         return userNoteMapper.map(fafApi.getAll(UserNote.class, navigator));
     }
 

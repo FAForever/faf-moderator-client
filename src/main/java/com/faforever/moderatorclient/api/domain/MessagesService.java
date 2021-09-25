@@ -54,7 +54,7 @@ public class MessagesService {
         Message message = messagesMapper.map(messageFx);
         List<Message> messages = fafApi.getAll(Message.class, ElideNavigator.of(Message.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("region").eq(message.getRegion())
+                .setFilter(ElideNavigator.qBuilder().string("region").eq(message.getRegion())
                         .and().string("language").eq(message.getLanguage())
                         .and().string("key").eq(message.getKey())));
         if (messages.size() > 1) {

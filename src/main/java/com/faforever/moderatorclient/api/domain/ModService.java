@@ -32,14 +32,14 @@ public class ModService {
         log.debug("Searching for mods by attribute '{}' with pattern: {}", attribute, pattern);
         ElideNavigatorOnCollection<ModVersion> routeBuilder = ElideNavigator.of(ModVersion.class)
                 .collection()
-                .addIncludeOnCollection("mod")
-                .addIncludeOnCollection("mod.uploader");
+                .addInclude("mod")
+                .addInclude("mod.uploader");
 
         if (excludeHidden) {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("mod." + attribute).eq(pattern)
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("mod." + attribute).eq(pattern)
                     .and().bool("hidden").isFalse());
         } else {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("mod." + attribute).eq(pattern));
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("mod." + attribute).eq(pattern));
         }
 
         List<Mod> result = communicationService.getAll(ModVersion.class, routeBuilder).stream()
@@ -80,10 +80,10 @@ public class ModService {
         log.debug("Searching for mods with pattern: {}", modNamePattern);
         ElideNavigatorOnCollection<Mod> routeBuilder = ElideNavigator.of(Mod.class)
                 .collection()
-                .addIncludeOnCollection("versions");
+                .addInclude("versions");
 
         if (modNamePattern != null && modNamePattern.length() > 0) {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("displayName").eq(modNamePattern));
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("displayName").eq(modNamePattern));
         }
 
         List<Mod> result = communicationService.getAll(Mod.class, routeBuilder);
@@ -122,7 +122,7 @@ public class ModService {
         log.debug("Requesting Modversion with id: {}", id);
         return !communicationService.getAll(ModVersion.class, ElideNavigator.of(ModVersion.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
+                .setFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
     }
 
@@ -130,8 +130,8 @@ public class ModService {
         log.debug("Searching for latest modVersions ");
         ElideNavigatorOnCollection<ModVersion> navigator = ElideNavigator.of(ModVersion.class)
                 .collection()
-                .addIncludeOnCollection("mod")
-                .addIncludeOnCollection("mod.uploader")
+                .addInclude("mod")
+                .addInclude("mod.uploader")
                 .addSortingRule("id", false);
 
         List<ModVersion> result = communicationService.getPage(ModVersion.class, navigator, 50, 1, Collections.emptyMap());

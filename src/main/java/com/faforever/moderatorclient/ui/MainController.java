@@ -11,6 +11,7 @@ import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
 import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
 import com.faforever.moderatorclient.ui.main_window.MapVaultController;
 import com.faforever.moderatorclient.ui.main_window.ModVaultController;
+import com.faforever.moderatorclient.ui.main_window.PermissionController;
 import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
 import com.faforever.moderatorclient.ui.main_window.TutorialController;
 import com.faforever.moderatorclient.ui.main_window.UserManagementController;
@@ -51,6 +52,7 @@ public class MainController implements Controller<TabPane> {
     public Tab tutorialTab;
     public Tab messagesTab;
     public Tab reportTab;
+    public Tab permissionTab;
 
     private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
@@ -64,6 +66,7 @@ public class MainController implements Controller<TabPane> {
     private VotingController votingController;
     private TutorialController tutorialController;
     private MessagesController messagesController;
+    private PermissionController permissionController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
     private final FafApiCommunicationService communicationService;
@@ -96,6 +99,7 @@ public class MainController implements Controller<TabPane> {
         initMessagesTab();
         initTutorialTab();
         initReportTab();
+        initPermissionTab();
     }
 
     private void initLoading(Tab tab, Runnable loadingFunction) {
@@ -197,6 +201,15 @@ public class MainController implements Controller<TabPane> {
             votingController = uiService.loadFxml("ui/main_window/voting.fxml");
             votingTab.setContent(votingController.getRoot());
             initLoading(votingTab, votingController::onRefreshSubjects);
+        }
+    }
+
+    private void initPermissionTab() {
+        if (checkPermissionForTab(permissionTab, GroupPermission.ROLE_READ_USER_GROUP)
+        && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
+            permissionController = uiService.loadFxml("ui/main_window/permission.fxml");
+            permissionTab.setContent(permissionController.getRoot());
+            initLoading(permissionTab, permissionController::onRefreshPermissions);
         }
     }
 
