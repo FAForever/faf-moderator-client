@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<HBox fx:id="root" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.faforever.moderatorclient.ui.main_window.UserGroupsController"
+      prefHeight="400.0" prefWidth="600.0" spacing="10.0">
+    <children>
+        <VBox spacing="5.0" alignment="CENTER" HBox.hgrow="ALWAYS">
+            <Label text="Groups"/>
+            <TableView fx:id="groupsTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="2.0">
+                <Button mnemonicParsing="false" onAction="#openGroupDialog" text="Add Group"/>
+                <Button mnemonicParsing="false" onAction="#onRemoveGroup" text="Remove Group"/>
+                <Button mnemonicParsing="false" onAction="#onTogglePublic" text="Toggle Public"/>
+            </HBox>
+        </VBox>
+        <VBox spacing="5.0" alignment="CENTER" HBox.hgrow="ALWAYS">
+            <Label text="Permissions"/>
+            <TableView fx:id="groupPermissionsTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="2.0">
+                <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#openPermissionDialog" text="Add Permission"/>
+                <Button mnemonicParsing="false" onAction="#onRemovePermission" text="Remove Permission"/>
+            </HBox>
+        </VBox>
+        <VBox spacing="5.0" alignment="CENTER" HBox.hgrow="ALWAYS">
+            <Label text="Children"/>
+            <TableView fx:id="groupChildrenTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="2.0">
+                <Button mnemonicParsing="false" onAction="#openChildDialog" text="Add Child"/>
+                <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#onRemoveChild" text="Remove Child"/>
+            </HBox>
+        </VBox>
+        <VBox spacing="5.0" alignment="CENTER" HBox.hgrow="ALWAYS">
+            <Label text="Members"/>
+            <TableView fx:id="membersTableView" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="2.0">
+                <Button layoutX="15.0" layoutY="50.0" mnemonicParsing="false" onAction="#onRemoveMember" text="Remove Member"/>
+            </HBox>
+        </VBox>
+    </children>
+
+</HBox>

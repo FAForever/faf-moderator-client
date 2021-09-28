@@ -4,10 +4,12 @@ import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.commons.api.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
+import com.faforever.moderatorclient.api.domain.PermissionService;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.GroupAddUserController;
 import com.faforever.moderatorclient.ui.PlatformService;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.UserNoteController;
@@ -17,9 +19,11 @@ import com.faforever.moderatorclient.ui.domain.AvatarFX;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.faforever.moderatorclient.ui.domain.FeaturedModFX;
 import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.GroupPermissionFX;
 import com.faforever.moderatorclient.ui.domain.NameRecordFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import com.faforever.moderatorclient.ui.domain.UserGroupFX;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -56,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -65,6 +70,7 @@ public class UserManagementController implements Controller<SplitPane> {
     private final PlatformService platformService;
     private final UserService userService;
     private final AvatarService avatarService;
+    private final PermissionService permissionService;
     private final GamePlayerStatsMapper gamePlayerStatsMapper;
 
     private final ObservableList<PlayerFX> users = FXCollections.observableArrayList();
@@ -74,6 +80,8 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<TeamkillFX> teamkills = FXCollections.observableArrayList();
     private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
     private final ObjectProperty<AvatarFX> currentSelectedAvatar = new SimpleObjectProperty<>();
+    private final ObservableList<UserGroupFX> userGroups = FXCollections.observableArrayList();
+    private final ObservableList<GroupPermissionFX> groupPermissions = FXCollections.observableArrayList();
 
     private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
 
@@ -89,6 +97,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public Tab nameHistoryTab;
     public Tab lastGamesTab;
     public Tab avatarsTab;
+    public Tab userGroupsTab;
 
     public ComboBox<String> searchUserProperties;
     public TextField userSearchTextField;
@@ -102,6 +111,8 @@ public class UserManagementController implements Controller<SplitPane> {
     public TableView<BanInfoFX> userBansTableView;
     public TableView<TeamkillFX> userTeamkillsTableView;
     public TableView<AvatarAssignmentFX> userAvatarsTableView;
+    public TableView<UserGroupFX> userGroupsTableView;
+    public TableView<GroupPermissionFX> permissionsTableView;
     public Button giveAvatarButton;
     public Button takeAvatarButton;
     public TextField expiresAtTextfield;
@@ -128,6 +139,7 @@ public class UserManagementController implements Controller<SplitPane> {
         disableTabOnMissingPermission(bansTab, GroupPermission.ROLE_ADMIN_ACCOUNT_BAN);
         disableTabOnMissingPermission(teamkillsTab, GroupPermission.ROLE_READ_TEAMKILL_REPORT);
         disableTabOnMissingPermission(avatarsTab, GroupPermission.ROLE_WRITE_AVATAR);
+        disableTabOnMissingPermission(userGroupsTab, GroupPermission.ROLE_READ_USER_GROUP);
 
         ViewHelper.buildUserTableView(platformService, userSearchTableView, users, null,
                 playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), communicationService);
@@ -166,6 +178,8 @@ public class UserManagementController implements Controller<SplitPane> {
 
         ViewHelper.buildTeamkillTableView(userTeamkillsTableView, teamkills, false, null);
         ViewHelper.buildUserAvatarsTableView(userAvatarsTableView, avatarAssignments);
+        ViewHelper.buildUserGroupsTableView(userGroupsTableView, userGroups);
+        ViewHelper.buildUserPermissionsTableView(permissionsTableView, groupPermissions);
         giveAvatarButton.disableProperty().bind(
                 Bindings.or(userSearchTableView.getSelectionModel().selectedItemProperty().isNull(),
                         currentSelectedAvatar.isNull()));
@@ -224,12 +238,19 @@ public class UserManagementController implements Controller<SplitPane> {
         avatarAssignments.clear();
         userAvatarsTableView.getSortOrder().clear();
 
+        userGroups.clear();
+        userGroupsTableView.getSortOrder().clear();
+
         if (newValue != null) {
             teamkills.addAll(userService.findTeamkillsByUserId(newValue.getId()));
             userNotes.addAll(userService.getUserNotes(newValue.getId()));
             nameRecords.addAll(newValue.getNames());
             bans.addAll(newValue.getBans());
             avatarAssignments.addAll(newValue.getAvatarAssignments());
+            permissionService.getPlayersUserGroups(newValue).thenAccept(playerGroups -> {
+                userGroups.addAll(playerGroups);
+                groupPermissions.addAll(playerGroups.stream().flatMap(userGroupFX -> userGroupFX.getPermissions().stream()).distinct().collect(Collectors.toList()));
+            });
 
             userGamesPage = 1;
             loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> gamePlayerStatsMapper.map(userService.getLastHundredPlayedGamesByFeaturedMod(newValue.getId(), userGamesPage, featuredModFilterChoiceBox.getSelectionModel().getSelectedItem())))
@@ -321,8 +342,6 @@ public class UserManagementController implements Controller<SplitPane> {
         Assert.notNull(selectedPlayer, "You need to select a player.");
         Assert.notNull(currentSelectedAvatar.get(), "You need to select an avatar.");
 
-        UserNoteController userNoteController = uiService.loadFxml("ui/userNote.fxml");
-
         AvatarAssignmentFX avatarAssignmentFX = new AvatarAssignmentFX();
         avatarAssignmentFX.setAvatar(currentSelectedAvatar.get());
         avatarAssignmentFX.setPlayer(selectedPlayer);
@@ -360,5 +379,33 @@ public class UserManagementController implements Controller<SplitPane> {
         avatarService.removeAvatarAssignment(avatarAssignmentFX);
         userAvatarsTableView.getItems().remove(avatarAssignmentFX);
         avatarAssignmentFX.getPlayer().getAvatarAssignments().remove(avatarAssignmentFX);
+    }
+
+    public void openGroupDialog() {
+        PlayerFX selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedPlayer, "You need to select a player.");
+
+        GroupAddUserController groupAddUserController = uiService.loadFxml("ui/groupAddUser.fxml");
+        groupAddUserController.setPlayer(selectedPlayer);
+        groupAddUserController.addAddedListener(userGroups::add);
+
+        Stage userGroupDialog = new Stage();
+        userGroupDialog.setTitle("Add User Group");
+        userGroupDialog.setScene(new Scene(groupAddUserController.getRoot()));
+        userGroupDialog.showAndWait();
+    }
+
+    public void onRemoveGroup() {
+        PlayerFX selectedPlayer = userSearchTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(selectedPlayer, "You need to select a player.");
+
+        UserGroupFX userGroupFX = userGroupsTableView.getSelectionModel().getSelectedItem();
+        Assert.notNull(userGroupFX, "You need to select a user group.");
+
+        if (userGroupFX.getMembers().remove(selectedPlayer)) {
+            permissionService.patchUserGroup(userGroupFX);
+        }
+
+        userGroups.remove(userGroupFX);
     }
 }

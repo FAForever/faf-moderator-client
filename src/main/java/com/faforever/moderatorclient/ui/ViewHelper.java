@@ -20,6 +20,7 @@ import com.faforever.moderatorclient.ui.domain.AvatarFX;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.faforever.moderatorclient.ui.domain.GameFX;
 import com.faforever.moderatorclient.ui.domain.GamePlayerStatsFX;
+import com.faforever.moderatorclient.ui.domain.GroupPermissionFX;
 import com.faforever.moderatorclient.ui.domain.MapFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.MessageFx;
@@ -32,6 +33,7 @@ import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
 import com.faforever.moderatorclient.ui.domain.UniqueIdFx;
+import com.faforever.moderatorclient.ui.domain.UserGroupFX;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
@@ -766,6 +768,76 @@ public class ViewHelper {
         expiresAtColumn.setMinWidth(180);
         tableView.getColumns().add(expiresAtColumn);
         extractors.put(tooltipColumn, AvatarAssignmentFX::getExpiresAt);
+
+        applyCopyContextMenus(tableView, extractors);
+    }
+
+    public static void buildUserGroupsTableView(TableView<UserGroupFX> tableView, ObservableList<UserGroupFX> data) {
+        tableView.setItems(data);
+        HashMap<TableColumn<UserGroupFX, ?>, Function<UserGroupFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<UserGroupFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setMinWidth(50);
+        tableView.getColumns().add(idColumn);
+        extractors.put(idColumn, UserGroupFX::getId);
+
+        TableColumn<UserGroupFX, String> nameColumn = new TableColumn<>("Group Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().technicalNameProperty());
+        nameColumn.setComparator(Comparator.naturalOrder());
+        nameColumn.setMinWidth(150);
+        tableView.getColumns().add(nameColumn);
+        extractors.put(nameColumn, UserGroupFX::getTechnicalName);
+
+        TableColumn<UserGroupFX, Boolean> publicColumn = new TableColumn<>("Public");
+        publicColumn.setCellValueFactory(o -> o.getValue().public_Property());
+        publicColumn.setComparator(Comparator.naturalOrder());
+        publicColumn.setMinWidth(50);
+        tableView.getColumns().add(publicColumn);
+        extractors.put(publicColumn, UserGroupFX::getPublic_);
+
+        applyCopyContextMenus(tableView, extractors);
+    }
+
+    public static void buildUserPermissionsTableView(TableView<GroupPermissionFX> tableView, ObservableList<GroupPermissionFX> data) {
+        tableView.setItems(data);
+        HashMap<TableColumn<GroupPermissionFX, ?>, Function<GroupPermissionFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<GroupPermissionFX, String> idColumn = new TableColumn<>("ID");
+        idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
+        idColumn.setCellValueFactory(o -> o.getValue().idProperty());
+        idColumn.setMinWidth(50);
+        tableView.getColumns().add(idColumn);
+        extractors.put(idColumn, GroupPermissionFX::getId);
+
+        TableColumn<GroupPermissionFX, String> nameColumn = new TableColumn<>("Permission Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().technicalNameProperty());
+        nameColumn.setComparator(Comparator.naturalOrder());
+        nameColumn.setMinWidth(150);
+        tableView.getColumns().add(nameColumn);
+        extractors.put(nameColumn, GroupPermissionFX::getTechnicalName);
+
+        applyCopyContextMenus(tableView, extractors);
+    }
+
+    public static void buildSimpleUserTableView(TableView<PlayerFX> tableView, ObservableList<PlayerFX> data) {
+        tableView.setItems(data);
+        HashMap<TableColumn<PlayerFX, ?>, Function<PlayerFX, ?>> extractors = new HashMap<>();
+
+        TableColumn<PlayerFX, PlayerFX> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+        idColumn.setCellFactory(tableColumn -> ViewHelper.playerFXCellFactory(tableColumn, PlayerFX::getId));
+        idColumn.setComparator(Comparator.comparingInt(o -> Integer.parseInt(o.getId())));
+        idColumn.setMinWidth(70);
+        tableView.getColumns().add(idColumn);
+        extractors.put(idColumn, PlayerFX::getId);
+
+        TableColumn<PlayerFX, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(o -> o.getValue().loginProperty());
+        nameColumn.setMinWidth(150);
+        tableView.getColumns().add(nameColumn);
+        extractors.put(nameColumn, PlayerFX::getLogin);
 
         applyCopyContextMenus(tableView, extractors);
     }

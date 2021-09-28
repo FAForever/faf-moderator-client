@@ -58,9 +58,9 @@ public class BanService {
         return CompletableFuture.supplyAsync(() -> {
             List<BanInfo> banInfos = fafApi.getPage(BanInfo.class, ElideNavigator.of(BanInfo.class)
                     .collection()
-                    .addIncludeOnCollection("player")
-                    .addIncludeOnCollection("author")
-                    .addIncludeOnCollection("revokeAuthor")
+                    .addInclude("player")
+                    .addInclude("author")
+                    .addInclude("revokeAuthor")
                             .addSortingRule("createTime", false),
                     100,
                     1,
@@ -74,17 +74,17 @@ public class BanService {
         log.debug("Search for ban id: " + banInfoId);
         ElideNavigatorOnId<BanInfo> navigator = ElideNavigator.of(BanInfo.class)
                 .id(banInfoId)
-                .addIncludeOnId("player")
-                .addIncludeOnId("author");
+                .addInclude("player")
+                .addInclude("author");
         return banInfoMapper.map(fafApi.getOne(navigator));
     }
 
     public List<BanInfoFX> getBanInfoByBannedPlayerNameContains(String name) {
         ElideNavigatorOnCollection<BanInfo> navigator = ElideNavigator.of(BanInfo.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("player.login").eq("*" + name + "*"))
-                .addIncludeOnCollection("player")
-                .addIncludeOnCollection("author");
+                .setFilter(ElideNavigator.qBuilder().string("player.login").eq("*" + name + "*"))
+                .addInclude("player")
+                .addInclude("author");
         return banInfoMapper.mapToFX(fafApi.getAll(BanInfo.class, navigator));
     }
 }

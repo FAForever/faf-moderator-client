@@ -33,12 +33,12 @@ public class ModerationReportService {
 		return CompletableFuture.supplyAsync(() -> {
             List<ModerationReport> reports = fafApi.getAll(ModerationReport.class, ElideNavigator.of(ModerationReport.class)
 					.collection()
-					.addIncludeOnCollection("reporter")
-                    .addIncludeOnCollection("reporter.bans")
-					.addIncludeOnCollection("game")
-					.addIncludeOnCollection("lastModerator")
-					.addIncludeOnCollection("reportedUsers")
-                    .addIncludeOnCollection("reportedUsers.bans")
+					.addInclude("reporter")
+                    .addInclude("reporter.bans")
+					.addInclude("game")
+					.addInclude("lastModerator")
+					.addInclude("reportedUsers")
+                    .addInclude("reportedUsers.bans")
 			);
 			return reports.stream().map(moderationReportMapper::map).collect(Collectors.toList());
 		});

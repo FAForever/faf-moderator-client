@@ -28,8 +28,8 @@ public class TutorialService {
         log.debug("Retrieving all tutorials");
         List<Tutorial> result = fafApi.getAll(Tutorial.class, ElideNavigator.of(Tutorial.class)
                 .collection()
-                .addIncludeOnCollection("mapVersion")
-                .addIncludeOnCollection("category"));
+                .addInclude("mapVersion")
+                .addInclude("category"));
         log.trace("found {} tutorials", result.size());
         return result;
     }
@@ -38,7 +38,7 @@ public class TutorialService {
         log.debug("Retrieving all tutorial categories");
         List<TutorialCategory> result = fafApi.getAll(TutorialCategory.class, ElideNavigator.of(TutorialCategory.class)
                 .collection()
-                .addIncludeOnCollection("tutorials"));
+                .addInclude("tutorials"));
         log.trace("found {} tutorial categories", result.size());
         return result;
     }

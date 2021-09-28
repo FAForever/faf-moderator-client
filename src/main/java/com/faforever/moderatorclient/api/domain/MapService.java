@@ -1,6 +1,10 @@
 package com.faforever.moderatorclient.api.domain;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.Map;
+import com.faforever.commons.api.dto.MapPoolAssignment;
+import com.faforever.commons.api.dto.MapVersion;
+import com.faforever.commons.api.dto.MatchmakerQueue;
+import com.faforever.commons.api.dto.MatchmakerQueueMapPool;
 import com.faforever.commons.api.elide.ElideNavigator;
 import com.faforever.commons.api.elide.ElideNavigatorOnCollection;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
@@ -46,14 +50,14 @@ public class MapService {
         log.debug("Searching for maps by attribute '{}' with pattern: {}", attribute, pattern);
         ElideNavigatorOnCollection<MapVersion> routeBuilder = ElideNavigator.of(MapVersion.class)
                 .collection()
-                .addIncludeOnCollection("map")
-                .addIncludeOnCollection("map.author");
+                .addInclude("map")
+                .addInclude("map.author");
 
         if (excludeHidden) {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("map." + attribute).eq(pattern)
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("map." + attribute).eq(pattern)
                     .and().bool("hidden").isFalse());
         } else {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("map." + attribute).eq(pattern));
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("map." + attribute).eq(pattern));
         }
 
         List<Map> result = fafApi.getAll(MapVersion.class, routeBuilder).stream()
@@ -86,10 +90,10 @@ public class MapService {
         log.debug("Searching for maps with pattern: {}", mapNamePattern);
         ElideNavigatorOnCollection<Map> routeBuilder = ElideNavigator.of(Map.class)
                 .collection()
-                .addIncludeOnCollection("versions");
+                .addInclude("versions");
 
         if (mapNamePattern != null && mapNamePattern.length() > 0) {
-            routeBuilder.addFilter(ElideNavigator.qBuilder().string("displayName").eq(mapNamePattern));
+            routeBuilder.setFilter(ElideNavigator.qBuilder().string("displayName").eq(mapNamePattern));
         }
 
         List<Map> result = fafApi.getAll(Map.class, routeBuilder);
@@ -110,7 +114,7 @@ public class MapService {
         log.debug("Searching for all brackets in queue {}", queue.getId());
         ElideNavigatorOnCollection<MatchmakerQueueMapPool> routeBuilder = ElideNavigator.of(MatchmakerQueueMapPool.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()));
+                .setFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()));
         List<MatchmakerQueueMapPool> brackets = fafApi.getAll(MatchmakerQueueMapPool.class, routeBuilder);
         for (MatchmakerQueueMapPool bracket : brackets) {
             log.info("{}", bracket);
@@ -125,9 +129,9 @@ public class MapService {
         log.debug("Searching for all maps in pools {}", String.join(", ", poolIDs));
         ElideNavigatorOnCollection<MapPoolAssignment> routeBuilder = ElideNavigator.of(MapPoolAssignment.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("mapPool.id").in(poolIDs))
-                .addIncludeOnCollection("mapVersion")
-                .addIncludeOnCollection("mapVersion.map")
+                .setFilter(ElideNavigator.qBuilder().string("mapPool.id").in(poolIDs))
+                .addInclude("mapVersion")
+                .addInclude("mapVersion.map")
                 .addSortingRule("mapVersion.width", false)
                 .addSortingRule("mapVersion.map.displayName", false);
         List<MapPoolAssignment> mapAssignments = fafApi.getAll(MapPoolAssignment.class, routeBuilder);
@@ -201,7 +205,7 @@ public class MapService {
         log.debug("Requesting Mapversion with id: {}", id);
         return !fafApi.getAll(MapVersion.class, ElideNavigator.of(MapVersion.class)
                 .collection()
-                .addFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
+                .setFilter(ElideNavigator.qBuilder().string("id").eq(String.valueOf(id))))
                 .isEmpty();
     }
 
@@ -209,8 +213,8 @@ public class MapService {
         log.debug("Searching for latest mapVersions ");
         ElideNavigatorOnCollection<MapVersion> navigator = ElideNavigator.of(MapVersion.class)
                 .collection()
-                .addIncludeOnCollection("map")
-                .addIncludeOnCollection("map.author")
+                .addInclude("map")
+                .addInclude("map.author")
                 .addSortingRule("id", false);
 
         List<MapVersion> result = fafApi.getPage(MapVersion.class, navigator, 50, 1, Collections.emptyMap());

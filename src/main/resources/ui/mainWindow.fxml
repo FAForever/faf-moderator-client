@@ -19,5 +19,6 @@
         <Tab fx:id="tutorialTab" closable="false" text="Tutorials"/>
         <Tab fx:id="messagesTab" closable="false" text="Messages"/>
         <Tab fx:id="reportTab" closable="false" text="Reports"/>
+        <Tab fx:id="permissionTab" closable="false" text="User Groups"/>
     </tabs>
 </TabPane>
