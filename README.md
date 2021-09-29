@@ -1,9 +1,11 @@
 # FAF Moderator Client [![Build](https://github.com/FAForever/faf-moderator-client/actions/workflows/build.yml/badge.svg)](https://github.com/FAForever/faf-moderator-client/actions/workflows/build.yml)
 This application enables faforever.com moderators to perform administrative actions. This involves:
-- managing of users
-- avatars
+- managing of users, user groups and permissions
+- uploading and assigning avatars
+- managing matchmaker map pools
 - map & mod vault
 - checking recent activities
+- editing runtime translations
 
 # How to use / run it
 - Make sure you have Java 11 or higher installed (JRE or JDK does not matter). AdoptOpenJDK offers free installation packages [here](https://adoptopenjdk.net/?variant=openjdk11&jvmVariant=hotspot) (other Java flavours like Oracle should also work)
