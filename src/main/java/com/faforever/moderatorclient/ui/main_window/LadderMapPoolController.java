@@ -1,6 +1,10 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.MapPoolAssignment;
+import com.faforever.commons.api.dto.MapVersion;
+import com.faforever.commons.api.dto.MatchmakerQueue;
+import com.faforever.commons.api.dto.MatchmakerQueueMapPool;
+import com.faforever.commons.api.dto.NeroxisGeneratorParams;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
@@ -20,7 +24,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -45,6 +60,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class LadderMapPoolController implements Controller<SplitPane> {
+    public static final double KM_TO_MAP_PIXELS_FACTOR = 51.2;
+    public static final double MIN_MAP_SIZE_STEP = 1.25;
     private final MapService mapService;
     private final UiService uiService;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
@@ -65,7 +82,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public ScrollPane bracketsScrollPane;
     public VBox addButtonsContainer;
     public ComboBox<ComparableVersion> neroxisVersionComboBox;
-    public Spinner<String> neroxisSizeSpinner;
+    public Spinner<Double> neroxisSizeSpinner;
     public Spinner<Integer> neroxisSpawnsSpinner;
     public Label mapParamsLabel;
 
@@ -110,7 +127,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         neroxisVersionComboBox.setItems(FXCollections.observableArrayList(mapService.getGeneratorVersions()));
         neroxisVersionComboBox.getSelectionModel().selectFirst();
         neroxisSpawnsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 16, 2, 2));
-        neroxisSizeSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(neroxisMapSizes));
+        neroxisSizeSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(5, 20, 10, MIN_MAP_SIZE_STEP));
 
         bracketsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         mapParamsLabel.managedProperty().bind(mapParamsLabel.visibleProperty());
@@ -305,7 +322,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public void onGeneratedMapButton() {
         NeroxisGeneratorParams neroxisGeneratorParams = new NeroxisGeneratorParams();
         neroxisGeneratorParams.setSpawns(neroxisSpawnsSpinner.getValue());
-        neroxisGeneratorParams.setSize(neroxisMapSizeValues[neroxisMapSizes.indexOf(neroxisSizeSpinner.getValue())]);
+        neroxisGeneratorParams.setSize((int) (neroxisSizeSpinner.getValue() * KM_TO_MAP_PIXELS_FACTOR));
         neroxisGeneratorParams.setVersion(neroxisVersionComboBox.getValue().toString());
         MapPoolAssignment mapPoolAssignment = new MapPoolAssignment();
         mapPoolAssignment.setMapParams(neroxisGeneratorParams);
