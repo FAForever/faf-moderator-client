@@ -18,6 +18,7 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty email;
     private final StringProperty userAgent;
     private final StringProperty steamId;
+    private final StringProperty gogId;
     private final StringProperty recentIpAddress;
     private final StringProperty representation;
     private final ObjectProperty<OffsetDateTime> lastLogin;
@@ -31,6 +32,7 @@ public class PlayerFX extends AbstractEntityFX {
         email = new SimpleStringProperty();
         userAgent = new SimpleStringProperty();
         steamId = new SimpleStringProperty();
+        gogId = new SimpleStringProperty();
         recentIpAddress = new SimpleStringProperty();
         lastLogin = new SimpleObjectProperty<>();
 
@@ -90,6 +92,18 @@ public class PlayerFX extends AbstractEntityFX {
 
     public StringProperty steamIdProperty() {
         return steamId;
+    }
+
+    public String getGogId() {
+        return gogId.get();
+    }
+
+    public StringProperty gogIdProperty() {
+        return gogId;
+    }
+
+    public void setGogId(String gogId) {
+        this.gogId.set(gogId);
     }
 
     public String getRecentIpAddress() {

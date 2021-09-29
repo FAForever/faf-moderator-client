@@ -562,6 +562,12 @@ public class ViewHelper {
         tableView.getColumns().add(steamIdColumn);
         extractors.put(steamIdColumn, PlayerFX::getSteamId);
 
+        TableColumn<PlayerFX, String> gogIdColumn = new TableColumn<>("Gog ID");
+        gogIdColumn.setCellValueFactory(o -> o.getValue().gogIdProperty());
+        gogIdColumn.setMinWidth(150);
+        tableView.getColumns().add(gogIdColumn);
+        extractors.put(gogIdColumn, PlayerFX::getGogId);
+
         TableColumn<PlayerFX, String> ipColumn = new TableColumn<>("Recent IP Address");
         ipColumn.setCellValueFactory(o -> o.getValue().recentIpAddressProperty());
         ipColumn.setMinWidth(160);
