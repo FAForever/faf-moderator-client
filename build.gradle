@@ -1,15 +1,9 @@
 import org.gradle.internal.os.OperatingSystem
 
-buildscript {
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-    }
-}
-
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 repositories {
