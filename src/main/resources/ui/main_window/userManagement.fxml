@@ -183,7 +183,7 @@
                                 </HBox>
                                 <HBox VBox.vgrow="NEVER" maxHeight="50" spacing="10.0" alignment="CENTER">
                                     <Button text="Add User To Group" onAction="#openGroupDialog"/>
-                                    <Button text="Remove User from Group" onAction="#onRemoveGroup"/>
+                                    <Button fx:id="removeGroupButton" text="Remove User from Group" onAction="#onRemoveGroup"/>
                                 </HBox>
                             </children>
                         </VBox>

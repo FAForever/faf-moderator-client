@@ -117,6 +117,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public Button takeAvatarButton;
     public TextField expiresAtTextfield;
     public Button setExpiresAtButton;
+    public Button removeGroupButton;
 
     public TableView<GamePlayerStatsFX> userLastGamesTable;
     public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
@@ -186,6 +187,7 @@ public class UserManagementController implements Controller<SplitPane> {
         expiresAtTextfield.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
         setExpiresAtButton.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
         takeAvatarButton.disableProperty().bind(userAvatarsTableView.getSelectionModel().selectedItemProperty().isNull());
+        removeGroupButton.disableProperty().bind(userGroupsTableView.getSelectionModel().selectedItemProperty().isNull());
 
         userSearchTableView.getSelectionModel().selectedItemProperty().addListener(this::onSelectedUser);
         editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
@@ -247,10 +249,12 @@ public class UserManagementController implements Controller<SplitPane> {
             nameRecords.addAll(newValue.getNames());
             bans.addAll(newValue.getBans());
             avatarAssignments.addAll(newValue.getAvatarAssignments());
-            permissionService.getPlayersUserGroups(newValue).thenAccept(playerGroups -> {
-                userGroups.addAll(playerGroups);
-                groupPermissions.addAll(playerGroups.stream().flatMap(userGroupFX -> userGroupFX.getPermissions().stream()).distinct().collect(Collectors.toList()));
-            });
+            if (!userGroupsTab.isDisable()) {
+                permissionService.getPlayersUserGroups(newValue).thenAccept(playerGroups -> {
+                    userGroups.addAll(playerGroups);
+                    groupPermissions.addAll(playerGroups.stream().flatMap(userGroupFX -> userGroupFX.getPermissions().stream()).distinct().collect(Collectors.toList()));
+                });
+            }
 
             userGamesPage = 1;
             loadMoreGamesRunnable = () -> CompletableFuture.supplyAsync(() -> gamePlayerStatsMapper.map(userService.getLastHundredPlayedGamesByFeaturedMod(newValue.getId(), userGamesPage, featuredModFilterChoiceBox.getSelectionModel().getSelectedItem())))
