@@ -25,6 +25,7 @@ import java.io.IOException;
 public class ListViewMapCell extends ListCell<MapPoolAssignmentFX> {
 
     @FXML private Label mapNameLabel;
+    @FXML private Label mapVersionLabel;
     @FXML private Label mapSizeLabel;
     @FXML private Label mapParamsLabel;
     @FXML private Label weightLabel;
@@ -65,6 +66,8 @@ public class ListViewMapCell extends ListCell<MapPoolAssignmentFX> {
                 int mapHeight = Math.round(mapVersionFX.getHeight() / 51.2f);
                 mapNameLabel.setText(mapVersionFX.getMap().getDisplayName());
                 mapNameLabel.setVisible(true);
+                mapVersionLabel.setText(mapVersionFX.getVersion().getCanonical());
+                mapVersionLabel.setVisible(true);
                 mapSizeLabel.setText(String.format("%dx%dkm", mapWidth, mapHeight));
                 mapSizeLabel.setVisible(true);
                 previewImageView.setImage(smallThumbnailCache.fromIdAndString(mapVersionFX.getId(), mapVersionFX.getThumbnailUrlLarge().toString()));
@@ -76,6 +79,7 @@ public class ListViewMapCell extends ListCell<MapPoolAssignmentFX> {
                 int mapSize = Math.round(neroxisParams.getSize() / 51.2f);
                 mapNameLabel.setVisible(false);
                 mapSizeLabel.setVisible(false);
+                mapVersionLabel.setVisible(false);
                 mapParamsLabel.setText(String.format("Version: %s\nSpawns: %d\nSize: %d\n",
                         neroxisParams.getVersion(),
                         neroxisParams.getSpawns(),

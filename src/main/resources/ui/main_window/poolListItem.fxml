@@ -13,14 +13,19 @@
       <RowConstraints vgrow="SOMETIMES"/>
       <RowConstraints vgrow="SOMETIMES"/>
       <RowConstraints vgrow="SOMETIMES"/>
+      <RowConstraints vgrow="SOMETIMES"/>
    </rowConstraints>
    <children>
       <ImageView fx:id="previewImageView" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true"
       GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="3"/>
       <Label fx:id="mapParamsLabel" text="Map Params" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="2" GridPane.columnSpan="2" wrapText="true"/>
       <Label fx:id="mapNameLabel" text="Map Name" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-      <Label fx:id="mapSizeLabel" text="Map Size" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2"/>
-      <HBox GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2" spacing="10.0" GridPane.hgrow="ALWAYS">
+      <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="2">
+         <Label text="Version: "/>
+         <Label fx:id="mapVersionLabel" text="Map Version"/>
+      </HBox>
+      <Label fx:id="mapSizeLabel" text="Map Size" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+      <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="2" spacing="10.0" GridPane.hgrow="ALWAYS">
          <Label text="Weight" HBox.hgrow="ALWAYS"/>
          <Label fx:id="weightLabel" text="#" HBox.hgrow="ALWAYS"/>
          <Button fx:id="weightDownButton" mnemonicParsing="false"  text="-" HBox.hgrow="ALWAYS"/>
