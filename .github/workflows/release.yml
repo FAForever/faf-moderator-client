@@ -14,7 +14,7 @@ jobs:
   release:
 
     runs-on: ubuntu-latest
-    container: adoptopenjdk:11-jdk-hotspot-bionic
+    container: eclipse-temurin:17-jdk
 
     steps:
       - uses: actions/checkout@v2
