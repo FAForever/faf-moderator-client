@@ -1830,7 +1830,11 @@ public class ViewHelper {
         applyCopyContextMenus(tableView, extractors);
     }
 
-    public static void buildModerationReportTableView(TableView<ModerationReportFX> tableView, ObservableList<ModerationReportFX> items) {
+    public static void buildModerationReportTableView(
+            TableView<ModerationReportFX> tableView,
+            ObservableList<ModerationReportFX> items,
+            Consumer<ModerationReportFX> onChatLog
+    ) {
         tableView.setItems(items);
         tableView.setEditable(true);
         HashMap<TableColumn<ModerationReportFX, ?>, Function<ModerationReportFX, ?>> extractors = new HashMap<>();
@@ -1928,6 +1932,27 @@ public class ViewHelper {
         gameColumn.setMinWidth(80);
         tableView.getColumns().add(gameColumn);
         extractors.put(gameColumn, reportFx -> reportFx.getGame() == null ? null : reportFx.getGame().getId());
+
+        if (onChatLog != null) {
+            TableColumn<ModerationReportFX, ModerationReportFX> chatLogColumn = new TableColumn<>("Replay");
+            chatLogColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            chatLogColumn.setCellFactory(param -> new TableCell<>() {
+
+                @Override
+                protected void updateItem(ModerationReportFX item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty && item != null && item.getGame() != null) {
+                        Button button = new Button("Load chat log");
+                        button.setOnMouseClicked(event -> onChatLog.accept(item));
+                        setGraphic(button);
+                        return;
+                    }
+                    setGraphic(null);
+                }
+            });
+            chatLogColumn.setMinWidth(120);
+            tableView.getColumns().add(chatLogColumn);
+        }
 
         TableColumn<ModerationReportFX, String> privateNoteColumn = new TableColumn<>("Private Notice");
         privateNoteColumn.setMinWidth(150);
