@@ -63,6 +63,21 @@
                         <Insets bottom="3.0" top="3.0"/>
                     </padding>
                 </RadioButton>
+                <RadioButton fx:id="forNoOfDaysBanRadioButton" mnemonicParsing="false"
+                             text="temporary ban for days" toggleGroup="$banDuration">
+                    <padding>
+                        <Insets bottom="3.0" top="3.0"/>
+                    </padding>
+                </RadioButton>
+                <HBox>
+                    <VBox.margin>
+                        <Insets left="40.0"/>
+                    </VBox.margin>
+                    <children>
+                        <TextField fx:id="banDaysTextField" maxWidth="150.0" prefWidth="150.0"
+                                   promptText="positive integer"/>
+                    </children>
+                </HBox>
                 <RadioButton fx:id="temporaryBanRadioButton" mnemonicParsing="false"
                              text="temporary ban until (i.e. 2017-12-31T12:00:00)" toggleGroup="$banDuration">
                     <padding>
