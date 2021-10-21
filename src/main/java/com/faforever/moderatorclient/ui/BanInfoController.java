@@ -53,9 +53,11 @@ public class BanInfoController implements Controller<Pane> {
     public TextField banReasonTextField;
     public TextField revocationReasonTextField;
     public TextField revocationAuthorTextField;
+    public TextField banDaysTextField;
     public TextField untilTextField;
     public Label untilDateTimeValidateLabel;
     public RadioButton permanentBanRadioButton;
+    public RadioButton forNoOfDaysBanRadioButton;
     public RadioButton temporaryBanRadioButton;
     public RadioButton chatOnlyBanRadioButton;
     public RadioButton vaultBanRadioButton;
@@ -160,8 +162,15 @@ public class BanInfoController implements Controller<Pane> {
         }
 
         banInfo.setReason(banReasonTextField.getText());
-        banInfo.setExpiresAt(temporaryBanRadioButton.isSelected() ?
-                OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC) : null);
+
+        if (forNoOfDaysBanRadioButton.isSelected())
+            banInfo.setExpiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(Long.parseLong(banDaysTextField.getText())));
+        else if (temporaryBanRadioButton.isSelected())
+            banInfo.setExpiresAt(OffsetDateTime.of(LocalDateTime.parse(untilTextField.getText(), DateTimeFormatter.ISO_LOCAL_DATE_TIME), ZoneOffset.UTC));
+        else {
+            banInfo.setExpiresAt(null);
+        }
+
         if (chatOnlyBanRadioButton.isSelected()) {
             banInfo.setLevel(BanLevel.CHAT);
         } else if (vaultBanRadioButton.isSelected()) {
@@ -206,7 +215,7 @@ public class BanInfoController implements Controller<Pane> {
             validationErrors.add("No ban reason is given.");
         }
 
-        if (!temporaryBanRadioButton.isSelected() && !permanentBanRadioButton.isSelected()) {
+        if (!forNoOfDaysBanRadioButton.isSelected() && !temporaryBanRadioButton.isSelected() && !permanentBanRadioButton.isSelected()) {
             validationErrors.add("No ban duration is selected.");
         }
 
@@ -224,6 +233,13 @@ public class BanInfoController implements Controller<Pane> {
             }
         }
 
+        if (forNoOfDaysBanRadioButton.isSelected()) {
+            try {
+                Long.parseUnsignedLong(banDaysTextField.getText());
+            } catch (NumberFormatException e) {
+                validationErrors.add("Invalid number of days.");
+            }
+        }
 
         if (temporaryBanRadioButton.isSelected()) {
             try {
