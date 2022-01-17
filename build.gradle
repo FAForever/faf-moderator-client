@@ -33,7 +33,7 @@ if (javafxPlatform == "unspecified") {
 println "Platform is: ${javafxPlatform}"
 
 dependencies {
-    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
+    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.6.2"))
     implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
