@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jasminb.jsonapi.ResourceConverter;
 import com.github.jasminb.jsonapi.annotations.Type;
@@ -21,13 +22,15 @@ public class JsonApiConfig {
 
     @Bean(name = "defaultResourceConverter")
     public ResourceConverter defaultResourceConverter(ObjectMapper objectMapper) {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto.get", "com.faforever.commons.api.dto", "com.faforever.moderatorclient.common"));
     }
 
     @Bean(name = "updateResourceConverter")
     public ResourceConverter updateResourceConverter(ObjectMapper objectMapper) {
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         return new ResourceConverter(objectMapper, findJsonApiTypes("com.faforever.moderatorclient.api.dto.update"));
     }
 
