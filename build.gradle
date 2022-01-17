@@ -33,34 +33,37 @@ if (javafxPlatform == "unspecified") {
 println "Platform is: ${javafxPlatform}"
 
 dependencies {
-    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:2.5.5"))
+    def springBootVersion = "2.5.8"
+    def mapStructVersion = "1.3.1.Final"
 
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
-    implementation 'org.projectlombok:lombok'
-    implementation 'org.jetbrains:annotations:13.0'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.5'
-    implementation 'javax.inject:javax.inject:1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
-    implementation 'com.github.jasminb:jsonapi-converter:0.11'
-    implementation 'com.github.FAForever.faf-java-commons:faf-commons-data:b57165999d0d5eebb389768ed193c8515403837d'
-    implementation 'com.github.FAForever.faf-java-commons:faf-commons-api:b57165999d0d5eebb389768ed193c8515403837d'
-    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'com.github.rutledgepaulv:q-builders:1.6'
-    implementation 'com.google.guava:guava:30.1-jre'
-    implementation 'org.mapstruct:mapstruct:1.3.1.Final'
-    implementation "org.openjfx:javafx-base:${javafxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-controls:${javafxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-graphics:${javafxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-fxml:${javafxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-web:${javafxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-media:${javafxVersion}:${javafxPlatform}"
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
+
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${mapStructVersion}")
+    implementation("org.projectlombok:lombok")
+    implementation("org.jetbrains:annotations:23.0.0")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springBootVersion}")
+    implementation("javax.inject:javax.inject:1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+    implementation("com.github.jasminb:jsonapi-converter:0.11")
+    implementation("com.github.FAForever.faf-java-commons:faf-commons-data:b57165999d0d5eebb389768ed193c8515403837d")
+    implementation("com.github.FAForever.faf-java-commons:faf-commons-api:b57165999d0d5eebb389768ed193c8515403837d")
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("com.github.rutledgepaulv:q-builders:1.6")
+    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("org.mapstruct:mapstruct:${mapStructVersion}")
+    implementation("org.openjfx:javafx-base:${javafxVersion}:${javafxPlatform}")
+    implementation("org.openjfx:javafx-controls:${javafxVersion}:${javafxPlatform}")
+    implementation("org.openjfx:javafx-graphics:${javafxVersion}:${javafxPlatform}")
+    implementation("org.openjfx:javafx-fxml:${javafxVersion}:${javafxPlatform}")
+    implementation("org.openjfx:javafx-web:${javafxVersion}:${javafxPlatform}")
+    implementation("org.openjfx:javafx-media:${javafxVersion}:${javafxPlatform}")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
 mainClassName = 'com.faforever.moderatorclient.Launcher'
