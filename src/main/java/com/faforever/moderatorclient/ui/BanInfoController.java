@@ -294,6 +294,7 @@ public class BanInfoController implements Controller<Pane> {
 
         BanInfo banInfoUpdate = new BanInfo();
         banInfoUpdate.setId(banInfo.getId());
+        banInfoUpdate.setPlayer(playerMapper.map(banInfo.getPlayer()));
         banInfoUpdate.setRevokeReason(revocationReason);
         banInfoUpdate.setRevokeTime(revokeTime);
 
