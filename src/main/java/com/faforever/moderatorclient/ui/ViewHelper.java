@@ -290,7 +290,6 @@ public class ViewHelper {
         extractors.put(banStatusColumn, BanInfoFX::getBanStatus);
 
         TableColumn<BanInfoFX, String> banDurationColumn = new TableColumn<>("Duration");
-//        banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
         banDurationColumn.setCellValueFactory(o -> Bindings.createStringBinding(() -> {
             BanInfoFX banInfo = o.getValue();
             return switch (banInfo.getDuration()) {
