@@ -91,6 +91,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -288,8 +289,18 @@ public class ViewHelper {
         tableView.getColumns().add(banStatusColumn);
         extractors.put(banStatusColumn, BanInfoFX::getBanStatus);
 
-        TableColumn<BanInfoFX, BanDurationType> banDurationColumn = new TableColumn<>("Duration");
-        banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
+        TableColumn<BanInfoFX, String> banDurationColumn = new TableColumn<>("Duration");
+//        banDurationColumn.setCellValueFactory(o -> o.getValue().durationProperty());
+        banDurationColumn.setCellValueFactory(o -> Bindings.createStringBinding(() -> {
+            BanInfoFX banInfo = o.getValue();
+            return switch (banInfo.getDuration()) {
+                case PERMANENT -> "PERMANENT";
+                case TEMPORARY -> {
+                    Duration duration = Duration.between(banInfo.getCreateTime(), banInfo.getExpiresAt());
+                    yield "%s days, %s hours".formatted(duration.toDays(), duration.toHoursPart());
+                }
+            };
+        }, o.getValue().durationProperty()));
         banDurationColumn.setMinWidth(100);
         tableView.getColumns().add(banDurationColumn);
         extractors.put(banDurationColumn, BanInfoFX::getDuration);
