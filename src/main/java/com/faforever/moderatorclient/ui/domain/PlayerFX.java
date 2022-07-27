@@ -17,12 +17,11 @@ public class PlayerFX extends AbstractEntityFX {
     private final StringProperty login;
     private final StringProperty email;
     private final StringProperty userAgent;
-    private final StringProperty steamId;
-    private final StringProperty gogId;
     private final StringProperty recentIpAddress;
     private final StringProperty representation;
     private final ObjectProperty<OffsetDateTime> lastLogin;
     private final ObservableSet<UniqueIdFx> uniqueIds;
+    private final ObservableSet<AccountLinkFx> accountLinks;
     private final ObservableList<NameRecordFX> names;
     private final ObservableList<BanInfoFX> bans;
     private final ObservableList<AvatarAssignmentFX> avatarAssignments;
@@ -31,8 +30,6 @@ public class PlayerFX extends AbstractEntityFX {
         login = new SimpleStringProperty();
         email = new SimpleStringProperty();
         userAgent = new SimpleStringProperty();
-        steamId = new SimpleStringProperty();
-        gogId = new SimpleStringProperty();
         recentIpAddress = new SimpleStringProperty();
         lastLogin = new SimpleObjectProperty<>();
 
@@ -43,6 +40,7 @@ public class PlayerFX extends AbstractEntityFX {
         bans = FXCollections.observableArrayList();
         avatarAssignments = FXCollections.observableArrayList();
         uniqueIds = FXCollections.observableSet();
+        accountLinks = FXCollections.observableSet();
     }
 
 
@@ -80,30 +78,6 @@ public class PlayerFX extends AbstractEntityFX {
 
     public StringProperty userAgentProperty() {
         return userAgent;
-    }
-
-    public String getSteamId() {
-        return steamId.get();
-    }
-
-    public void setSteamId(String steamId) {
-        this.steamId.set(steamId);
-    }
-
-    public StringProperty steamIdProperty() {
-        return steamId;
-    }
-
-    public String getGogId() {
-        return gogId.get();
-    }
-
-    public StringProperty gogIdProperty() {
-        return gogId;
-    }
-
-    public void setGogId(String gogId) {
-        this.gogId.set(gogId);
     }
 
     public String getRecentIpAddress() {
@@ -146,6 +120,18 @@ public class PlayerFX extends AbstractEntityFX {
 
         if (uniqueIdFxObservableList != null) {
             uniqueIds.addAll(uniqueIdFxObservableList);
+        }
+    }
+
+    public ObservableSet<AccountLinkFx> getAccountLinks() {
+        return accountLinks;
+    }
+
+    public void setAccountLinks(ObservableSet<AccountLinkFx> accountLinkFxObservableList) {
+        accountLinks.clear();
+
+        if (accountLinkFxObservableList != null) {
+            accountLinks.addAll(accountLinkFxObservableList);
         }
     }
 

@@ -51,11 +51,11 @@ public class MapTableItemAdapter {
     }
 
     public String isRanked() {
-        return isMapVersion() ? (mapVersion.isRanked() ? "yes" : "no") : null;
+        return isMapVersion() ? (mapVersion.getRanked() ? "yes" : "no") : null;
     }
 
     public String isHidden() {
-        return isMapVersion() ? (mapVersion.isHidden() ? "yes" : "no") : null;
+        return isMapVersion() ? (mapVersion.getHidden() ? "yes" : "no") : null;
     }
 
     public URL getThumbnailUrlLarge() {

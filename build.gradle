@@ -35,6 +35,7 @@ println "Platform is: ${javafxPlatform}"
 dependencies {
     def springBootVersion = "2.5.14"
     def mapStructVersion = "1.3.1.Final"
+    def commonsVersion = "9a877cee8c77ea89f35995c326702c173036e048"
 
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
@@ -51,8 +52,8 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
     implementation("com.github.jasminb:jsonapi-converter:0.11")
-    implementation("com.github.FAForever.faf-java-commons:faf-commons-data:b57165999d0d5eebb389768ed193c8515403837d")
-    implementation("com.github.FAForever.faf-java-commons:faf-commons-api:b57165999d0d5eebb389768ed193c8515403837d")
+    implementation("com.github.FAForever.faf-java-commons:faf-commons-data:${commonsVersion}")
+    implementation("com.github.FAForever.faf-java-commons:faf-commons-api:${commonsVersion}")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("com.github.rutledgepaulv:q-builders:1.6")
     implementation("com.google.guava:guava:31.1-jre")
