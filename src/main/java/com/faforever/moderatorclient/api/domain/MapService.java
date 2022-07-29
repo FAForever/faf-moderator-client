@@ -167,7 +167,7 @@ public class MapService {
         log.debug("Updating matchmakerQueueMapPool (bracket) id: {}", bracketFX.getId());
         var bracket = matchmakerQueueMapPoolMapper.mapToDto(bracketFX);
         fafApi.patch(ElideNavigator.of(bracket),
-                (MatchmakerQueueMapPool) new MatchmakerQueueMapPool()
+                new MatchmakerQueueMapPool()
                         .setMapPool(bracket.getMapPool())
                         .setMaxRating(bracket.getMaxRating())
                         .setMinRating(bracket.getMinRating())
@@ -181,9 +181,9 @@ public class MapService {
     public void patchMapVersion(MapVersion mapVersion) {
         log.debug("Updating mapVersion id: {}", mapVersion.getId());
         fafApi.patch(ElideNavigator.of(mapVersion),
-                (MapVersion) new MapVersion()
-                        .setHidden(mapVersion.isHidden())
-                        .setRanked(mapVersion.isRanked())
+                new MapVersion()
+                        .setHidden(mapVersion.getHidden())
+                        .setRanked(mapVersion.getRanked())
                         .setId(mapVersion.getId()
                         ));
     }
@@ -195,8 +195,8 @@ public class MapService {
     public void patchMap(Map map) {
         log.debug("Updating map id: {}", map.getId());
         fafApi.patch(ElideNavigator.of(map),
-                (Map) new Map()
-                        .setRecommended(map.isRecommended())
+                new Map()
+                        .setRecommended(map.getRecommended())
                         .setId(map.getId()
                         ));
     }

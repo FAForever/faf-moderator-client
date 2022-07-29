@@ -199,7 +199,8 @@ public class UserManagementController implements Controller<SplitPane> {
         searchUserPropertyMapping.put("Name", "login");
         searchUserPropertyMapping.put("Id", "id");
         searchUserPropertyMapping.put("Email", "email");
-        searchUserPropertyMapping.put("Steam Id", "steamId");
+        searchUserPropertyMapping.put("Steam Id", "accountLinks.serviceId");
+        searchUserPropertyMapping.put("Gog Id", "accountLinks.serviceId");
         searchUserPropertyMapping.put("Ip Address", "recentIpAddress");
         searchUserPropertyMapping.put("Previous Name", "names.name");
         searchUserPropertyMapping.put("UID Hash", "uniqueIds.hash");

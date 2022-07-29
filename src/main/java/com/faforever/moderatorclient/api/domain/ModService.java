@@ -98,8 +98,8 @@ public class ModService {
     public void patchMod(Mod mod) {
         log.debug("Updating mod id: {}", mod.getId());
         communicationService.patch(ElideNavigator.of(mod),
-                (Mod) new Mod()
-                        .setRecommended(mod.isRecommended())
+                new Mod()
+                        .setRecommended(mod.getRecommended())
                         .setId(mod.getId()
                         ));
     }
@@ -111,9 +111,9 @@ public class ModService {
     public void patchModVersion(ModVersion modVersion) {
         log.debug("Updating modVersion id: {}", modVersion.getId());
         communicationService.patch(ElideNavigator.of(modVersion),
-                (ModVersion) new ModVersion()
-                        .setHidden(modVersion.isHidden())
-                        .setRanked(modVersion.isRanked())
+                new ModVersion()
+                        .setHidden(modVersion.getHidden())
+                        .setRanked(modVersion.getRanked())
                         .setId(modVersion.getId()
                         ));
     }

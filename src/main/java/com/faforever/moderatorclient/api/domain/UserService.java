@@ -61,6 +61,7 @@ public class UserService {
                 .addInclude(variablePrefix + "avatarAssignments")
                 .addInclude(variablePrefix + "avatarAssignments.avatar")
                 .addInclude(variablePrefix + "uniqueIds")
+                .addInclude(variablePrefix + "accountLinks")
                 .addInclude(variablePrefix + "bans")
                 .addInclude(variablePrefix + "bans.author")
                 .addInclude(variablePrefix + "bans.revokeAuthor");
@@ -70,7 +71,6 @@ public class UserService {
         log.debug("Searching for latest registrations");
         ElideNavigatorOnCollection<Player> navigator = ElideNavigator.of(Player.class)
                 .collection()
-                .addInclude("bans")
                 .addSortingRule("id", false)
                 .pageSize(50);
         addModeratorIncludes(navigator);

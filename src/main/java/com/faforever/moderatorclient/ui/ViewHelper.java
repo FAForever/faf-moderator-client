@@ -3,6 +3,7 @@ package com.faforever.moderatorclient.ui;
 import com.faforever.commons.api.dto.BanDurationType;
 import com.faforever.commons.api.dto.BanLevel;
 import com.faforever.commons.api.dto.BanStatus;
+import com.faforever.commons.api.dto.LinkedServiceType;
 import com.faforever.commons.api.dto.Map;
 import com.faforever.commons.api.dto.ModerationReportStatus;
 import com.faforever.commons.api.dto.VotingChoice;
@@ -15,6 +16,7 @@ import com.faforever.moderatorclient.api.domain.VotingService;
 import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
 import com.faforever.moderatorclient.ui.data_cells.TextAreaTableCell;
 import com.faforever.moderatorclient.ui.data_cells.UrlImageViewTableCell;
+import com.faforever.moderatorclient.ui.domain.AccountLinkFx;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.AvatarFX;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
@@ -566,17 +568,14 @@ public class ViewHelper {
         tableView.getColumns().add(emailColumn);
         extractors.put(emailColumn, PlayerFX::getEmail);
 
-        TableColumn<PlayerFX, String> steamIdColumn = new TableColumn<>("Steam ID");
-        steamIdColumn.setCellValueFactory(o -> o.getValue().steamIdProperty());
-        steamIdColumn.setMinWidth(150);
-        tableView.getColumns().add(steamIdColumn);
-        extractors.put(steamIdColumn, PlayerFX::getSteamId);
-
-        TableColumn<PlayerFX, String> gogIdColumn = new TableColumn<>("Gog ID");
-        gogIdColumn.setCellValueFactory(o -> o.getValue().gogIdProperty());
-        gogIdColumn.setMinWidth(150);
-        tableView.getColumns().add(gogIdColumn);
-        extractors.put(gogIdColumn, PlayerFX::getGogId);
+        TableColumn<PlayerFX, String> accountLinkColumn = new TableColumn<>("Account Links");
+        accountLinkColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                        o.getValue().getAccountLinks().stream().map(accountLink -> "%s - %s".formatted(accountLink.getServiceType(), accountLink.getServiceId()))
+                                .collect(Collectors.joining("\n")),
+                o.getValue().getUniqueIds()));
+        accountLinkColumn.setMinWidth(150);
+        tableView.getColumns().add(accountLinkColumn);
+        extractors.put(accountLinkColumn, playerFX -> playerFX.getAccountLinks().stream().map(AccountLinkFx::getServiceId).collect(Collectors.toList()));
 
         TableColumn<PlayerFX, String> ipColumn = new TableColumn<>("Recent IP Address");
         ipColumn.setCellValueFactory(o -> o.getValue().recentIpAddressProperty());
@@ -721,16 +720,29 @@ public class ViewHelper {
         MenuItem steamLookupMenuItem = new MenuItem("Lookup SteamID");
         steamLookupMenuItem.disableProperty().bind(Bindings.createBooleanBinding(() -> {
             PlayerFX selectedPlayer = tableView.getSelectionModel().getSelectedItem();
-            return selectedPlayer == null || selectedPlayer.getSteamId() == null;
+            return selectedPlayer == null || selectedPlayer.getAccountLinks() == null;
         }, tableView.getSelectionModel().selectedItemProperty()));
         steamLookupMenuItem.setOnAction(action -> {
             PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();
-            if (playerFX.getSteamId() != null) {
-                platformService.showDocument("https://steamidfinder.com/lookup/" + playerFX.getSteamId());
-            }
+            playerFX.getAccountLinks().stream().filter(accountLink -> accountLink.getServiceType().equals(LinkedServiceType.STEAM)).findFirst().ifPresent(accountLink ->
+                    platformService.showDocument("https://steamidfinder.com/lookup/" + accountLink.getServiceId())
+            );
+        });
+
+        MenuItem gogLookupMenuItem = new MenuItem("Lookup GogID");
+        gogLookupMenuItem.disableProperty().bind(Bindings.createBooleanBinding(() -> {
+            PlayerFX selectedPlayer = tableView.getSelectionModel().getSelectedItem();
+            return selectedPlayer == null || selectedPlayer.getAccountLinks() == null;
+        }, tableView.getSelectionModel().selectedItemProperty()));
+        gogLookupMenuItem.setOnAction(action -> {
+            PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();
+            playerFX.getAccountLinks().stream().filter(accountLink -> accountLink.getServiceType().equals(LinkedServiceType.GOG)).findFirst().ifPresent(accountLink ->
+                    platformService.showDocument("https://www.gog.com/u/" + accountLink.getServiceId())
+            );
         });
 
         contextMenu.getItems().add(steamLookupMenuItem);
+        contextMenu.getItems().add(gogLookupMenuItem);
 
         if (communicationService.hasPermission(ROLE_ADMIN_ACCOUNT_NAME_CHANGE)) {
             MenuItem forceRenameMenuItem = new MenuItem("Rename");
