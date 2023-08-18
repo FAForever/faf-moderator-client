@@ -3,7 +3,9 @@ package com.faforever.moderatorclient.mapstruct;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
+import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -66,4 +68,19 @@ public class JavaFXMapper {
 //    public <T> List<T> map (ListProperty<T> value) {
 //        return value.get();
 //    }
+
+    @ObjectFactory
+    public <T> ObservableSet<T> createObservableSet() {
+        return FXCollections.observableSet();
+    }
+
+    @ObjectFactory
+    public <T> ObservableList<T> createObservableList() {
+        return FXCollections.observableArrayList();
+    }
+
+    @ObjectFactory
+    public <K, V> ObservableMap<K, V> createObservableMap() {
+        return FXCollections.observableHashMap();
+    }
 }
