@@ -88,7 +88,5 @@ tasks.withType(CreateStartScripts).each { task ->
 }
 
 distZip {
-    doLast {
-        file("$destinationDirectory/$archiveFileName").renameTo("$destinationDirectory/$archiveBaseName-$archiveVersion-${javafxPlatform}.zip")
-    }
+    archiveClassifier.set(javafxPlatform)
 }
