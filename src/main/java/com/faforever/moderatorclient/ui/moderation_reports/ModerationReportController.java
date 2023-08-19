@@ -207,9 +207,20 @@ public class ModerationReportController implements Controller<Region> {
 
             ReplayDataParser replayDataParser = new ReplayDataParser(tempFilePath, objectMapper);
             String chatLog = header + replayDataParser.getChatMessages().stream()
-                    .map(message -> format("[{0}] from {1} to {2}: {3}",
-                            DurationFormatUtils.formatDuration(message.getTime().toMillis(), "HH:mm:ss"),
-                            message.getSender(), message.getReceiver(), message.getMessage()))
+                    .map(message -> {
+                        long timeMillis = message.getTime().toMillis();
+                        String formattedTime;
+
+                        if (timeMillis >= 0) {
+                            formattedTime = DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss");
+                        } else {
+                            formattedTime = "N/A"; // replay data contains negative timestamps for whatever reason
+                        }
+
+                        return format("[{0}] from {1} to {2}: {3}",
+                                formattedTime,
+                                message.getSender(), message.getReceiver(), message.getMessage());
+                    })
                     .collect(Collectors.joining("\n"));
 
             chatLogTextArea.setText(chatLog);
