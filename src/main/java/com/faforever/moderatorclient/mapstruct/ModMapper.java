@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(uses = {JavaFXMapper.class, ModVersionMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, ModVersionMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
 public abstract class ModMapper {
     public abstract ModFX map(Mod dto);
 

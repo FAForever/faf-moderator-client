@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import java.util.Set;
 
-@Mapper(uses = {JavaFXMapper.class, UserGroupMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
+@Mapper(componentModel = "spring", uses = {JavaFXMapper.class, UserGroupMapper.class, PlayerMapper.class, CycleAvoidingMappingContext.class})
 public abstract class GroupPermissionMapper {
     public abstract GroupPermissionFX map(GroupPermission dto);
 
