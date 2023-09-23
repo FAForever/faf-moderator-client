@@ -1,11 +1,4 @@
 faforever:
-  api:
-    base-url: https://api.faforever.com
-    client-id: 05209670-36c5-40ad-b581-e71b7b49bd1a
-    client-secret: 370965a5-e7f2-4fe1-9225-e4517476b6a5
-    access-token-uri: ${faforever.api.base-url}/oauth/token
-    max-page-size: 10_000
-    max-result-size: 1_000_000
   map-generator:
     repo-and-owner-name: FAForever/Neroxis-Map-Generator
     query-versions-url: https://api.github.com/repos/${faforever.map-generator.repo-and-owner-name}/releases

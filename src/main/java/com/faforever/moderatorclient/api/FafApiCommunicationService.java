@@ -36,6 +36,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -99,6 +100,7 @@ public class FafApiCommunicationService {
         meResult = null;
 
         restTemplate = restTemplateBuilder.additionalMessageConverters(jsonApiMessageConverter)
+                .setReadTimeout(Duration.ofMinutes(5))
                 .errorHandler(jsonApiErrorHandler)
                 .rootUri(environmentProperties.getBaseUrl())
                 .interceptors(List.of(oAuthTokenInterceptor,
