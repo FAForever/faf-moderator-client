@@ -2,7 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="true" />
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <option name="mapstruct.defaultComponentModel" value="jsr330" />
@@ -11,25 +10,9 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.28/a2ff5da8bcd8b1b26f36b806ced63213362c6dcc/lombok-1.18.28.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.5.5.Final/897f6f115930b936287bef552bf5fe28cc64717d/mapstruct-processor-1.5.5.Final.jar" />
         </processorPath>
-        <module name="com.faforever.faf-moderator-client.main" />
+        <module name="faf-moderator-client.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="com.faforever.faf-moderator-client" target="17" />
-      <module name="com.faforever.faf-moderator-client.main" target="17" />
-      <module name="com.faforever.faf-moderator-client.test" target="17" />
-      <module name="dev.faf-moderator-client" target="11" />
-      <module name="dev.faf-moderator-client.main" target="11" />
-      <module name="dev.faf-moderator-client.test" target="11" />
-      <module name="faf-moderator-client" target="1.8" />
-      <module name="faf-moderator-client.main" target="11" />
-      <module name="faf-moderator-client.test" target="11" />
-    </bytecodeTargetLevel>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-Amapstruct.defaultComponentModel=jsr330" />
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="faf-moderator-client" options="-parameters -Amapstruct.defaultComponentModel=jsr330" />
-    </option>
+    <bytecodeTargetLevel target="17" />
   </component>
 </project>

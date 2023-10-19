@@ -1,0 +1,13 @@
+2023-10-18T20:09:06.941-04:00  INFO 498248 --- [JavaFX-Launcher] o.s.boot.SpringApplication               : Starting application using Java 17.0.1 with PID 498248 (started by main in /home/main/IdeaProjects/faf-moderator-client)
+2023-10-18T20:09:06.943-04:00  INFO 498248 --- [JavaFX-Launcher] o.s.boot.SpringApplication               : No active profile set, falling back to 1 default profile: "default"
+2023-10-18T20:09:07.845-04:00  INFO 498248 --- [JavaFX-Launcher] f.a.AutowiredAnnotationBeanPostProcessor : Autowired annotation is not supported on static fields: private static com.faforever.moderatorclient.ui.caches.LargeThumbnailCache com.faforever.moderatorclient.ui.ViewHelper.largeThumbnailCache
+2023-10-18T20:09:08.089-04:00  INFO 498248 --- [JavaFX-Launcher] o.s.boot.SpringApplication               : Started application in 1.708 seconds (process running for 2.374)
+2023-10-18T20:10:11.462-04:00 DEBUG 498248 --- [JavaFX Application Thread] c.f.moderatorclient.api.TokenService     : Token still valid for 3598 seconds
+2023-10-18T20:10:11.938-04:00 DEBUG 498248 --- [ForkJoinPool.commonPool-worker-15] c.f.m.api.FafApiCommunicationService     : Sending API request: /data/featuredMod?page[size]=10000&page[number]=1
+2023-10-18T20:10:11.940-04:00 DEBUG 498248 --- [ForkJoinPool.commonPool-worker-15] c.f.moderatorclient.api.TokenService     : Token still valid for 3598 seconds
+2023-10-18T20:10:11.979-04:00 DEBUG 498248 --- [JavaFX Application Thread] c.f.m.api.domain.MapService              : Searching for all matchmaker queues
+2023-10-18T20:10:11.980-04:00 DEBUG 498248 --- [JavaFX Application Thread] c.f.m.api.FafApiCommunicationService     : Sending API request: /data/matchmakerQueue?page[size]=10000&page[number]=1
+2023-10-18T20:10:11.981-04:00 DEBUG 498248 --- [JavaFX Application Thread] c.f.moderatorclient.api.TokenService     : Token still valid for 3598 seconds
+2023-10-18T20:10:12.289-04:00 DEBUG 498248 --- [JavaFX Application Thread] c.f.m.api.domain.MapService              : found 5 matchmaker queues
+2023-10-18T20:10:13.838-04:00 DEBUG 498248 --- [ForkJoinPool.commonPool-worker-15] c.f.m.api.FafApiCommunicationService     : Sending API request: /data/banInfo?include=player,author,revokeAuthor&sort=-createTime&page[size]=100&page[number]=1
+2023-10-18T20:10:13.839-04:00 DEBUG 498248 --- [ForkJoinPool.commonPool-worker-15] c.f.moderatorclient.api.TokenService     : Token still valid for 3596 seconds
