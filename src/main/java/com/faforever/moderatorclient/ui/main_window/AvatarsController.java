@@ -11,6 +11,7 @@ import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.AvatarFX;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -23,6 +24,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Component
@@ -55,14 +57,16 @@ public class AvatarsController implements Controller<SplitPane> {
     @FXML
     public void initialize() {
         ViewHelper.buildAvatarTableView(avatarTableView, avatars);
-        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView, avatarAssignments);
+        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView, avatarAssignments, this::removeAvatarFromPlayer);
 
         editAvatarButton.disableProperty().bind(avatarTableView.getSelectionModel().selectedItemProperty().isNull());
         deleteAvatarButton.disableProperty().bind(avatarTableView.getSelectionModel().selectedItemProperty().isNull());
 
         avatarTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             avatarAssignments.clear();
-            Optional.ofNullable(newValue).ifPresent(avatar -> avatarAssignments.addAll(avatar.getAssignments()));
+            Optional.ofNullable(newValue).ifPresent(avatar -> {
+                avatarAssignments.addAll(avatar.getAssignments());
+            });
 
             if (newValue != null) {
                 applicationEventPublisher.publishEvent(newValue);
@@ -70,11 +74,34 @@ public class AvatarsController implements Controller<SplitPane> {
         });
     }
 
-    public void refresh() {
-        avatars.clear();
-        avatars.addAll(avatarMapper.map(avatarService.getAll()));
+    private void removeAvatarFromPlayer(AvatarAssignmentFX a) {
+        AvatarAssignmentFX avatarAssignmentFX = a;
+        Assert.notNull(avatarAssignmentFX, "You need to select a user's avatar.");
 
-        avatarTableView.getSortOrder().clear();
+        avatarService.removeAvatarAssignment(avatarAssignmentFX);
+        avatarAssignmentTableView.getItems().remove(avatarAssignmentFX);
+        avatarAssignmentFX.getPlayer().getAvatarAssignments().remove(avatarAssignmentFX);
+        avatarAssignmentFX.getAvatar().setAssignments(avatarAssignmentTableView.getItems());
+        avatarAssignmentTableView.refresh();
+        refresh();
+        Optional.ofNullable(a.getAvatar()).ifPresent(avatar -> avatarAssignments.addAll(a.getAvatar().getAssignments()));
+    }
+
+    public void refresh() {
+        System.out.println("refeshing");
+        avatars.clear();
+        avatarAssignments.clear();
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                avatars.addAll(avatarMapper.map(avatarService.getAll().get()));
+
+                avatarTableView.getSortOrder().clear();
+                return null;
+
+            }
+        };
+        new Thread(task).start();
     }
 
 
@@ -89,7 +116,7 @@ public class AvatarsController implements Controller<SplitPane> {
         refresh();
     }
 
-    public void onSearchAvatars() {
+    public void onSearchAvatars() throws ExecutionException, InterruptedException {
         avatars.clear();
         avatarTableView.getSortOrder().clear();
 
@@ -101,9 +128,9 @@ public class AvatarsController implements Controller<SplitPane> {
         } else if (searchAvatarsByTooltipRadioButton.isSelected()) {
             avatarSearchResult = avatarService.findAvatarsByTooltip(pattern);
         } else if (searchAvatarsByAssignedUserRadioButton.isSelected()) {
-            avatarSearchResult = avatarService.findAvatarsByAssignedUser(pattern);
+            avatarSearchResult = avatarService.findAvatarsByAssignedUser(pattern).get();
         } else {
-            avatarSearchResult = avatarService.getAll();
+            avatarSearchResult = avatarService.getAll().get();
         }
         avatars.addAll(avatarMapper.map(avatarSearchResult));
     }
