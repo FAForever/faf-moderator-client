@@ -2,6 +2,7 @@ package com.faforever.moderatorclient.ui.main_window;
 
 import com.faforever.moderatorclient.ui.Controller;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class BracketRatingController implements Controller<HBox> {
 
     @FXML HBox root;
     @FXML Label ratingLabel;
+    public Button removeMaps;
 
     @Override
     public HBox getRoot() {

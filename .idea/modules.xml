@@ -2,12 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.iml" filepath="$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.faforever.faf-moderator-client.test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.test.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.faf-moderator-client.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-moderator-client.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-moderator-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-moderator-client.main.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-moderator-client.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/faf-moderator-client.test.iml" filepath="$PROJECT_DIR$/.idea/modules/faf-moderator-client.test.iml" />

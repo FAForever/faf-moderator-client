@@ -40,6 +40,7 @@ import com.faforever.moderatorclient.ui.domain.UserNoteFX;
 import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
 import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
+import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -61,6 +62,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -990,7 +992,7 @@ public class ViewHelper {
         };
     }
 
-    public static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView) {
+    public static void buildMapTreeView(TreeTableView<MapTableItemAdapter> mapTreeView, @Nullable Consumer<MapTableItemAdapter> removeFavorite, @Nullable Consumer<MapTableItemAdapter> addFavorite,  LadderMapPoolController ladderMapPoolController) {
         TreeTableColumn<MapTableItemAdapter, String> idColumn = new TreeTableColumn<>("ID");
         idColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("id"));
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
@@ -1001,6 +1003,43 @@ public class ViewHelper {
         nameColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("nameOrDescription"));
         nameColumn.setMinWidth(300);
         mapTreeView.getColumns().add(nameColumn);
+
+        TreeTableColumn<MapTableItemAdapter, MapTableItemAdapter> favoriteColumn = new TreeTableColumn<>("Favorite");
+        favoriteColumn.setMinWidth(100);
+        favoriteColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("this"));
+        Callback<TreeTableColumn<MapTableItemAdapter, MapTableItemAdapter>, TreeTableCell<MapTableItemAdapter, MapTableItemAdapter>> cellFactory = new Callback<TreeTableColumn<MapTableItemAdapter, MapTableItemAdapter>, TreeTableCell<MapTableItemAdapter, MapTableItemAdapter>>() {
+            @Override
+            public TreeTableCell<MapTableItemAdapter, MapTableItemAdapter> call(TreeTableColumn<MapTableItemAdapter, MapTableItemAdapter> param) {
+                return new TreeTableCell<MapTableItemAdapter, MapTableItemAdapter>() {
+                    @Override
+                    public void updateItem(MapTableItemAdapter item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!empty && item != null && !item.isMapVersion()) {
+                            if (ladderMapPoolController.isMapFavorite(Integer.parseInt(item.getId()))) {
+                                Button button = new Button("Unfavorite");
+                                button.setOnMouseClicked(event -> removeFavorite.accept(item));
+                                button.setTextFill(Color.rgb(200, 10, 10));
+
+                                setGraphic(button);
+                                return;
+                            } else {
+                                Button button = new Button("Favorite");
+                                button.setOnMouseClicked(event -> addFavorite.accept(item));
+                                button.setTextFill(Color.rgb(10, 200, 10));
+
+                                setGraphic(button);
+                                return;
+                            }
+                        }
+                        setGraphic(null);
+                    }
+                };
+            }
+        };
+
+        favoriteColumn.setCellFactory(cellFactory);
+
+        mapTreeView.getColumns().add(favoriteColumn);
 
         TreeTableColumn<MapTableItemAdapter, ComparableVersion> versionColumn = new TreeTableColumn<>("Version");
         versionColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("version"));

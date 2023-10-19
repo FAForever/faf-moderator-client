@@ -61,4 +61,8 @@ public class MapTableItemAdapter {
     public URL getThumbnailUrlLarge() {
         return isMapVersion() ? mapVersion.getThumbnailUrlLarge() : null;
     }
+
+    public MapTableItemAdapter getThis() {
+        return this;
+    }
 }
