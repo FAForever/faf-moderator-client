@@ -377,8 +377,6 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
                 if (filterByFavorites.isSelected()) {
                     maps = filterByFavorites(maps);
-                } else {
-                    filteredMaps = maps;
                 }
 
                 cachedMaps.clear();
