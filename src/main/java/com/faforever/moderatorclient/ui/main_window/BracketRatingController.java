@@ -17,7 +17,6 @@ public class BracketRatingController implements Controller<HBox> {
 
     @FXML HBox root;
     @FXML Label ratingLabel;
-    public Button removeMaps;
 
     @Override
     public HBox getRoot() {

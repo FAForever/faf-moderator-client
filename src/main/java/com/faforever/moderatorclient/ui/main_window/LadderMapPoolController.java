@@ -351,12 +351,9 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public List<Map> filterByFavorites(List<Map> in) {
         List<Map> out = new ArrayList<>();
 
-        in.forEach((map) -> {
-            if (favoritesCache.contains(Integer.parseInt(map.getId()))) {
-                out.add(map);
-            }
-        });
-        return out;
+        return in.stream()
+                .filter(map -> favoritesCache.contains(Integer.parseInt(map.getId())))
+                .toList();
     }
 
     public void onSearchMapVault() {
@@ -461,16 +458,14 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            ArrayList<String> list = new ArrayList<>();
+            List<String> list = new ArrayList<>();
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-            favoritesCache.forEach((line) -> {
-                try {
-                    writer.write(String.valueOf(line) + "\n");
-                } catch (IOException e) {
-                    log.error("Failed to write to favorite maps cache", e);
-                }
-            });
+
+            for (Integer line : favoritesCache) {
+                writer.write(line + "\n");
+            }
+
             writer.close();
         } catch (IOException e) {
             log.error("Failed to write to favorite maps cache", e);
