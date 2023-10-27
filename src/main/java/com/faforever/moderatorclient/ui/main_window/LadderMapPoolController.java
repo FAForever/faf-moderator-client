@@ -1,10 +1,7 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import com.faforever.commons.api.dto.MapPoolAssignment;
-import com.faforever.commons.api.dto.MapVersion;
-import com.faforever.commons.api.dto.MatchmakerQueue;
-import com.faforever.commons.api.dto.MatchmakerQueueMapPool;
-import com.faforever.commons.api.dto.NeroxisGeneratorParams;
+import com.faforever.commons.api.dto.*;
+import com.faforever.commons.api.dto.Map;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
@@ -16,14 +13,17 @@ import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
 import com.faforever.moderatorclient.ui.domain.MapPoolAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -40,6 +40,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +48,17 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
@@ -73,7 +79,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public HBox bracketListContainer;
     public HBox bracketHeaderContainer;
     public TreeTableView<MapTableItemAdapter> mapVaultView;
-    public CheckBox filterByMapNameCheckBox;
+    public CheckBox filterByFavorites;
     public TextField mapNamePatternTextField;
     public ImageView ladderPoolImageView;
     public Button refreshButton;
@@ -85,6 +91,10 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public Spinner<Double> neroxisSizeSpinner;
     public Spinner<Integer> neroxisSpawnsSpinner;
     public Label mapParamsLabel;
+    public Button zoomInButton;
+
+    private ObservableList<Integer> favoritesCache;
+    private List<Map> cachedMaps;
 
     private final ObjectProperty<MapPoolAssignmentFX> selectedMap = new SimpleObjectProperty<>();
     private final BiPredicate<MapPoolAssignmentFX, MapPoolAssignmentFX> matchingPoolAssignmentPredicate = (assignmentFX1, assignmentFX2) ->
@@ -100,7 +110,8 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
     @FXML
     public void initialize() {
-        ViewHelper.buildMapTreeView(mapVaultView);
+        cachedMaps = new ArrayList<>();
+        ViewHelper.buildMapTreeView(mapVaultView, this::removeFavorite, this::addFavorite, this);
         bindSelectedMapPropertyToImageView();
         mapVaultView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue.getValue() != null && newValue.getValue().isMapVersion()) {
@@ -131,7 +142,14 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
         bracketsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         mapParamsLabel.managedProperty().bind(mapParamsLabel.visibleProperty());
+        try {
+            favoritesCache = FXCollections.observableArrayList(getFavorites());
+        } catch (IOException e) {
+            log.error("Failed to load favorite maps cache", e);
+        }
+
     }
+
 
     public void queueComboAction(ActionEvent event) {
         clearUiAndLoadQueue(queueComboBox.getValue());
@@ -153,6 +171,24 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
 
     private void loadMatchMakerQueue(MatchmakerQueue matchmakerQueue) {
+        zoomInButton.setOnAction((event) -> {
+
+            if (selectedMap == null) return;
+            ZoomInMapWindow zoomInMapWindow = uiService.loadFxml("ui/LadderMapZoomIn.fxml");
+            Stage newCategoryDialog = new Stage();
+            newCategoryDialog.setTitle("Zoom In");
+            Scene scene = new Scene(zoomInMapWindow.getRoot());
+            newCategoryDialog.setScene(scene);
+
+            ImageView imageView = (ImageView) scene.getRoot().getChildrenUnmodifiable().get(0);
+            if (selectedMap != null) imageView.setImage(new Image(selectedMap.getValue().getMapVersion().getThumbnailUrlLarge().toString()));
+            imageView.setFitWidth(1000);
+            imageView.setFitHeight(1000);
+
+            newCategoryDialog.showAndWait();
+
+        });
+
         List<MatchmakerQueueMapPool> brackets = mapService.getListOfBracketsInMatchmakerQueue(matchmakerQueue);
         List<MapPoolAssignment> mapPoolAssignments = mapService.getListOfMapsInBrackets(brackets);
         List<MatchmakerQueueMapPoolFX> bracketsFX = matchmakerQueueMapPoolMapper.mapToFx(brackets);
@@ -182,10 +218,16 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             AddBracketController addBracketController = uiService.loadFxml("ui/main_window/addBracketLabelAndButton.fxml");
             addBracketController.setRatingLabelText(getBracketRatingString(bracketFX));
             addButtonsContainer.getChildren().add(addBracketController.getRoot());
+            Button button = new Button("--");
+            button.setOnAction((event -> {
+                bracketAssignments.clear();
+            }));
+            addBracketController.getRoot().addColumn(3, button);
 
             bindListViewSelectionToSelectedMapProperty(listViewController.mapListView);
             bindSelectedMapPropertyToAddRemoveButtons(bracketAssignments, addBracketController, bracketFX.getMapPool());
         }
+
         uploadToDatabaseButton.setOnAction(event -> {
             List<MapPoolAssignment> oldMapPoolAssignments = mapService.getListOfMapsInBrackets(brackets);
             List<MapPoolAssignmentFX> oldMapPoolAssignmentsFX = mapPoolAssignmentMapper.mapToFX(oldMapPoolAssignments);
@@ -229,7 +271,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
                 } catch (IOException e) {
                     log.warn("Could not load generated map icon", e);
                 }
-                mapParamsLabel.setText(String.format("Version: %s\nSpawns: %d\nSize: %d\n",
+                mapParamsLabel.setText(String.format(" \nVersion: %s\nSpawns: %d\nSize: %d\n",
                         neroxisParams.getVersion(),
                         neroxisParams.getSpawns(),
                         neroxisParams.getSize()));
@@ -306,17 +348,49 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         selectedMap.setValue(currentMap);
     }
 
+    public List<Map> filterByFavorites(List<Map> in) {
+        List<Map> out = new ArrayList<>();
+
+        return in.stream()
+                .filter(map -> favoritesCache.contains(Integer.parseInt(map.getId())))
+                .toList();
+    }
+
     public void onSearchMapVault() {
-        mapVaultView.getRoot().getChildren().clear();
-        mapVaultView.getSortOrder().clear();
-        String mapNamePattern = null;
 
-        if (filterByMapNameCheckBox.isSelected()) {
-            mapNamePattern = mapNamePatternTextField.getText();
-        }
 
-        ViewHelper.fillMapTreeView(mapVaultView,
-                mapService.findMaps(mapNamePattern).stream());
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                String mapNamePattern = mapNamePatternTextField.getText();
+
+                if (mapNamePattern.length() > 0) {
+                    mapNamePattern = '*' + mapNamePattern + '*';
+                }
+
+                List<Map> maps = mapService.findMaps(mapNamePattern);
+
+                List<Map> filteredMaps;
+
+                if (filterByFavorites.isSelected()) {
+                    maps = filterByFavorites(maps);
+                }
+
+                cachedMaps.clear();
+                cachedMaps.addAll(maps);
+
+                List<Map> finalMaps = maps;
+                Platform.runLater( () -> {
+                    mapVaultView.getRoot().getChildren().clear();
+                    mapVaultView.getSortOrder().clear();
+                    ViewHelper.fillMapTreeView(mapVaultView, finalMaps.stream());
+                });
+                return null;
+            }
+        };
+
+        new Thread(task).start();
+
     }
 
     public void onGeneratedMapButton() {
@@ -327,6 +401,80 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         MapPoolAssignment mapPoolAssignment = new MapPoolAssignment();
         mapPoolAssignment.setMapParams(neroxisGeneratorParams);
         selectedMap.setValue(mapPoolAssignmentMapper.map(mapPoolAssignment));
+    }
+
+    public List<Integer> getFavorites() throws IOException {
+        List<Integer> list = new ArrayList<>();
+
+        File pwd = new File("").getAbsoluteFile();
+        File file = new File(pwd.getAbsoluteFile() + File.separator + "favoriteMaps.txt");
+
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        Scanner reader = new Scanner(file);
+        while (reader.hasNextLine()) {
+            String line = reader.nextLine();
+            if (line != null && line.length() > 0) {
+                list.add(Integer.parseInt(line));
+            }
+        }
+        reader.close();
+        return list;
+    }
+
+    public void addFavorite(MapTableItemAdapter mapTableItemAdapter) {
+        if (favoritesCache.contains(Integer.parseInt(mapTableItemAdapter.getId()))) return;
+
+        int id = Integer.parseInt(mapTableItemAdapter.getId());
+
+        favoritesCache.add(id);
+
+        try {
+            File pwd = new File("").getAbsoluteFile();
+            File file = new File(pwd.getAbsoluteFile() + File.separator + "favoriteMaps.txt");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+            writer.append(String.valueOf(id) + "\n");
+            writer.close();
+        } catch (IOException e) {
+            log.error("Failed to write to favorite maps cache", e);
+        }
+        onSearchMapVault();
+    }
+
+    public void removeFavorite(MapTableItemAdapter mapTableItemAdapter) {
+        int id = Integer.parseInt(mapTableItemAdapter.getId());
+
+        favoritesCache.removeAll(Arrays.asList(id));
+
+        try {
+            File pwd = new File("").getAbsoluteFile();
+            File file = new File(pwd.getAbsoluteFile() + File.separator + "favoriteMaps.txt");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            List<String> list = new ArrayList<>();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+
+            for (Integer line : favoritesCache) {
+                writer.write(line + "\n");
+            }
+
+            writer.close();
+        } catch (IOException e) {
+            log.error("Failed to write to favorite maps cache", e);
+        }
+        onSearchMapVault();
+    }
+
+    public boolean isMapFavorite(int id) {
+        return favoritesCache.contains(id);
     }
 
 }
