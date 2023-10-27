@@ -1,6 +1,5 @@
 package com.faforever.moderatorclient.ui.main_window;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.faforever.commons.api.dto.*;
 import com.faforever.commons.api.dto.Map;
 import com.faforever.moderatorclient.api.domain.MapService;
@@ -14,7 +13,6 @@ import com.faforever.moderatorclient.ui.caches.LargeThumbnailCache;
 import com.faforever.moderatorclient.ui.domain.MapPoolAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.MapPoolFX;
 import com.faforever.moderatorclient.ui.domain.MatchmakerQueueMapPoolFX;
-import com.faforever.moderatorclient.ui.moderation_reports.EditModerationReportController;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -22,10 +20,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -48,14 +44,21 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
@@ -91,7 +94,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public Button zoomInButton;
 
     private ObservableList<Integer> favoritesCache;
-    private ArrayList<Map> cachedMaps;
+    private List<Map> cachedMaps;
 
     private final ObjectProperty<MapPoolAssignmentFX> selectedMap = new SimpleObjectProperty<>();
     private final BiPredicate<MapPoolAssignmentFX, MapPoolAssignmentFX> matchingPoolAssignmentPredicate = (assignmentFX1, assignmentFX2) ->
@@ -107,7 +110,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
     @FXML
     public void initialize() {
-        cachedMaps = Lists.newArrayList();
+        cachedMaps = new ArrayList<>();
         ViewHelper.buildMapTreeView(mapVaultView, this::removeFavorite, this::addFavorite, this);
         bindSelectedMapPropertyToImageView();
         mapVaultView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -142,7 +145,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         try {
             favoritesCache = FXCollections.observableArrayList(getFavorites());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to load favorite maps cache", e);
         }
 
     }
@@ -181,7 +184,6 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             if (selectedMap != null) imageView.setImage(new Image(selectedMap.getValue().getMapVersion().getThumbnailUrlLarge().toString()));
             imageView.setFitWidth(1000);
             imageView.setFitHeight(1000);
-            System.out.println(new Image(selectedMap.getValue().getMapVersion().getThumbnailUrlLarge().toString()).getWidth() + new Image(selectedMap.getValue().getMapVersion().getThumbnailUrlLarge().toString()).getHeight());
 
             newCategoryDialog.showAndWait();
 
@@ -218,7 +220,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             addButtonsContainer.getChildren().add(addBracketController.getRoot());
             Button button = new Button("--");
             button.setOnAction((event -> {
-                bracketAssignments.removeAll(bracketAssignments.stream().toList());
+                bracketAssignments.clear();
             }));
             addBracketController.getRoot().addColumn(3, button);
 
@@ -347,7 +349,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     }
 
     public List<Map> filterByFavorites(List<Map> in) {
-        List<Map> out = Lists.newArrayList();
+        List<Map> out = new ArrayList<>();
 
         in.forEach((map) -> {
             if (favoritesCache.contains(Integer.parseInt(map.getId()))) {
@@ -363,36 +365,30 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         Task<Void> task = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                String mapNamePattern = null;
-                mapNamePattern = mapNamePatternTextField.getText();
+                String mapNamePattern = mapNamePatternTextField.getText();
 
-                List<Map> mapsTmp;
-                String finalMapNamePattern = mapNamePattern;
-
-                if (finalMapNamePattern.equals("")) {
-                    mapsTmp = mapService.findMaps("");
-                } else {
-                    mapsTmp = mapService.findMaps('*' + mapNamePattern + '*');
+                if (mapNamePattern.length() > 0) {
+                    mapNamePattern = '*' + mapNamePattern + '*';
                 }
 
-
+                List<Map> maps = mapService.findMaps(mapNamePattern);
 
                 List<Map> filteredMaps;
 
                 if (filterByFavorites.isSelected()) {
-                    filteredMaps = filterByFavorites(mapsTmp);
+                    maps = filterByFavorites(maps);
                 } else {
-                    filteredMaps = mapsTmp;
+                    filteredMaps = maps;
                 }
 
+                cachedMaps.clear();
+                cachedMaps.addAll(maps);
 
-                final List<Map> mapsFinal = filteredMaps;
-                cachedMaps.removeAll(cachedMaps.stream().toList());
-                cachedMaps.addAll(mapsFinal);
+                List<Map> finalMaps = maps;
                 Platform.runLater( () -> {
                     mapVaultView.getRoot().getChildren().clear();
                     mapVaultView.getSortOrder().clear();
-                    ViewHelper.fillMapTreeView(mapVaultView, mapsFinal.stream());
+                    ViewHelper.fillMapTreeView(mapVaultView, finalMaps.stream());
                 });
                 return null;
             }
@@ -413,7 +409,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     }
 
     public List<Integer> getFavorites() throws IOException {
-        ArrayList<Integer> list = Lists.newArrayList();
+        List<Integer> list = new ArrayList<>();
 
         File pwd = new File("").getAbsoluteFile();
         File file = new File(pwd.getAbsoluteFile() + File.separator + "favoriteMaps.txt");
@@ -434,8 +430,6 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     }
 
     public void addFavorite(MapTableItemAdapter mapTableItemAdapter) {
-        System.out.println(mapTableItemAdapter.getId());
-        System.out.println(mapTableItemAdapter.getMap().getId());
         if (favoritesCache.contains(Integer.parseInt(mapTableItemAdapter.getId()))) return;
 
         int id = Integer.parseInt(mapTableItemAdapter.getId());
@@ -453,7 +447,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             writer.append(String.valueOf(id) + "\n");
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write to favorite maps cache", e);
         }
         onSearchMapVault();
     }
@@ -469,19 +463,19 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            ArrayList<String> list = Lists.newArrayList();
+            ArrayList<String> list = new ArrayList<>();
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
             favoritesCache.forEach((line) -> {
                 try {
                     writer.write(String.valueOf(line) + "\n");
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Failed to write to favorite maps cache", e);
                 }
             });
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to write to favorite maps cache", e);
         }
         onSearchMapVault();
     }
