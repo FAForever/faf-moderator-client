@@ -22,6 +22,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -34,14 +35,16 @@ public class AvatarService {
         this.avatarAssignmentMapper = avatarAssignmentMapper;
     }
 
-    public List<Avatar> getAll() {
-        log.debug("Retrieving all avatars");
-        List<Avatar> result = fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
-                .collection()
-                .addInclude("assignments")
-                .addInclude("assignments.player"));
-        log.trace("found {} avatars", result.size());
-        return result;
+    public CompletableFuture<List<Avatar>> getAll() {
+        return CompletableFuture.supplyAsync(() -> {
+            log.debug("Retrieving all avatars");
+            List<Avatar> result = fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
+                    .collection()
+                    .addInclude("assignments")
+                    .addInclude("assignments.player"));
+            log.trace("found {} avatars", result.size());
+            return result;
+        });
     }
 
     private List<Avatar> findAvatarsByAttribute(@NotNull String attribute, @NotNull String pattern) {
@@ -65,19 +68,21 @@ public class AvatarService {
         return findAvatarsByAttribute("tooltip", pattern);
     }
 
-    public List<Avatar> findAvatarsByAssignedUser(@NotNull String pattern) {
-        log.debug("Searching for avatars by assigned player with pattern: {}", pattern);
-        boolean isNumeric = pattern.matches("^[0-9]+$");
+    public CompletableFuture<List<Avatar>> findAvatarsByAssignedUser(@NotNull String pattern) {
+        return CompletableFuture.supplyAsync(() -> {
+            log.debug("Searching for avatars by assigned player with pattern: {}", pattern);
+            boolean isNumeric = pattern.matches("^[0-9]+$");
 
-        ElideNavigatorOnCollection<Avatar> navigator = ElideNavigator.of(Avatar.class)
-                .collection()
-                .addInclude("assignments")
-                .addInclude("assignments.player")
-                .setFilter(ElideNavigator.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
+            ElideNavigatorOnCollection<Avatar> navigator = ElideNavigator.of(Avatar.class)
+                    .collection()
+                    .addInclude("assignments")
+                    .addInclude("assignments.player")
+                    .setFilter(ElideNavigator.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
 
-        List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
-        log.trace("found {} avatars", result.size());
-        return result;
+            List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
+            log.trace("found {} avatars", result.size());
+            return result;
+        });
     }
 
     public void uploadAvatar(String name, File avatarImageFile) {
