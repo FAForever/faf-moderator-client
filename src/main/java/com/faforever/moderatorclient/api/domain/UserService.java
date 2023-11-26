@@ -56,8 +56,6 @@ public class UserService {
 
         return builder
                 .addInclude(variablePrefix + "names")
-                .addInclude(variablePrefix + "globalRating")
-                .addInclude(variablePrefix + "ladder1v1Rating")
                 .addInclude(variablePrefix + "avatarAssignments")
                 .addInclude(variablePrefix + "avatarAssignments.avatar")
                 .addInclude(variablePrefix + "uniqueIds")
