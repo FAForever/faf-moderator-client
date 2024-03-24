@@ -71,7 +71,7 @@ mainClassName = 'com.faforever.moderatorclient.Launcher'
 
 group = 'com.faforever'
 description = 'faf-moderator-client'
-sourceCompatibility = '17'
+sourceCompatibility = '21'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
