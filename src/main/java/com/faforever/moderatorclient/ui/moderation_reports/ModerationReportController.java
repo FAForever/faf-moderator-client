@@ -212,10 +212,10 @@ public class ModerationReportController implements Controller<Region> {
             String chatLog = header + replayDataParser.getChatMessages().stream()
                     .map(message -> {
                         long timeMillis = message.getTime().toMillis();
-                        String formattedTime = formatTime(timeMillis);
+                        String formattedChatMessageTime = formatChatMessageTime(timeMillis);
 
                         return format("[{0}] from {1} to {2}: {3}",
-                                formattedTime,
+                                formattedChatMessageTime,
                                 message.getSender(), message.getReceiver(), message.getMessage());
                     })
                     .collect(Collectors.joining("\n"));
@@ -238,10 +238,10 @@ public class ModerationReportController implements Controller<Region> {
         String moderatorEventsLog = moderatorEvents.stream()
                 .map(event -> {
                     long timeMillis = event.time().toMillis();
-                    String formattedTime = formatTime(timeMillis);
+                    String formattedChatMessageTime = formatChatMessageTime(timeMillis);
 
                     return format("[{0}] from {1}: {2}",
-                            formattedTime,
+                            formattedChatMessageTime,
                             event.sender(),
                             event.message());
                 })
@@ -250,7 +250,7 @@ public class ModerationReportController implements Controller<Region> {
         moderatorEventTextArea.setText(moderatorEventsLog);
     }
 
-    private String formatTime(long timeMillis) {
+    private String formatChatMessageTime(long timeMillis) {
         if (timeMillis >= 0) {
             return DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss");
         } else {
