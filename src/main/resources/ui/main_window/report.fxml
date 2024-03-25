@@ -60,6 +60,9 @@
                         <TextArea fx:id="chatLogTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"/>
                     </content>
                 </Tab>
+                <Tab text="Moderator Event">
+                    <TextArea fx:id="moderatorEventTextArea" editable="false" prefHeight="200.0" prefWidth="200.0"/>
+                </Tab>
             </tabs>
         </TabPane>
     </items>
