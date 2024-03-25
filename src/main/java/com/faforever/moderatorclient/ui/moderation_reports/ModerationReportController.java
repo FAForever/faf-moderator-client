@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient.ui.moderation_reports;
 
 import com.faforever.commons.api.dto.ModerationReportStatus;
+import com.faforever.commons.replay.ModeratorEvent;
 import com.faforever.commons.replay.ReplayDataParser;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.ModerationReportService;
@@ -43,6 +44,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
@@ -72,6 +74,7 @@ public class ModerationReportController implements Controller<Region> {
     public Button editReportButton;
     public TableView<PlayerFX> reportedPlayerView;
     public TextArea chatLogTextArea;
+    public TextArea moderatorEventTextArea;
 
     private FilteredList<ModerationReportFX> filteredItemList;
     private ObservableList<ModerationReportFX> itemList;
@@ -209,13 +212,7 @@ public class ModerationReportController implements Controller<Region> {
             String chatLog = header + replayDataParser.getChatMessages().stream()
                     .map(message -> {
                         long timeMillis = message.getTime().toMillis();
-                        String formattedTime;
-
-                        if (timeMillis >= 0) {
-                            formattedTime = DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss");
-                        } else {
-                            formattedTime = "N/A"; // replay data contains negative timestamps for whatever reason
-                        }
+                        String formattedTime = formatTime(timeMillis);
 
                         return format("[{0}] from {1} to {2}: {3}",
                                 formattedTime,
@@ -224,11 +221,40 @@ public class ModerationReportController implements Controller<Region> {
                     .collect(Collectors.joining("\n"));
 
             chatLogTextArea.setText(chatLog);
+
+            log.debug("Parsing moderatorEvents");
+
+            List<ModeratorEvent> moderatorEvents = replayDataParser.getModeratorEvents();
+            showModeratorEvent(moderatorEvents);
         } catch (Exception e) {
             log.error("Loading replay {} failed", game, e);
             chatLogTextArea.setText(header + format("Loading replay failed due to {0}: \n{1}", e, e.getMessage()));
         }
 
         Files.delete(tempFilePath);
+    }
+
+    private void showModeratorEvent(List<ModeratorEvent> moderatorEvents){
+        String moderatorEventsLog = moderatorEvents.stream()
+                .map(event -> {
+                    long timeMillis = event.time().toMillis();
+                    String formattedTime = formatTime(timeMillis);
+
+                    return format("[{0}] from {1}: {2}",
+                            formattedTime,
+                            event.sender(),
+                            event.message());
+                })
+                .collect(Collectors.joining("\n"));
+
+        moderatorEventTextArea.setText(moderatorEventsLog);
+    }
+
+    private String formatTime(long timeMillis) {
+        if (timeMillis >= 0) {
+            return DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss");
+        } else {
+            return "N/A"; // replay data contains negative timestamps for whatever reason
+        }
     }
 }
