@@ -8,8 +8,8 @@ This application enables faforever.com moderators to perform administrative acti
 - editing runtime translations
 
 # How to use / run it
-- Make sure you have Java 17 or higher installed (JRE or JDK does not matter). Adoptium offers free installation
-  packages [here](https://adoptium.net/?variant=openjdk17) (other Java flavours like Oracle should also work)
+- Make sure you have Java 21 or higher installed (JRE or JDK does not matter). Adoptium offers free installation
+  packages [here](https://adoptium.net/?variant=openjdk21) (other Java flavours like Oracle should also work)
 - Download the right client version for your operating system from the release page
 - Unzip it
 - Go to the bin folder and run the .bat script (Windows) or the .sh script (Linux)
