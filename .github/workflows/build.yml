@@ -13,7 +13,7 @@ jobs:
   checks:
 
     runs-on: ubuntu-latest
-    container: eclipse-temurin:17-jdk
+    container: eclipse-temurin:21-jdk
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
