@@ -725,7 +725,7 @@ public class ViewHelper {
         steamLookupMenuItem.setOnAction(action -> {
             PlayerFX playerFX = tableView.getSelectionModel().getSelectedItem();
             playerFX.getAccountLinks().stream().filter(accountLink -> accountLink.getServiceType().equals(LinkedServiceType.STEAM)).findFirst().ifPresent(accountLink ->
-                    platformService.showDocument("https://steamidfinder.com/lookup/" + accountLink.getServiceId())
+                    platformService.showDocument("https://steamcommunity.com/profiles/" + accountLink.getServiceId())
             );
         });
 
