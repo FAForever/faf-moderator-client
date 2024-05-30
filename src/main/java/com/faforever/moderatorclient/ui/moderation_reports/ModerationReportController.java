@@ -242,7 +242,7 @@ public class ModerationReportController implements Controller<Region> {
 
                     return format("[{0}] from {1}: {2}",
                             formattedChatMessageTime,
-                            event.sender(),
+                            event.playerNameFromCommandSource(),
                             event.message());
                 })
                 .collect(Collectors.joining("\n"));
