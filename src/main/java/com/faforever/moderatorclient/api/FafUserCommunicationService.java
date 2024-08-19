@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -46,6 +47,7 @@ public class FafUserCommunicationService {
     @EventListener
     public void authorize(HydraAuthorizedEvent event) {
         restTemplate = restTemplateBuilder
+                .requestFactory(JdkClientHttpRequestFactory.class)
                 .rootUri(environmentProperties.getUserBaseUrl())
                 .interceptors(oAuthTokenInterceptor)
                 .build();

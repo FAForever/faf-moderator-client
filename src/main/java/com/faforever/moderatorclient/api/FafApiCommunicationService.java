@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -99,7 +100,9 @@ public class FafApiCommunicationService {
     public void authorize(HydraAuthorizedEvent event) {
         meResult = null;
 
-        restTemplate = restTemplateBuilder.additionalMessageConverters(jsonApiMessageConverter)
+        restTemplate = restTemplateBuilder
+                .requestFactory(JdkClientHttpRequestFactory.class)
+                .additionalMessageConverters(jsonApiMessageConverter)
                 .setReadTimeout(Duration.ofMinutes(5))
                 .errorHandler(jsonApiErrorHandler)
                 .rootUri(environmentProperties.getBaseUrl())

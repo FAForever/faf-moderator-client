@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -32,7 +33,10 @@ public class TokenService {
 
   public void prepare(EnvironmentProperties environmentProperties) {
     this.environmentProperties = environmentProperties;
-    this.restTemplate = new RestTemplateBuilder().rootUri(environmentProperties.getOauthBaseUrl()).build();
+    this.restTemplate = new RestTemplateBuilder()
+            .requestFactory(JdkClientHttpRequestFactory.class)
+            .rootUri(environmentProperties.getOauthBaseUrl())
+            .build();
   }
 
   @SneakyThrows
