@@ -22,7 +22,12 @@ if (javafxPlatform == "unspecified") {
             project.ext.javafxPlatform = "linux"
             break
         case OperatingSystem.MAC_OS:
-            project.ext.javafxPlatform = "mac"
+            String arch = System.getProperty("os.arch")
+            if (arch == "aarch64") {
+                project.ext.javafxPlatform = "mac-aarch64"
+            } else {
+                project.ext.javafxPlatform = "mac"
+            }
             break
         case OperatingSystem.WINDOWS:
             project.ext.javafxPlatform = "win"
