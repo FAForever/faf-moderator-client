@@ -61,7 +61,7 @@ dependencies {
     implementation("com.github.FAForever.faf-java-commons:faf-commons-api:${commonsVersion}")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.github.rutledgepaulv:q-builders:1.6")
-    implementation("com.google.guava:guava:33.2.1-jre")
+    implementation("com.google.guava:guava:33.3.1-jre")
     implementation("org.mapstruct:mapstruct:${mapStructVersion}")
     implementation("org.openjfx:javafx-base:${javafxVersion}:${javafxPlatform}")
     implementation("org.openjfx:javafx-controls:${javafxVersion}:${javafxPlatform}")
