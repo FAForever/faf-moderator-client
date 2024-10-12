@@ -72,7 +72,7 @@ public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
         return maxTokensPerMap;
     }
 
-    public void setMaxTokensPerMap(Integer maxTokensPerMap) {
+    public void setMaxTokensPerMap(int maxTokensPerMap) {
         this.maxTokensPerMap.set(maxTokensPerMap);
     }
 
