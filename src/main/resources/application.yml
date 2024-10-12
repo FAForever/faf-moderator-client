@@ -24,11 +24,11 @@ faforever:
       oauth-scopes: upload_avatar administrative_actions read_sensible_userdata manage_vault
       user-base-url: https://user.test.faforever.com
     "[localhost:8010]":
-      base-url: http://localhost:8010
+      base-url: http://127.0.0.1:8010
       client-id: faf-moderator-client
       replay-download-url-format: https://replay.test.faforever.com/%s
       oauth-base-url: http://localhost:4444
-      oauth-redirect-url: http://localhost
+      oauth-redirect-url: http://127.0.0.1
       oauth-scopes: upload_avatar administrative_actions read_sensible_userdata manage_vault
       user-base-url: http://localhost:8080
 
