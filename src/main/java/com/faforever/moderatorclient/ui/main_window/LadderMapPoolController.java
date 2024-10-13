@@ -5,6 +5,9 @@ import com.faforever.commons.api.dto.MapVersion;
 import com.faforever.commons.api.dto.MatchmakerQueue;
 import com.faforever.commons.api.dto.MatchmakerQueueMapPool;
 import com.faforever.commons.api.dto.NeroxisGeneratorParams;
+import com.faforever.commons.api.elide.ElideNavigator;
+import com.faforever.commons.api.elide.ElideNavigatorOnId;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
@@ -64,6 +67,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     public static final double MIN_MAP_SIZE_STEP = 1.25;
     private final MapService mapService;
     private final UiService uiService;
+    private final FafApiCommunicationService apiService;
     private final MatchmakerQueueMapPoolMapper matchmakerQueueMapPoolMapper;
     private final MapPoolAssignmentMapper mapPoolAssignmentMapper;
     private final LargeThumbnailCache largeThumbnailCache;
@@ -174,6 +178,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
             // create the bracket list views
             BracketListViewController listViewController = uiService.loadFxml("ui/main_window/bracketListView.fxml");
+            listViewController.bindVetoParams(bracketFX);
             listViewController.setMaps(bracketAssignments);
             listViewController.mapListView.prefWidthProperty().bind((bracketsScrollPane.widthProperty().divide(bracketsFX.size())).subtract(16 / bracketsFX.size()));
             bracketListContainer.getChildren().add(listViewController.getRoot());
@@ -187,6 +192,19 @@ public class LadderMapPoolController implements Controller<SplitPane> {
             bindSelectedMapPropertyToAddRemoveButtons(bracketAssignments, addBracketController, bracketFX.getMapPool());
         }
         uploadToDatabaseButton.setOnAction(event -> {
+            for (MatchmakerQueueMapPoolFX bracketFX : bracketsFX) {
+                ElideNavigatorOnId<MatchmakerQueueMapPool> navigator = ElideNavigator.of(MatchmakerQueueMapPool.class)
+                        .id(bracketFX.getId());
+                MatchmakerQueueMapPool dto = matchmakerQueueMapPoolMapper.mapToDto(bracketFX);
+                dto.setMapPool(null);
+                dto.setCreateTime(null);
+                dto.setMinRating(null);
+                dto.setMaxRating(null);
+                dto.setMatchmakerQueue(null);
+                dto.setUpdateTime(null);
+                apiService.patch(navigator, dto);
+            }
+
             List<MapPoolAssignment> oldMapPoolAssignments = mapService.getListOfMapsInBrackets(brackets);
             List<MapPoolAssignmentFX> oldMapPoolAssignmentsFX = mapPoolAssignmentMapper.mapToFX(oldMapPoolAssignments);
             List<MapPoolAssignmentFX> bracketMapPoolAssignments = bracketLists.stream()
