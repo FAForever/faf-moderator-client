@@ -38,7 +38,7 @@ if (javafxPlatform == "unspecified") {
 println "Platform is: ${javafxPlatform}"
 
 dependencies {
-    def springBootVersion = "3.3.2"
+    def springBootVersion = "3.3.5"
     def mapStructVersion = "1.5.5.Final"
     def commonsVersion = "763f32222acf0011c6b8b36dac9e0462eb433745"
 
