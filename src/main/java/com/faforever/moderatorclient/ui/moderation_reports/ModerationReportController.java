@@ -119,7 +119,7 @@ public class ModerationReportController implements Controller<Region> {
         chatLogTextArea.setText("select a report first");
 
         ViewHelper.buildUserTableView(platformService, reportedPlayerView, reportedPlayersOfCurrentlySelectedReport, this::addBan,
-                playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), communicationService);
+                playerFX -> ViewHelper.loadForceRenameDialog(uiService, playerFX), false, communicationService);
     }
 
     private void addBan(PlayerFX accountFX) {
