@@ -15,12 +15,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="dev.faf-moderator-client" target="11" />
-      <module name="dev.faf-moderator-client.main" target="11" />
-      <module name="dev.faf-moderator-client.test" target="11" />
-      <module name="faf-moderator-client" target="1.8" />
-      <module name="faf-moderator-client.main" target="11" />
-      <module name="faf-moderator-client.test" target="11" />
+      <module name="com.faforever.faf-moderator-client" target="21" />
+      <module name="com.faforever.faf-moderator-client.main" target="21" />
+      <module name="com.faforever.faf-moderator-client.test" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

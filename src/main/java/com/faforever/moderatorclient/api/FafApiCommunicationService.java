@@ -27,7 +27,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.security.oauth2.client.resource.OAuth2AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -124,7 +123,7 @@ public class FafApiCommunicationService {
 
         try {
             meResult = getOne("/me", MeResult.class);
-        } catch (OAuth2AccessDeniedException e) {
+        } catch (Exception e) {
             log.error("login failed", e);
             return;
         }
@@ -220,19 +219,16 @@ public class FafApiCommunicationService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @SneakyThrows
     public <T extends ElideEntity> T getOne(ElideNavigatorOnId<T> navigator) {
         return getOne(navigator.build(), navigator.getDtoClass(), Collections.emptyMap());
     }
 
-    @SuppressWarnings("unchecked")
     @SneakyThrows
     public <T extends ElideEntity> T getOne(String endpointPath, Class<T> type) {
         return getOne(endpointPath, type, Collections.emptyMap());
     }
 
-    @SuppressWarnings("unchecked")
     @SneakyThrows
     public <T extends ElideEntity> T getOne(String endpointPath, Class<T> type, java.util.Map<String, Serializable> params) {
         cycleAvoidingMappingContext.clearCache();
