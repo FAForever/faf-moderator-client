@@ -176,7 +176,7 @@ public class ViewHelper {
         TableColumn<AvatarFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
-        idColumn.setMinWidth(50);
+        idColumn.setMinWidth(25);
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, AvatarFX::getId);
 
@@ -188,7 +188,7 @@ public class ViewHelper {
 
         TableColumn<AvatarFX, String> tooltipColumn = new TableColumn<>("Tooltip");
         tooltipColumn.setCellValueFactory(o -> o.getValue().tooltipProperty());
-        tooltipColumn.setMinWidth(50);
+        tooltipColumn.setMinWidth(250);
         tableView.getColumns().add(tooltipColumn);
         extractors.put(tooltipColumn, AvatarFX::getTooltip);
 
@@ -199,7 +199,7 @@ public class ViewHelper {
 
         TableColumn<AvatarFX, String> urlColumn = new TableColumn<>("URL");
         urlColumn.setCellValueFactory(o -> o.getValue().urlProperty());
-        urlColumn.setMinWidth(50);
+        urlColumn.setMinWidth(500);
         tableView.getColumns().add(urlColumn);
         extractors.put(urlColumn, AvatarFX::getUrl);
 

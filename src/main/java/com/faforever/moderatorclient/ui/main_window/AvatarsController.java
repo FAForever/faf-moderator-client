@@ -5,15 +5,21 @@ import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.mapstruct.AvatarMapper;
 import com.faforever.moderatorclient.ui.AvatarInfoController;
 import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.LoadingStateManager;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.AvatarAssignmentFX;
 import com.faforever.moderatorclient.ui.domain.AvatarFX;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +29,7 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
@@ -34,6 +41,7 @@ public class AvatarsController implements Controller<SplitPane> {
     private final AvatarMapper avatarMapper;
     private final ObservableList<AvatarFX> avatars = FXCollections.observableArrayList();
     private final ObservableList<AvatarAssignmentFX> avatarAssignments = FXCollections.observableArrayList();
+    private final LoadingStateManager loadingStateManager = new LoadingStateManager();
 
     public TableView<AvatarFX> avatarTableView;
     public TableView<AvatarAssignmentFX> avatarAssignmentTableView;
@@ -43,6 +51,7 @@ public class AvatarsController implements Controller<SplitPane> {
     public RadioButton searchAvatarsByTooltipRadioButton;
     public RadioButton searchAvatarsByAssignedUserRadioButton;
     public TextField searchAvatarsTextField;
+    public Button searchAvatarsButton;
 
     public Button editAvatarButton;
     public Button deleteAvatarButton;
@@ -68,15 +77,29 @@ public class AvatarsController implements Controller<SplitPane> {
                 applicationEventPublisher.publishEvent(newValue);
             }
         });
+
+        loadingStateManager
+                .add(avatarTableView)
+                .add(searchAvatarsButton);
+    }
+
+    public void asyncLoad(Supplier<List<Avatar>> loadingFunc) {
+        avatars.clear();
+        loadingStateManager.applyLoadingState();
+
+        Thread.startVirtualThread(() -> {
+            List<AvatarFX> loadedAvatars = avatarMapper.map(loadingFunc.get());
+            Platform.runLater(() -> {
+                loadingStateManager.revertLoadingState();
+                avatars.addAll(loadedAvatars);
+                avatarTableView.getSortOrder().clear();
+            });
+        });
     }
 
     public void refresh() {
-        avatars.clear();
-        avatars.addAll(avatarMapper.map(avatarService.getAll()));
-
-        avatarTableView.getSortOrder().clear();
+        asyncLoad(avatarService::getAll);
     }
-
 
     private void openAvatarDialog(AvatarFX avatarFX, boolean isNew) {
         AvatarInfoController avatarInfoController = uiService.loadFxml("ui/avatarInfo.fxml");
@@ -93,19 +116,19 @@ public class AvatarsController implements Controller<SplitPane> {
         avatars.clear();
         avatarTableView.getSortOrder().clear();
 
-        List<Avatar> avatarSearchResult;
+        Supplier<List<Avatar>> avatarSearch;
         String pattern = searchAvatarsTextField.getText();
 
         if (searchAvatarsByIdRadioButton.isSelected()) {
-            avatarSearchResult = avatarService.findAvatarsById(pattern);
+            avatarSearch = () -> avatarService.findAvatarsById(pattern);
         } else if (searchAvatarsByTooltipRadioButton.isSelected()) {
-            avatarSearchResult = avatarService.findAvatarsByTooltip(pattern);
+            avatarSearch = () -> avatarService.findAvatarsByTooltip(pattern);
         } else if (searchAvatarsByAssignedUserRadioButton.isSelected()) {
-            avatarSearchResult = avatarService.findAvatarsByAssignedUser(pattern);
+            avatarSearch = () -> avatarService.findAvatarsByAssignedUser(pattern);
         } else {
-            avatarSearchResult = avatarService.getAll();
+            avatarSearch = avatarService::getAll;
         }
-        avatars.addAll(avatarMapper.map(avatarSearchResult));
+        asyncLoad(avatarSearch);
     }
 
     public void onAddAvatar() {
@@ -124,8 +147,7 @@ public class AvatarsController implements Controller<SplitPane> {
         Assert.notNull(avatarFX, "You need to select an avatar first.");
 
         if (avatarFX.getAssignments().isEmpty()) {
-            boolean confirmed = ViewHelper.confirmDialog("Delete avatar " + avatarFX.getTooltip(),
-                    "Are you sure that you want to delete this avatar?");
+            boolean confirmed = ViewHelper.confirmDialog("Delete avatar " + avatarFX.getTooltip(), "Are you sure that you want to delete this avatar?");
 
             if (confirmed) {
                 avatarService.deleteAvatar(avatarFX.getId());
