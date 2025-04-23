@@ -2,10 +2,16 @@ package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.FafUserCommunicationService;
+import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.api.event.FafUserFailModifyEvent;
 import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
+import com.faforever.moderatorclient.config.ApplicationProperties;
+import com.faforever.moderatorclient.config.EnvironmentProperties;
+import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
+import com.faforever.moderatorclient.config.local.LocalPreferencesReaderWriter;
 import com.faforever.moderatorclient.ui.main_window.AvatarsController;
 import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
 import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
@@ -25,6 +31,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -36,7 +43,13 @@ import java.util.Optional;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class MainController implements Controller<TabPane> {
+public class MainController implements Controller<TabPane>, DisposableBean {
+    private final ApplicationProperties applicationProperties;
+    private final LocalPreferencesAccessor localPreferences;
+    private final LocalPreferencesReaderWriter localPreferencesReaderWriter;
+    private final TokenService tokenService;
+    private final FafApiCommunicationService fafApiCommunicationService;
+    private final FafUserCommunicationService fafUserCommunicationService;
     private final UiService uiService;
 
     public TabPane root;
@@ -214,18 +227,42 @@ public class MainController implements Controller<TabPane> {
     }
 
     public void display() {
-        LoginController loginController = uiService.loadFxml("ui/login.fxml");
+        if (localPreferences.isAutoLoginEnabled()) {
+            String environment = localPreferences.getEnvironment().orElseThrow(() -> new IllegalStateException("Environment is not set"));
+            String refreshToken = localPreferences.getRefreshToken().orElseThrow(() -> new IllegalStateException("Refresh token is not set"));
 
-        Stage loginDialog = new Stage();
-        loginDialog.setOnCloseRequest(event -> System.exit(0));
-        loginDialog.setTitle("FAF Moderator Client");
-        loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
-        Scene scene = new Scene(loginController.getRoot());
-        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
-        loginDialog.setScene(scene);
-        loginDialog.showAndWait();
+            EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environment);
+            fafApiCommunicationService.initialize(environmentProperties);
+            fafUserCommunicationService.initialize(environmentProperties);
+            tokenService.prepare(environmentProperties);
+
+            try {
+                tokenService.loginWithRefreshToken(refreshToken, true);
+            } catch (Exception e) {
+                log.error("Auto login failed", e);
+                localPreferences.setAutoLoginEnabled(false);
+                display();
+            }
+        } else {
+            LoginController loginController = uiService.loadFxml("ui/login.fxml");
+
+            Stage loginDialog = new Stage();
+            loginDialog.setOnCloseRequest(event -> System.exit(0));
+            loginDialog.setTitle("FAF Moderator Client");
+            loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
+            Scene scene = new Scene(loginController.getRoot());
+            scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+            loginDialog.setScene(scene);
+            loginDialog.showAndWait();
+        }
 
         initializeAfterLogin();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        log.info("Saving local preferences to disk");
+        localPreferencesReaderWriter.write(localPreferences.getNode());
     }
 
     @EventListener

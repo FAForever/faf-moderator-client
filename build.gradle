@@ -84,6 +84,10 @@ tasks.withType(JavaCompile) {
     sourceCompatibility = '21'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 // This fixes the "line too long" error when running the .bat with windows CLI
 tasks.withType(CreateStartScripts).each { task ->
     task.doLast {

@@ -2,8 +2,11 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.moderatorclient.api.event.HydraAuthorizedEvent;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
+import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.ParameterizedTypeReference;
@@ -27,15 +30,13 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TokenService {
+    private final LocalPreferencesAccessor localPreferences;
     private final ApplicationEventPublisher applicationEventPublisher;
     private RestTemplate restTemplate;
     private EnvironmentProperties environmentProperties;
     private OAuth2AccessTokenResponse tokenCache;
-
-    public TokenService(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
 
     public void prepare(EnvironmentProperties environmentProperties) {
         this.environmentProperties = environmentProperties;
@@ -87,6 +88,11 @@ public class TokenService {
                 .refreshToken(refreshToken)
                 .expiresIn(expiresIn)
                 .build();
+
+        if (localPreferences.isAutoLoginEnabled()) {
+            log.info("Auto login enabled, persisting refresh token");
+            localPreferences.setRefreshToken(refreshToken);
+        }
     }
 
     public void loginWithRefreshToken(String refreshToken, boolean fireEvent) {

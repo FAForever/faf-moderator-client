@@ -85,7 +85,7 @@ public class ElideNavigatorTest {
                 .collection()
                 .addSortingRule("sortCritASC", true)
                 .addSortingRule("sortCritDESC", false)
-                .build(), is("/data/ladder1v1Map?sort=+sortCritASC,-sortCritDESC"));
+                .build(), is("/data/ladder1v1Map?sort=sortCritASC,-sortCritDESC"));
     }
 
     @Test

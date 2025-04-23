@@ -6,8 +6,10 @@ import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.ApiAuthorizedEvent;
 import com.faforever.moderatorclient.config.ApplicationProperties;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
+import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -32,12 +34,14 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class LoginController implements Controller<Pane> {
     private final ApplicationProperties applicationProperties;
+    private final LocalPreferencesAccessor localPreferences;
     private final FafApiCommunicationService fafApiCommunicationService;
     private final FafUserCommunicationService fafUserCommunicationService;
     private final TokenService tokenService;
 
     public VBox root;
     public ComboBox<String> environmentComboBox;
+    public CheckBox rememberLoginCheckBox;
     public WebView loginWebView;
     public String state;
 
@@ -54,9 +58,8 @@ public class LoginController implements Controller<Pane> {
                 (key, environmentProperties) -> environmentComboBox.getItems().add(key)
         );
 
-        reloadLogin();
-
         environmentComboBox.getSelectionModel().select(0);
+        reloadLogin();
 
         loginWebView.getEngine().getLoadWorker().runningProperty().addListener(((observable, oldValue, newValue) -> {
             if (!newValue) {
@@ -120,11 +123,17 @@ public class LoginController implements Controller<Pane> {
         }
     }
 
+    public void rememberLogin() {
+        localPreferences.setAutoLoginEnabled(rememberLoginCheckBox.isSelected());
+    }
+
     private void loadLoginPage() {
+        localPreferences.setEnvironment(environmentComboBox.getValue());
         loginWebView.getEngine().load(getHydraUrl());
     }
 
     private void onFailedLogin(String message) {
+        localPreferences.setAutoLoginEnabled(false);
         Platform.runLater(() ->
                 ViewHelper.errorDialog("Login Failed", MessageFormat.format("Something went wrong while logging in please see the details from the user service. Error: {0}", message)));
     }
@@ -135,6 +144,7 @@ public class LoginController implements Controller<Pane> {
         fafUserCommunicationService.initialize(environmentProperties);
         tokenService.prepare(environmentProperties);
         state = RandomStringUtils.randomAlphanumeric(50, 100);
+
         return String.format("%s/oauth2/auth?response_type=code&client_id=%s" +
                         "&state=%s&redirect_uri=%s" +
                         "&scope=%s",
@@ -143,6 +153,8 @@ public class LoginController implements Controller<Pane> {
 
     @EventListener
     public void onApiAuthorized(ApiAuthorizedEvent event) {
+        if (root == null) return;
+
         root.getScene().getWindow().hide();
     }
 }
