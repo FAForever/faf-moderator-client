@@ -221,7 +221,7 @@ public class ViewHelper {
         });
     }
 
-    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
+    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data, @Nullable Consumer<AvatarAssignmentFX> onRemove) {
         tableView.setItems(data);
         HashMap<TableColumn<AvatarAssignmentFX, ?>, Function<AvatarAssignmentFX, ?>> extractors = new HashMap<>();
 
@@ -264,6 +264,28 @@ public class ViewHelper {
         assignedAtColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         assignedAtColumn.setMinWidth(180);
         tableView.getColumns().add(assignedAtColumn);
+
+        if (onRemove != null) {
+            TableColumn<AvatarAssignmentFX, AvatarAssignmentFX> removeColumn = new TableColumn<>("Remove");
+            removeColumn.setMinWidth(90);
+            removeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            removeColumn.setCellFactory(param -> new TableCell<>() {
+                @Override
+                protected void updateItem(AvatarAssignmentFX item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        Button button = new Button("Remove");
+                        button.setOnMouseClicked(event -> onRemove.accept(item));
+                        button.setTextFill(Color.rgb(200, 10, 10));
+
+                        setGraphic(button);
+                        return;
+                    }
+                    setGraphic(null);
+                }
+            });
+            tableView.getColumns().add(removeColumn);
+        }
 
         applyCopyContextMenus(tableView, extractors);
     }
@@ -626,7 +648,7 @@ public class ViewHelper {
             tableView.getColumns().add(banOptionColumn);
         }
 
-        if(showUidData) {
+        if (showUidData) {
             TableColumn<PlayerFX, String> hashColumn = new TableColumn<>("Hash");
             hashColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
                             o.getValue().getUniqueIds().stream().map(UniqueIdFx::getHash)

@@ -23,6 +23,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -64,7 +65,7 @@ public class AvatarsController implements Controller<SplitPane> {
     @FXML
     public void initialize() {
         ViewHelper.buildAvatarTableView(avatarTableView, avatars);
-        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView, avatarAssignments);
+        ViewHelper.buildAvatarAssignmentTableView(avatarAssignmentTableView, avatarAssignments, this::removeAvatarFromPlayer);
 
         editAvatarButton.disableProperty().bind(avatarTableView.getSelectionModel().selectedItemProperty().isNull());
         deleteAvatarButton.disableProperty().bind(avatarTableView.getSelectionModel().selectedItemProperty().isNull());
@@ -83,11 +84,11 @@ public class AvatarsController implements Controller<SplitPane> {
                 .add(searchAvatarsButton);
     }
 
-    public void asyncLoad(Supplier<List<Avatar>> loadingFunc) {
+    public Thread asyncLoad(Supplier<List<Avatar>> loadingFunc) {
         avatars.clear();
         loadingStateManager.applyLoadingState();
 
-        Thread.startVirtualThread(() -> {
+        return Thread.startVirtualThread(() -> {
             List<AvatarFX> loadedAvatars = avatarMapper.map(loadingFunc.get());
             Platform.runLater(() -> {
                 loadingStateManager.revertLoadingState();
@@ -97,8 +98,35 @@ public class AvatarsController implements Controller<SplitPane> {
         });
     }
 
+    private void removeAvatarFromPlayer(AvatarAssignmentFX avatarAssignment) {
+        Assert.notNull(avatarAssignment, "You need to select a user's avatar.");
+        avatarAssignment.getAvatar().getAssignments().remove(avatarAssignment);
+        avatarAssignments.remove(avatarAssignment);
+
+        Thread.startVirtualThread(() -> {
+            avatarService.removeAvatarAssignment(avatarAssignment);
+        });
+    }
+
     public void refresh() {
-        asyncLoad(avatarService::getAll);
+        refresh(null);
+    }
+
+    public void refresh(@Nullable Runnable postLoad) {
+        Thread loadingThread = asyncLoad(avatarService::getAll);
+
+        if (postLoad != null) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    loadingThread.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+                postLoad.run();
+            });
+
+        }
     }
 
     private void openAvatarDialog(AvatarFX avatarFX, boolean isNew) {
