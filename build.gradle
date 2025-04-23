@@ -72,14 +72,16 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-mainClassName = 'com.faforever.moderatorclient.Launcher'
+application {
+    mainClass.set('com.faforever.moderatorclient.Launcher')
+}
 
 group = 'com.faforever'
 description = 'faf-moderator-client'
-sourceCompatibility = '21'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    sourceCompatibility = '21'
 }
 
 // This fixes the "line too long" error when running the .bat with windows CLI
