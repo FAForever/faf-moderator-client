@@ -15,18 +15,18 @@ faforever:
       oauth-redirect-url: http://localhost
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault
       user-base-url: https://user.faforever.com
-    "[test.faforever.com]":
-      base-url: https://api.test.faforever.com
+    "[faforever.xyz]":
+      base-url: https://api.faforever.xyz
       client-id: faf-moderator-client
-      replay-download-url-format: https://replay.test.faforever.com/%s
-      oauth-base-url: https://hydra.test.faforever.com
+      replay-download-url-format: https://replay.faforever.xyz/%s
+      oauth-base-url: https://hydra.faforever.xyz
       oauth-redirect-url: http://localhost
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault
-      user-base-url: https://user.test.faforever.com
+      user-base-url: https://user.faforever.xyz
     "[localhost:8010]":
       base-url: http://127.0.0.1:8010
       client-id: faf-moderator-client
-      replay-download-url-format: https://replay.test.faforever.com/%s
+      replay-download-url-format: https://replay.faforever.xyz/%s
       oauth-base-url: http://localhost:4444
       oauth-redirect-url: http://127.0.0.1
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault
