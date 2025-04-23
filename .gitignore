@@ -13,7 +13,7 @@ build
 .idea/tasks.xml
 .idea/dictionaries
 .idea/sonarIssues.xml
-*.log
+client*
 
 # Sensitive or high-churn files:
 .idea/dataSources
