@@ -2,7 +2,7 @@ package com.faforever.moderatorclient.api;
 
 import com.faforever.moderatorclient.api.event.HydraAuthorizedEvent;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
-import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
+import com.faforever.moderatorclient.config.local.LocalPreferences;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TokenService {
-    private final LocalPreferencesAccessor localPreferences;
+    private final LocalPreferences localPreferences;
     private final ApplicationEventPublisher applicationEventPublisher;
     private RestTemplate restTemplate;
     private EnvironmentProperties environmentProperties;
@@ -81,7 +81,7 @@ public class TokenService {
     private void parseResponse(Map<String, Object> responseBody) {
         String accessToken = (String) responseBody.get("access_token");
         String refreshToken = (String) responseBody.get("refresh_token");
-        Long expiresIn = Long.valueOf(responseBody.get("expires_in").toString());
+        long expiresIn = Long.parseLong(responseBody.get("expires_in").toString());
 
         tokenCache = OAuth2AccessTokenResponse.withToken(accessToken)
                 .tokenType(OAuth2AccessToken.TokenType.BEARER)
@@ -89,9 +89,9 @@ public class TokenService {
                 .expiresIn(expiresIn)
                 .build();
 
-        if (localPreferences.isAutoLoginEnabled()) {
+        if (localPreferences.getAutoLogin().getEnabled()) {
             log.info("Auto login enabled, persisting refresh token");
-            localPreferences.setRefreshToken(refreshToken);
+            localPreferences.getAutoLogin().setRefreshToken(refreshToken);
         }
     }
 
