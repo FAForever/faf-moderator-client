@@ -22,28 +22,26 @@ public class LocalPreferencesReaderWriter {
 
     private final ObjectMapper objectMapper;
 
-    public LocalPreferencesAccessor read() throws IOException {
+    public LocalPreferences read() throws IOException {
+        ObjectNode loadedNode = newConfig();
+
         if (Files.notExists(prefsPath)) {
             log.info("No preferences found at {}", prefsPath);
-            return new LocalPreferencesAccessor(objectMapper, newConfig());
-        }
+        } else {
+            try {
+                JsonNode jsonNode = objectMapper.readTree(Files.newBufferedReader(prefsPath));
 
-        try {
-            JsonNode jsonNode = objectMapper.readTree(Files.newBufferedReader(prefsPath));
-
-            ObjectNode node = switch (jsonNode) {
-                case ObjectNode n -> migrate(n);
-                default -> {
+                if (jsonNode instanceof ObjectNode n) {
+                    loadedNode = migrate(n);
+                } else {
                     log.error("Could not load client preferences (client-prefs.json seems to be no valid JSON object");
-                    yield newConfig();
                 }
-            };
-
-            return new LocalPreferencesAccessor(objectMapper, node);
-        } catch (IOException e) {
-            log.error("Could not load client preferences", e);
-            return new LocalPreferencesAccessor(objectMapper, newConfig());
+            } catch (IOException e) {
+                log.error("Could not load client preferences", e);
+            }
         }
+
+        return objectMapper.readValue(objectMapper.writeValueAsString(loadedNode), LocalPreferences.class);
     }
 
     private ObjectNode newConfig() {
@@ -51,8 +49,8 @@ public class LocalPreferencesReaderWriter {
         return migrate(emptyNode);
     }
 
-    public void write(ObjectNode node) throws IOException {
-        Files.writeString(prefsPath, objectMapper.writeValueAsString(node));
+    public void write(LocalPreferences localPreferences) throws IOException {
+        Files.writeString(prefsPath, objectMapper.writeValueAsString(localPreferences));
     }
 
     private ObjectNode migrate(ObjectNode node) {

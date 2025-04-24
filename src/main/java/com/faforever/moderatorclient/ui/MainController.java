@@ -10,7 +10,7 @@ import com.faforever.moderatorclient.api.event.FafUserFailModifyEvent;
 import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
 import com.faforever.moderatorclient.config.ApplicationProperties;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
-import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
+import com.faforever.moderatorclient.config.local.LocalPreferences;
 import com.faforever.moderatorclient.config.local.LocalPreferencesReaderWriter;
 import com.faforever.moderatorclient.ui.main_window.AvatarsController;
 import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
@@ -45,7 +45,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MainController implements Controller<TabPane>, DisposableBean {
     private final ApplicationProperties applicationProperties;
-    private final LocalPreferencesAccessor localPreferences;
+    private final LocalPreferences localPreferences;
     private final LocalPreferencesReaderWriter localPreferencesReaderWriter;
     private final TokenService tokenService;
     private final FafApiCommunicationService fafApiCommunicationService;
@@ -219,7 +219,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
 
     private void initPermissionTab() {
         if (checkPermissionForTab(permissionTab, GroupPermission.ROLE_READ_USER_GROUP)
-        && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
+                && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
             userGroupsController = uiService.loadFxml("ui/main_window/userGroups.fxml");
             permissionTab.setContent(userGroupsController.getRoot());
             initLoading(permissionTab, userGroupsController::onRefreshGroups);
@@ -227,9 +227,11 @@ public class MainController implements Controller<TabPane>, DisposableBean {
     }
 
     public void display() {
-        if (localPreferences.isAutoLoginEnabled()) {
-            String environment = localPreferences.getEnvironment().orElseThrow(() -> new IllegalStateException("Environment is not set"));
-            String refreshToken = localPreferences.getRefreshToken().orElseThrow(() -> new IllegalStateException("Refresh token is not set"));
+        if (localPreferences.getAutoLogin().getEnabled()) {
+            String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
+                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
+            String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
+                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
 
             EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environment);
             fafApiCommunicationService.initialize(environmentProperties);
@@ -240,7 +242,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
                 tokenService.loginWithRefreshToken(refreshToken, true);
             } catch (Exception e) {
                 log.error("Auto login failed", e);
-                localPreferences.setAutoLoginEnabled(false);
+                localPreferences.getAutoLogin().setEnabled(false);
                 display();
             }
         } else {
@@ -262,7 +264,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
     @Override
     public void destroy() throws Exception {
         log.info("Saving local preferences to disk");
-        localPreferencesReaderWriter.write(localPreferences.getNode());
+        localPreferencesReaderWriter.write(localPreferences);
     }
 
     @EventListener

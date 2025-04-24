@@ -6,7 +6,7 @@ import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.ApiAuthorizedEvent;
 import com.faforever.moderatorclient.config.ApplicationProperties;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
-import com.faforever.moderatorclient.config.local.LocalPreferencesAccessor;
+import com.faforever.moderatorclient.config.local.LocalPreferences;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class LoginController implements Controller<Pane> {
     private final ApplicationProperties applicationProperties;
-    private final LocalPreferencesAccessor localPreferences;
+    private final LocalPreferences localPreferences;
     private final FafApiCommunicationService fafApiCommunicationService;
     private final FafUserCommunicationService fafUserCommunicationService;
     private final TokenService tokenService;
@@ -124,16 +124,16 @@ public class LoginController implements Controller<Pane> {
     }
 
     public void rememberLogin() {
-        localPreferences.setAutoLoginEnabled(rememberLoginCheckBox.isSelected());
+        localPreferences.getAutoLogin().setEnabled(rememberLoginCheckBox.isSelected());
     }
 
     private void loadLoginPage() {
-        localPreferences.setEnvironment(environmentComboBox.getValue());
+        localPreferences.getAutoLogin().setEnvironment(environmentComboBox.getValue());
         loginWebView.getEngine().load(getHydraUrl());
     }
 
     private void onFailedLogin(String message) {
-        localPreferences.setAutoLoginEnabled(false);
+        localPreferences.getAutoLogin().setEnabled(false);
         Platform.runLater(() ->
                 ViewHelper.errorDialog("Login Failed", MessageFormat.format("Something went wrong while logging in please see the details from the user service. Error: {0}", message)));
     }
