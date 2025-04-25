@@ -58,14 +58,22 @@ import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserManagementController implements Controller<SplitPane> {
+    private static final String IPV4_PATTERN =
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    private static final String IPV6_PATTERN =
+            "([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}";
+
+
     private final UiService uiService;
     private final PlatformService platformService;
     private final UserService userService;
@@ -196,6 +204,7 @@ public class UserManagementController implements Controller<SplitPane> {
     }
 
     private void initializeSearchProperties() {
+        searchUserPropertyMapping.put("Auto-Detect", "auto");
         searchUserPropertyMapping.put("Name", "login");
         searchUserPropertyMapping.put("Id", "id");
         searchUserPropertyMapping.put("Email", "email");
@@ -270,11 +279,107 @@ public class UserManagementController implements Controller<SplitPane> {
         users.clear();
         userSearchTableView.getSortOrder().clear();
 
-        String property = searchUserPropertyMapping.get(searchUserProperties.getValue());
-        String searchPattern = userSearchTextField.getText();
-        List<PlayerFX> usersFound = userService.findUsersByAttribute(property, searchPattern);
+        String searchProperty = searchUserPropertyMapping.get(searchUserProperties.getValue());
+        String searchPattern = userSearchTextField.getText().trim();
+
+        if (searchPattern.isEmpty()) {
+            log.info("No search pattern entered, nothing to search for.");
+            return;
+        }
+
+        log.debug("User search setting before parsing {} = {}", searchProperty, searchPattern);
+
+        if (Objects.equals(searchProperty, "auto")) {
+            searchProperty = determineSearchProperty(searchPattern);
+
+            if (searchProperty.equals("unknown")) {
+                log.error("Unknown searchProperty for value {}", searchPattern);
+                return;
+            }
+        }
+
+        if (Objects.equals(searchProperty, "login")) {
+            // parse copy & paste of names with id like TheUsername [id 12345]
+            if (isLoginAndName(searchPattern)) {
+                int startIndex = searchPattern.indexOf("[id ") + 4;
+                int endIndex = searchPattern.indexOf("]", startIndex);
+                searchProperty = "id";
+                searchPattern = searchPattern.substring(startIndex, endIndex);
+            }
+        }
+
+
+        log.debug("User search setting after parsing {} = {}", searchProperty, searchPattern);
+
+        List<PlayerFX> usersFound = userService.findUsersByAttribute(searchProperty, searchPattern);
 
         users.addAll(usersFound);
+    }
+
+    private String determineSearchProperty(String searchPattern) {
+        if (isUUID(searchPattern)) {
+            return "uniqueIds.uuid";
+        }
+        if (isValidIp(searchPattern)) {
+            return "recentIpAddress";
+        }
+        if (isEmail(searchPattern)) {
+            return "email";
+        }
+        if (isHash(searchPattern)) {
+            return "uniqueIds.hash";
+        }
+        if (isUserId(searchPattern)) {
+            return "id";
+        }
+        if (isLoginName(searchPattern)) {
+            return "login";
+        }
+        if (isLoginAndName(searchPattern)) {
+            return "login";
+        }
+        if (isSteamId(searchPattern)) {
+            return "accountLinks.serviceId";
+        }
+
+        return "unknown";
+    }
+
+    private boolean isUserId(String searchPattern) {
+        // restrict user id length, because steam ids are also numeric, but longer
+        Pattern pattern = Pattern.compile("^\\d{1,9}$");
+        Matcher matcher = pattern.matcher(searchPattern);
+        return matcher.matches();
+    }
+
+    private boolean isEmail(String searchPattern) {
+        Pattern pattern = Pattern.compile("^.*@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+        Matcher matcher = pattern.matcher(searchPattern);
+        return matcher.matches();
+    }
+
+    private boolean isHash(String searchPattern) {
+        return searchPattern.matches("^[a-fA-F0-9]+$") && searchPattern.length() == 32;
+    }
+
+    private boolean isLoginName(String searchPattern) {
+        return searchPattern.indexOf('@') == -1 && (!Character.isDigit(searchPattern.charAt(0)));
+    }
+
+    private boolean isLoginAndName(String searchPattern) {
+        return searchPattern.contains("[id ") && searchPattern.contains("]");
+    }
+
+    private boolean isUUID(String searchPattern) {
+        return searchPattern.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    }
+
+    private boolean isValidIp(String searchPattern) {
+        return searchPattern.matches(IPV4_PATTERN) || searchPattern.matches(IPV6_PATTERN);
+    }
+
+    private boolean isSteamId(String searchPattern) {
+        return searchPattern.matches("^\\d{17}$");
     }
 
     public void onNewBan() {
