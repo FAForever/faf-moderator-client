@@ -10,6 +10,7 @@ import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.GroupAddUserController;
+import com.faforever.moderatorclient.ui.LoadingStateManager;
 import com.faforever.moderatorclient.ui.PlatformService;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.UserNoteController;
@@ -39,6 +40,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -91,6 +93,7 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<UserGroupFX> userGroups = FXCollections.observableArrayList();
     private final ObservableList<GroupPermissionFX> groupPermissions = FXCollections.observableArrayList();
 
+    private final LoadingStateManager loadingStateManager = new LoadingStateManager();
     private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
 
     @Value("${faforever.vault.replay-download-url-format}")
@@ -110,6 +113,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public ComboBox<String> searchUserProperties;
     public TextField userSearchTextField;
     public TableView<UserNoteFX> userNoteTableView;
+    public Button userSearchButton;
     public Button addNoteButton;
     public Button editNoteButton;
     public Button newBanButton;
@@ -126,6 +130,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public TextField expiresAtTextfield;
     public Button setExpiresAtButton;
     public Button removeGroupButton;
+    public TabPane userDetailsTabPane;
 
     public TableView<GamePlayerStatsFX> userLastGamesTable;
     public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
@@ -201,6 +206,11 @@ public class UserManagementController implements Controller<SplitPane> {
         editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
 
         initializeSearchProperties();
+
+        loadingStateManager
+                .add(userSearchTableView)
+                .add(userSearchButton)
+                .add(userDetailsTabPane);
     }
 
     private void initializeSearchProperties() {
@@ -276,9 +286,6 @@ public class UserManagementController implements Controller<SplitPane> {
     }
 
     public void onUserSearch() {
-        users.clear();
-        userSearchTableView.getSortOrder().clear();
-
         String searchProperty = searchUserPropertyMapping.get(searchUserProperties.getValue());
         String searchPattern = userSearchTextField.getText().trim();
 
@@ -308,13 +315,24 @@ public class UserManagementController implements Controller<SplitPane> {
             }
         }
 
-
         log.debug("User search setting after parsing {} = {}", searchProperty, searchPattern);
 
-        List<PlayerFX> usersFound = userService.findUsersByAttribute(searchProperty, searchPattern);
+        final String effectiveSearchProperty = searchProperty;
+        final String effectiveSearchPattern = searchPattern;
 
-        users.addAll(usersFound);
+        users.clear();
+        userSearchTableView.getSortOrder().clear();
+        loadingStateManager.applyLoadingState();
+        Thread.startVirtualThread(() -> {
+            List<PlayerFX> usersFound = userService.findUsersByAttribute(effectiveSearchProperty, effectiveSearchPattern);
+
+            Platform.runLater(() -> {
+                loadingStateManager.revertLoadingState();
+                users.addAll(usersFound);
+            });
+        });
     }
+
 
     private String determineSearchProperty(String searchPattern) {
         if (isUUID(searchPattern)) {
