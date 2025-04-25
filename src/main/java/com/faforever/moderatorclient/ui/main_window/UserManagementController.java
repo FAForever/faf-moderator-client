@@ -5,6 +5,7 @@ import com.faforever.commons.api.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.PermissionService;
+import com.faforever.moderatorclient.api.domain.UserSearchProperty;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.BanInfoController;
@@ -57,14 +58,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -94,7 +91,6 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<GroupPermissionFX> groupPermissions = FXCollections.observableArrayList();
 
     private final LoadingStateManager loadingStateManager = new LoadingStateManager();
-    private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
 
     @Value("${faforever.vault.replay-download-url-format}")
     private String replayDownLoadFormat;
@@ -110,7 +106,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public Tab avatarsTab;
     public Tab userGroupsTab;
 
-    public ComboBox<String> searchUserProperties;
+    public ComboBox<Searchable> searchUserProperties;
     public TextField userSearchTextField;
     public TableView<UserNoteFX> userNoteTableView;
     public Button userSearchButton;
@@ -161,6 +157,18 @@ public class UserManagementController implements Controller<SplitPane> {
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
         ViewHelper.buildBanTableView(userBansTableView, bans, false);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
+
+        searchUserProperties.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Searchable searchable) {
+                return searchable.getCaption();
+            }
+
+            @Override
+            public Searchable fromString(String s) {
+                return null;
+            }
+        });
 
         addNoteButton.disableProperty().bind(userSearchTableView.getSelectionModel().selectedItemProperty().isNull());
         editNoteButton.disableProperty().bind(userNoteTableView.getSelectionModel().selectedItemProperty().isNull());
@@ -214,26 +222,10 @@ public class UserManagementController implements Controller<SplitPane> {
     }
 
     private void initializeSearchProperties() {
-        searchUserPropertyMapping.put("Auto-Detect", "auto");
-        searchUserPropertyMapping.put("Name", "login");
-        searchUserPropertyMapping.put("Id", "id");
-        searchUserPropertyMapping.put("Email", "email");
-        searchUserPropertyMapping.put("Steam Id", "accountLinks.serviceId");
-        searchUserPropertyMapping.put("Gog Id", "accountLinks.serviceId");
-        searchUserPropertyMapping.put("Ip Address", "recentIpAddress");
-        searchUserPropertyMapping.put("Previous Name", "names.name");
-        searchUserPropertyMapping.put("UID Hash", "uniqueIds.hash");
-        searchUserPropertyMapping.put("Device Id", "uniqueIds.deviceId");
-        searchUserPropertyMapping.put("CPU Name", "uniqueIds.name");
-        searchUserPropertyMapping.put("UUID", "uniqueIds.uuid");
-        searchUserPropertyMapping.put("Serial Number", "uniqueIds.serialNumber");
-        searchUserPropertyMapping.put("Processor Id", "uniqueIds.processorId");
-        searchUserPropertyMapping.put("Bios Version", "uniqueIds.SMBIOSBIOSVersion");
-        searchUserPropertyMapping.put("Volume Serial Number", "uniqueIds.volumeSerialNumber");
-        searchUserPropertyMapping.put("Memory Serial Number", "uniqueIds.memorySerialNumber");
-        searchUserPropertyMapping.put("Manfacturer", "uniqueIds.manufacturer");
+        searchUserProperties.getItems().add(new Searchable.AutoDetect());
+        Arrays.stream(UserSearchProperty.values()).forEach(searchable ->
+                searchUserProperties.getItems().add(new Searchable.NativeProperty(searchable)));
 
-        searchUserProperties.getItems().addAll(searchUserPropertyMapping.keySet());
         searchUserProperties.getSelectionModel().select(0);
     }
 
@@ -285,8 +277,38 @@ public class UserManagementController implements Controller<SplitPane> {
         newBanButton.setDisable(newValue == null);
     }
 
+    private sealed interface Searchable {
+        String getCaption();
+
+        UserSearchProperty.WithValue getSearchInput(String searchPattern);
+
+        record NativeProperty(UserSearchProperty property) implements Searchable {
+            @Override
+            public String getCaption() {
+                return property.getCaption();
+            }
+
+            @Override
+            public UserSearchProperty.WithValue getSearchInput(String input) {
+                return new UserSearchProperty.WithValue(property, input);
+            }
+        }
+
+        final class AutoDetect implements Searchable {
+            @Override
+            public String getCaption() {
+                return "Auto-Detect";
+            }
+
+            @Override
+            public UserSearchProperty.WithValue getSearchInput(String input) {
+                return UserSearchProperty.autoDetect(input);
+            }
+        }
+    }
+
     public void onUserSearch() {
-        String searchProperty = searchUserPropertyMapping.get(searchUserProperties.getValue());
+        Searchable searchable = searchUserProperties.getSelectionModel().getSelectedItem();
         String searchPattern = userSearchTextField.getText().trim();
 
         if (searchPattern.isEmpty()) {
@@ -294,110 +316,24 @@ public class UserManagementController implements Controller<SplitPane> {
             return;
         }
 
-        log.debug("User search setting before parsing {} = {}", searchProperty, searchPattern);
+        final var searchInput = searchable.getSearchInput(searchPattern);
 
-        if (Objects.equals(searchProperty, "auto")) {
-            searchProperty = determineSearchProperty(searchPattern);
-
-            if (searchProperty.equals("unknown")) {
-                log.error("Unknown searchProperty for value {}", searchPattern);
-                return;
-            }
+        if (searchInput.property() == null) {
+            log.info("Could not derive search property");
+            return;
         }
-
-        if (Objects.equals(searchProperty, "login")) {
-            // parse copy & paste of names with id like TheUsername [id 12345]
-            if (isLoginAndName(searchPattern)) {
-                int startIndex = searchPattern.indexOf("[id ") + 4;
-                int endIndex = searchPattern.indexOf("]", startIndex);
-                searchProperty = "id";
-                searchPattern = searchPattern.substring(startIndex, endIndex);
-            }
-        }
-
-        log.debug("User search setting after parsing {} = {}", searchProperty, searchPattern);
-
-        final String effectiveSearchProperty = searchProperty;
-        final String effectiveSearchPattern = searchPattern;
 
         users.clear();
         userSearchTableView.getSortOrder().clear();
         loadingStateManager.applyLoadingState();
         Thread.startVirtualThread(() -> {
-            List<PlayerFX> usersFound = userService.findUsersByAttribute(effectiveSearchProperty, effectiveSearchPattern);
+            List<PlayerFX> usersFound = userService.findUsersByAttribute(searchInput.property().getApiKey(), searchInput.value());
 
             Platform.runLater(() -> {
                 loadingStateManager.revertLoadingState();
                 users.addAll(usersFound);
             });
         });
-    }
-
-
-    private String determineSearchProperty(String searchPattern) {
-        if (isUUID(searchPattern)) {
-            return "uniqueIds.uuid";
-        }
-        if (isValidIp(searchPattern)) {
-            return "recentIpAddress";
-        }
-        if (isEmail(searchPattern)) {
-            return "email";
-        }
-        if (isHash(searchPattern)) {
-            return "uniqueIds.hash";
-        }
-        if (isUserId(searchPattern)) {
-            return "id";
-        }
-        if (isLoginName(searchPattern)) {
-            return "login";
-        }
-        if (isLoginAndName(searchPattern)) {
-            return "login";
-        }
-        if (isSteamId(searchPattern)) {
-            return "accountLinks.serviceId";
-        }
-
-        return "unknown";
-    }
-
-    private boolean isUserId(String searchPattern) {
-        // restrict user id length, because steam ids are also numeric, but longer
-        Pattern pattern = Pattern.compile("^\\d{1,9}$");
-        Matcher matcher = pattern.matcher(searchPattern);
-        return matcher.matches();
-    }
-
-    private boolean isEmail(String searchPattern) {
-        Pattern pattern = Pattern.compile("^.*@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
-        Matcher matcher = pattern.matcher(searchPattern);
-        return matcher.matches();
-    }
-
-    private boolean isHash(String searchPattern) {
-        return searchPattern.matches("^[a-fA-F0-9]+$") && searchPattern.length() == 32;
-    }
-
-    private boolean isLoginName(String searchPattern) {
-        return searchPattern.indexOf('@') == -1 && (!Character.isDigit(searchPattern.charAt(0)));
-    }
-
-    private boolean isLoginAndName(String searchPattern) {
-        return searchPattern.contains("[id ") && searchPattern.contains("]");
-    }
-
-    private boolean isUUID(String searchPattern) {
-        return searchPattern.matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-    }
-
-    private boolean isValidIp(String searchPattern) {
-        return searchPattern.matches(IPV4_PATTERN) || searchPattern.matches(IPV6_PATTERN);
-    }
-
-    private boolean isSteamId(String searchPattern) {
-        return searchPattern.matches("^\\d{17}$");
     }
 
     public void onNewBan() {
