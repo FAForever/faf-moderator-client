@@ -31,6 +31,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -42,6 +43,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -108,6 +110,7 @@ public class UserManagementController implements Controller<SplitPane> {
 
     public ComboBox<Searchable> searchUserProperties;
     public TextField userSearchTextField;
+    public TableView<UserSearchProperty.WithValue> searchHistoryTableView;
     public TableView<UserNoteFX> userNoteTableView;
     public Button userSearchButton;
     public Button addNoteButton;
@@ -157,6 +160,7 @@ public class UserManagementController implements Controller<SplitPane> {
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
         ViewHelper.buildBanTableView(userBansTableView, bans, false);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
+        buildHistoryTable();
 
         searchUserProperties.setConverter(new StringConverter<>() {
             @Override
@@ -219,6 +223,26 @@ public class UserManagementController implements Controller<SplitPane> {
                 .add(userSearchTableView)
                 .add(userSearchButton)
                 .add(userDetailsTabPane);
+    }
+
+    private void buildHistoryTable() {
+        TableColumn<UserSearchProperty.WithValue, String> valueColumn = new TableColumn<>("Value");
+        valueColumn.setCellValueFactory(o -> new SimpleStringProperty(o.getValue().value()));
+        valueColumn.setMinWidth(100);
+        searchHistoryTableView.getColumns().add(valueColumn);
+
+        TableColumn<UserSearchProperty.WithValue, String> typeColumn = new TableColumn<>("Type");
+        typeColumn.setCellValueFactory(o -> new SimpleStringProperty(o.getValue().property().getCaption()));
+        typeColumn.setMinWidth(100);
+        searchHistoryTableView.getColumns().add(typeColumn);
+
+        searchHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                int index = searchUserProperties.getItems().indexOf(new Searchable.NativeProperty(newValue.property()));
+                searchUserProperties.getSelectionModel().select(index);
+                userSearchTextField.setText(newValue.value());
+            }
+        });
     }
 
     private void initializeSearchProperties() {
@@ -332,6 +356,7 @@ public class UserManagementController implements Controller<SplitPane> {
             Platform.runLater(() -> {
                 loadingStateManager.revertLoadingState();
                 users.addAll(usersFound);
+                searchHistoryTableView.getItems().addFirst(searchInput);
             });
         });
     }
