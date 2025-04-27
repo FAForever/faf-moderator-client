@@ -50,7 +50,8 @@ public class LocalPreferencesReaderWriter {
     }
 
     public void write(LocalPreferences localPreferences) throws IOException {
-        Files.writeString(prefsPath, objectMapper.writeValueAsString(localPreferences));
+        String data = objectMapper.writeValueAsString(localPreferences);
+        Files.writeString(prefsPath, data);
     }
 
     private ObjectNode migrate(ObjectNode node) {

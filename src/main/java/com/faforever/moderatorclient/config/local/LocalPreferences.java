@@ -8,6 +8,7 @@ import lombok.Data;
 public class LocalPreferences {
     private int version;
     private AutoLogin autoLogin = new AutoLogin();
+    private UI ui = new UI();
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
@@ -15,5 +16,12 @@ public class LocalPreferences {
         Boolean enabled;
         String environment;
         String refreshToken;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
+    public static class UI {
+        Boolean darkMode;
+        String startUpTab;
     }
 }

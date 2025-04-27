@@ -18,6 +18,7 @@ import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
 import com.faforever.moderatorclient.ui.main_window.MapVaultController;
 import com.faforever.moderatorclient.ui.main_window.ModVaultController;
 import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
+import com.faforever.moderatorclient.ui.main_window.SettingsController;
 import com.faforever.moderatorclient.ui.main_window.TutorialController;
 import com.faforever.moderatorclient.ui.main_window.UserGroupsController;
 import com.faforever.moderatorclient.ui.main_window.UserManagementController;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Component;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -66,6 +68,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
     public Tab messagesTab;
     public Tab reportTab;
     public Tab permissionTab;
+    public Tab settingsTab;
 
     private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
@@ -80,6 +83,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
     private TutorialController tutorialController;
     private MessagesController messagesController;
     private UserGroupsController userGroupsController;
+    private SettingsController settingsController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
     private final FafApiCommunicationService communicationService;
@@ -113,6 +117,24 @@ public class MainController implements Controller<TabPane>, DisposableBean {
         initTutorialTab();
         initReportTab();
         initPermissionTab();
+        initSettingsTab();
+
+        selectActiveTab();
+    }
+
+    private void selectActiveTab() {
+        var startUpTab = localPreferences.getUi().getStartUpTab();
+
+        if (startUpTab == null) return;
+
+        try {
+            root.getTabs()
+                    .stream().filter(tab -> Objects.equals(tab.getId(), startUpTab))
+                    .findFirst()
+                    .ifPresent(tab -> root.getSelectionModel().select(tab));
+        } catch (Exception e) {
+            log.error("Error selecting active tab", e);
+        }
     }
 
     private void initLoading(Tab tab, Runnable loadingFunction) {
@@ -226,8 +248,13 @@ public class MainController implements Controller<TabPane>, DisposableBean {
         }
     }
 
+    private void initSettingsTab() {
+        settingsController = uiService.loadFxml("ui/main_window/settings.fxml");
+        settingsTab.setContent(settingsController.getRoot());
+    }
+
     public void display() {
-        if (localPreferences.getAutoLogin().getEnabled()) {
+        if (localPreferences.getAutoLogin().getEnabled() == Boolean.TRUE) {
             String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
                     .orElseThrow(() -> new IllegalStateException("Environment is not set"));
             String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
@@ -253,7 +280,11 @@ public class MainController implements Controller<TabPane>, DisposableBean {
             loginDialog.setTitle("FAF Moderator Client");
             loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
             Scene scene = new Scene(loginController.getRoot());
-            scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+            String stylesheet = "/style/main-light.css";
+            if (localPreferences.getUi().getDarkMode() == Boolean.TRUE) {
+                stylesheet = "/style/main-dark.css";
+            }
+            scene.getStylesheets().add(getClass().getResource(stylesheet).toExternalForm());
             loginDialog.setScene(scene);
             loginDialog.showAndWait();
         }
