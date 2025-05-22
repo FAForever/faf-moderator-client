@@ -51,6 +51,7 @@ public class FafApiCommunicationService {
     private final ResourceConverter defaultResourceConverter;
     private final ResourceConverter updateResourceConverter;
     private final OAuthTokenInterceptor oAuthTokenInterceptor;
+    private final HmacHeaderInterceptor hmacHeaderInterceptor;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final JsonApiMessageConverter jsonApiMessageConverter;
     private final JsonApiErrorHandler jsonApiErrorHandler;
@@ -65,12 +66,13 @@ public class FafApiCommunicationService {
 
     public FafApiCommunicationService(@Qualifier("defaultResourceConverter") ResourceConverter defaultResourceConverter,
                                       @Qualifier("updateResourceConverter") ResourceConverter updateResourceConverter,
-                                      OAuthTokenInterceptor oAuthTokenInterceptor, ApplicationEventPublisher applicationEventPublisher,
+                                      OAuthTokenInterceptor oAuthTokenInterceptor, HmacHeaderInterceptor hmacHeaderInterceptor, ApplicationEventPublisher applicationEventPublisher,
                                       CycleAvoidingMappingContext cycleAvoidingMappingContext, RestTemplateBuilder restTemplateBuilder,
                                       JsonApiMessageConverter jsonApiMessageConverter,
                                       JsonApiErrorHandler jsonApiErrorHandler) {
         this.defaultResourceConverter = defaultResourceConverter;
         this.updateResourceConverter = updateResourceConverter;
+        this.hmacHeaderInterceptor = hmacHeaderInterceptor;
         this.applicationEventPublisher = applicationEventPublisher;
         this.cycleAvoidingMappingContext = cycleAvoidingMappingContext;
         this.jsonApiMessageConverter = jsonApiMessageConverter;
@@ -105,21 +107,21 @@ public class FafApiCommunicationService {
                 .readTimeout(Duration.ofMinutes(5))
                 .errorHandler(jsonApiErrorHandler)
                 .rootUri(environmentProperties.getBaseUrl())
-                .interceptors(List.of(oAuthTokenInterceptor,
-                (request, body, execution) -> {
-                    HttpHeaders headers = request.getHeaders();
+                .interceptors(List.of(oAuthTokenInterceptor, hmacHeaderInterceptor,
+                        (request, body, execution) -> {
+                            HttpHeaders headers = request.getHeaders();
 
-                    List<String> contentTypes = headers.get(HttpHeaders.CONTENT_TYPE);
-                    if (contentTypes != null && contentTypes.stream()
-                            .anyMatch(MediaType.APPLICATION_JSON_VALUE::equalsIgnoreCase)) {
-                        headers.setAccept(Collections.singletonList(MediaType.valueOf("application/vnd.api+json")));
-                        if (request.getMethod() == HttpMethod.POST || request.getMethod() == HttpMethod.PATCH || request.getMethod() == HttpMethod.PUT) {
-                            headers.setContentType(MediaType.APPLICATION_JSON);
+                            List<String> contentTypes = headers.get(HttpHeaders.CONTENT_TYPE);
+                            if (contentTypes != null && contentTypes.stream()
+                                    .anyMatch(MediaType.APPLICATION_JSON_VALUE::equalsIgnoreCase)) {
+                                headers.setAccept(Collections.singletonList(MediaType.valueOf("application/vnd.api+json")));
+                                if (request.getMethod() == HttpMethod.POST || request.getMethod() == HttpMethod.PATCH || request.getMethod() == HttpMethod.PUT) {
+                                    headers.setContentType(MediaType.APPLICATION_JSON);
+                                }
+                            }
+                            return execution.execute(request, body);
                         }
-                    }
-                    return execution.execute(request, body);
-                }
-        )).build();
+                )).build();
 
         try {
             meResult = getOne("/me", MeResult.class);

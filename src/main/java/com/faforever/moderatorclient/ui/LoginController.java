@@ -14,7 +14,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -61,6 +60,7 @@ public class LoginController implements Controller<Pane> {
         EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environmentComboBox.getValue());
         fafApiCommunicationService.initialize(environmentProperties);
         fafUserCommunicationService.initialize(environmentProperties);
+        localPreferences.getAutoLogin().setEnvironment(environmentComboBox.getValue());
         tokenService.prepare(environmentProperties);
         loginFuture = oAuthValuesReceiver.receiveValues(environmentProperties).thenAccept(tokenService::loginWithAuthorizationCode);
     }

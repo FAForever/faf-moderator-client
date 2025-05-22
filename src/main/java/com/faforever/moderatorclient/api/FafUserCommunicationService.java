@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class FafUserCommunicationService {
     private final OAuthTokenInterceptor oAuthTokenInterceptor;
+    private final HmacHeaderInterceptor hmacHeaderInterceptor;
     private final RestTemplateBuilder restTemplateBuilder;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final CountDownLatch authorizedLatch;
@@ -26,9 +27,10 @@ public class FafUserCommunicationService {
     private EnvironmentProperties environmentProperties;
 
 
-    public FafUserCommunicationService(OAuthTokenInterceptor oAuthTokenInterceptor, ApplicationEventPublisher applicationEventPublisher,
+    public FafUserCommunicationService(OAuthTokenInterceptor oAuthTokenInterceptor, HmacHeaderInterceptor hmacHeaderInterceptor, ApplicationEventPublisher applicationEventPublisher,
                                        RestTemplateBuilder restTemplateBuilder) {
         this.oAuthTokenInterceptor = oAuthTokenInterceptor;
+        this.hmacHeaderInterceptor = hmacHeaderInterceptor;
         this.applicationEventPublisher = applicationEventPublisher;
         this.restTemplateBuilder = restTemplateBuilder;
 
@@ -49,7 +51,7 @@ public class FafUserCommunicationService {
         restTemplate = restTemplateBuilder
                 .requestFactory(JdkClientHttpRequestFactory.class)
                 .rootUri(environmentProperties.getUserBaseUrl())
-                .interceptors(oAuthTokenInterceptor)
+                .interceptors(oAuthTokenInterceptor, hmacHeaderInterceptor)
                 .build();
         authorizedLatch.countDown();
     }

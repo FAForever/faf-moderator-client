@@ -1,4 +1,6 @@
 faforever:
+  security:
+    hmac-key: vSNLQixWJXeFUe4FHCP1
   map-generator:
     repo-and-owner-name: FAForever/Neroxis-Map-Generator
     query-versions-url: https://api.github.com/repos/${faforever.map-generator.repo-and-owner-name}/releases

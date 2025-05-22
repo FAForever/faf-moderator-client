@@ -4,6 +4,8 @@ import com.faforever.moderatorclient.api.event.HydraAuthorizedEvent;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.config.local.LocalPreferences;
 import com.faforever.moderatorclient.login.OAuthValuesReceiver;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -35,6 +38,7 @@ import java.util.Map;
 public class TokenService {
     private final LocalPreferences localPreferences;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final HmacHeaderInterceptor hmacHeaderInterceptor;
     private RestTemplate restTemplate;
     private EnvironmentProperties environmentProperties;
     private OAuth2AccessTokenResponse tokenCache;
@@ -43,6 +47,7 @@ public class TokenService {
         this.environmentProperties = environmentProperties;
         this.restTemplate = new RestTemplateBuilder()
                 .requestFactory(JdkClientHttpRequestFactory.class)
+                .additionalInterceptors(hmacHeaderInterceptor)
                 .rootUri(environmentProperties.getOauthBaseUrl())
                 .build();
     }
@@ -57,6 +62,21 @@ public class TokenService {
         }
 
         return tokenCache.getAccessToken().getTokenValue();
+    }
+
+    public String getHmac() {
+        var claims = extractCustomClaims(tokenCache.getAccessToken().getTokenValue());
+        var extensions = (Map<String, Object>) claims.get("ext");
+        return (String) extensions.get("hmac");
+    }
+
+    public Map<String, Object> extractCustomClaims(String tokenValue) {
+        try {
+            JWT jwt = JWTParser.parse(tokenValue);
+            return jwt.getJWTClaimsSet().getClaims();
+        } catch (ParseException e) {
+            throw new RuntimeException("Invalid JWT", e);
+        }
     }
 
     public void loginWithAuthorizationCode(OAuthValuesReceiver.Values values) {
@@ -95,6 +115,7 @@ public class TokenService {
             log.info("Auto login enabled, persisting refresh token");
             localPreferences.getAutoLogin().setRefreshToken(refreshToken);
         }
+        hmacHeaderInterceptor.setHmac(getHmac());
     }
 
     public void loginWithRefreshToken(String refreshToken, boolean fireEvent) {
