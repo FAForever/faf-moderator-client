@@ -6,14 +6,16 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.web.WebView?>
+<?import javafx.scene.control.Button?>
 <VBox fx:id="root" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.faforever.moderatorclient.ui.LoginController" spacing="5.0">
     <children>
-        <WebView fx:id="loginWebView" prefHeight="800"/>
+        <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" maxHeight="50">
+            <Button onAction="#attemptLogin" text="Login" alignment="CENTER" HBox.hgrow="NEVER"/>
+        </HBox>
         <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" maxHeight="50">
             <Label text="Environment" HBox.hgrow="ALWAYS"/>
-            <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS" onAction="#reloadLogin"/>
+            <ComboBox fx:id="environmentComboBox" HBox.hgrow="ALWAYS" onAction="#cancelLogin"/>
         </HBox>
         <HBox VBox.vgrow="NEVER" alignment="CENTER" spacing="10.0" maxHeight="50">
             <CheckBox fx:id="rememberLoginCheckBox" HBox.hgrow="NEVER" onAction="#rememberLogin"/>
