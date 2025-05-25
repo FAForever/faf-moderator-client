@@ -3,6 +3,7 @@ package com.faforever.moderatorclient.api;
 import com.faforever.moderatorclient.api.event.HydraAuthorizedEvent;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.config.local.LocalPreferences;
+import com.faforever.moderatorclient.login.OAuthValuesReceiver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -52,22 +53,23 @@ public class TokenService {
             log.info("Token expired, requesting new with refresh token");
             loginWithRefreshToken(tokenCache.getRefreshToken().getTokenValue(), false);
         } else {
-            log.debug("Token still valid for {} seconds", Duration.between(Instant.now(), tokenCache.getAccessToken().getExpiresAt()));
+            log.debug("Token still valid for {} seconds", Duration.between(Instant.now(), tokenCache.getAccessToken().getExpiresAt()).getSeconds());
         }
 
         return tokenCache.getAccessToken().getTokenValue();
     }
 
-    public void loginWithAuthorizationCode(String code) {
+    public void loginWithAuthorizationCode(OAuthValuesReceiver.Values values) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("code", code);
-        map.add("client_id", environmentProperties.getClientId());
-        map.add("redirect_uri", environmentProperties.getOauthRedirectUrl());
+        map.add("code", values.code());
+        map.add("client_id", values.clientId());
+        map.add("redirect_uri", values.redirectUri().toASCIIString());
         map.add("grant_type", "authorization_code");
+        map.add("code_verifier", values.codeVerifier());
 
         Map<String, Object>  responseBody = requestToken(headers, map);
         if (responseBody != null) {
@@ -89,7 +91,7 @@ public class TokenService {
                 .expiresIn(expiresIn)
                 .build();
 
-        if (localPreferences.getAutoLogin().getEnabled()) {
+        if (localPreferences.getAutoLogin().getEnabled() == Boolean.TRUE) {
             log.info("Auto login enabled, persisting refresh token");
             localPreferences.getAutoLogin().setRefreshToken(refreshToken);
         }
