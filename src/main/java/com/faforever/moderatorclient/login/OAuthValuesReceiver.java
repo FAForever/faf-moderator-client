@@ -121,13 +121,39 @@ public class OAuthValuesReceiver {
   }
 
   private void openHydraUrl() {
-      try {
-        String url = getHydraUrl();
-        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + url);
-      } catch (IOException e) {
-          throw new RuntimeException(e);
-      }
+    showDocument(getHydraUrl());
   }
+
+  /**
+   * Opens the specified URI in a new browser window or tab. Note: The code is copied from
+   * {@link com.sun.javafx.application.HostServicesDelegate#showDocument(String)} The only fix is that all any
+   * exceptions are intercepted by our side, and we can tell the user what happened wrong.
+   */
+  public void showDocument(String url) {
+    final String[] browsers = {"xdg-open", "google-chrome", "firefox", "opera", "konqueror", "mozilla"};
+
+    String osName = System.getProperty("os.name");
+    try {
+      if (osName.startsWith("Mac OS")) {
+        Runtime.getRuntime().exec(new String[]{"open", url});
+      } else if (osName.startsWith("Windows")) {
+        Runtime.getRuntime().exec(new String[]{"rundll32", "url.dll,FileProtocolHandler", url});
+      } else { //assume Unix or Linux
+        String browser = null;
+        for (String b : browsers) {
+          if (browser == null && Runtime.getRuntime().exec(new String[]{"which", b}).getInputStream().read() != -1) {
+            Runtime.getRuntime().exec(new String[]{browser = b, url});
+          }
+        }
+        if (browser == null) {
+          throw new Exception("No web browser found");
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
 
   private void writeResponse(Socket socket, boolean success) throws IOException {
     try (Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
