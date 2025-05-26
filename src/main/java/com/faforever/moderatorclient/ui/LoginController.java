@@ -8,6 +8,7 @@ import com.faforever.moderatorclient.config.ApplicationProperties;
 import com.faforever.moderatorclient.config.EnvironmentProperties;
 import com.faforever.moderatorclient.config.local.LocalPreferences;
 import com.faforever.moderatorclient.login.OAuthValuesReceiver;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
@@ -74,6 +75,6 @@ public class LoginController implements Controller<Pane> {
     public void onApiAuthorized(ApiAuthorizedEvent event) {
         if (root == null) return;
 
-        root.getScene().getWindow().hide();
+        Platform.runLater(() -> root.getScene().getWindow().hide());
     }
 }
