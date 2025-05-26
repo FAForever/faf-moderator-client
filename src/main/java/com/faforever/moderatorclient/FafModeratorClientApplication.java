@@ -53,7 +53,7 @@ public class FafModeratorClientApplication extends Application {
 
         String stylesheet = "/style/main-light.css";
         var localPreferences = applicationContext.getBean(LocalPreferences.class);
-        if (localPreferences.getUi().getDarkMode() == Boolean.TRUE) {
+        if (localPreferences.getUi().isDarkMode()) {
             stylesheet = "/style/main-dark.css";
         }
 
