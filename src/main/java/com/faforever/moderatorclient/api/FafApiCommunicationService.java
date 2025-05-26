@@ -102,7 +102,7 @@ public class FafApiCommunicationService {
         restTemplate = restTemplateBuilder
                 .requestFactory(JdkClientHttpRequestFactory.class)
                 .additionalMessageConverters(jsonApiMessageConverter)
-                .setReadTimeout(Duration.ofMinutes(5))
+                .readTimeout(Duration.ofMinutes(5))
                 .errorHandler(jsonApiErrorHandler)
                 .rootUri(environmentProperties.getBaseUrl())
                 .interceptors(List.of(oAuthTokenInterceptor,
