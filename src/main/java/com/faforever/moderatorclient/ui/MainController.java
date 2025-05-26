@@ -254,7 +254,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
     }
 
     public void display() {
-        if (localPreferences.getAutoLogin().getEnabled() == Boolean.TRUE) {
+        if (localPreferences.getAutoLogin().isEnabled()) {
             String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
                     .orElseThrow(() -> new IllegalStateException("Environment is not set"));
             String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
@@ -281,7 +281,7 @@ public class MainController implements Controller<TabPane>, DisposableBean {
             loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
             Scene scene = new Scene(loginController.getRoot());
             String stylesheet = "/style/main-light.css";
-            if (localPreferences.getUi().getDarkMode() == Boolean.TRUE) {
+            if (localPreferences.getUi().isDarkMode()) {
                 stylesheet = "/style/main-dark.css";
             }
             scene.getStylesheets().add(getClass().getResource(stylesheet).toExternalForm());

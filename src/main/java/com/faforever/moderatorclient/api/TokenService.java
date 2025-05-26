@@ -91,7 +91,7 @@ public class TokenService {
                 .expiresIn(expiresIn)
                 .build();
 
-        if (localPreferences.getAutoLogin().getEnabled() == Boolean.TRUE) {
+        if (localPreferences.getAutoLogin().isEnabled()) {
             log.info("Auto login enabled, persisting refresh token");
             localPreferences.getAutoLogin().setRefreshToken(refreshToken);
         }

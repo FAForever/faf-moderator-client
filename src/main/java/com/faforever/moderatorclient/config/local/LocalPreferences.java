@@ -13,7 +13,7 @@ public class LocalPreferences {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public static class AutoLogin {
-        Boolean enabled;
+        boolean enabled;
         String environment;
         String refreshToken;
     }
@@ -21,7 +21,7 @@ public class LocalPreferences {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public static class UI {
-        Boolean darkMode;
+        boolean darkMode;
         String startUpTab;
     }
 }

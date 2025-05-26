@@ -50,8 +50,8 @@ public class SettingsController implements Controller<Pane> {
             }
         });
 
-        rememberLoginCheckBox.setSelected(localPreferences.getAutoLogin().getEnabled());
-        darkModeCheckBox.setSelected(localPreferences.getUi().getDarkMode());
+        rememberLoginCheckBox.setSelected(localPreferences.getAutoLogin().isEnabled());
+        darkModeCheckBox.setSelected(localPreferences.getUi().isDarkMode());
 
         mainController.getRoot().getTabs().forEach(tab -> {
             defaultActiveTabComboBox.getItems().add(tab);
