@@ -192,6 +192,12 @@ public class ViewHelper {
         tableView.getColumns().add(tooltipColumn);
         extractors.put(tooltipColumn, AvatarFX::getTooltip);
 
+        TableColumn<AvatarFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().descriptionProperty());
+        descriptionColumn.setMinWidth(250);
+        tableView.getColumns().add(descriptionColumn);
+        extractors.put(descriptionColumn, AvatarFX::getDescription);
+
         TableColumn<AvatarFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created");
         changeTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         changeTimeColumn.setMinWidth(180);
@@ -808,6 +814,13 @@ public class ViewHelper {
         tooltipColumn.setMinWidth(100);
         tableView.getColumns().add(tooltipColumn);
         extractors.put(tooltipColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getTooltip());
+
+
+        TableColumn<AvatarAssignmentFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().avatarProperty().get().descriptionProperty());
+        descriptionColumn.setMinWidth(100);
+        tableView.getColumns().add(descriptionColumn);
+        extractors.put(descriptionColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getDescription());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
         selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
