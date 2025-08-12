@@ -13,6 +13,16 @@
         </processorPath>
         <module name="com.faforever.faf-moderator-client.main" />
       </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <option name="mapstruct.defaultComponentModel" value="jsr330" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.4.4/5103fbb3f4591f75c47be2f325a1d19a9dcf5804/spring-boot-configuration-processor-3.4.4.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.mapstruct/mapstruct-processor/1.6.3/52e345c907fbf173b376586c7f8b131d53fa5867/mapstruct-processor-1.6.3.jar" />
+        </processorPath>
+        <module name="IdeaProjects.faf-moderator-client.main" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="com.faforever.faf-moderator-client" target="21" />
@@ -23,7 +33,8 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-Amapstruct.defaultComponentModel=jsr330" />
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="faf-moderator-client" options="-parameters -Amapstruct.defaultComponentModel=jsr330" />
+      <module name="IdeaProjects.faf-moderator-client.test" options="" />
+      <module name="faf-moderator-client" options="" />
     </option>
   </component>
 </project>

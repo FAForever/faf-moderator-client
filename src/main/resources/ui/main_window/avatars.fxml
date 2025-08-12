@@ -19,7 +19,7 @@
             <children>
                 <HBox>
                     <children>
-                        <VBox>
+                        <VBox minWidth="220.0">
                             <children>
                                 <RadioButton fx:id="showAllAvatarsRadioButton" mnemonicParsing="false" selected="true"
                                              text="show all">
