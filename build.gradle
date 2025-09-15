@@ -39,7 +39,7 @@ println "Platform is: ${javafxPlatform}"
 dependencies {
     def springBootVersion = "3.4.4"
     def mapStructVersion = "1.6.3"
-    def commonsVersion = "20250810-e1f1ae4"
+    def commonsVersion = "20250913-317e19f"
 
     annotationProcessor(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
     implementation(platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
