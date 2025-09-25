@@ -10,7 +10,7 @@ faforever:
   environments:
     "[faforever.com]":
       base-url: https://api.faforever.com
-      client-id: faf-moderator-client
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
       replay-download-url-format: https://replay.faforever.com/%s
       oauth-base-url: https://hydra.faforever.com
       oauth-redirect-url: http://localhost
@@ -18,7 +18,7 @@ faforever:
       user-base-url: https://user.faforever.com
     "[faforever.xyz]":
       base-url: https://api.faforever.xyz
-      client-id: faf-moderator-client
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
       replay-download-url-format: https://replay.faforever.xyz/%s
       oauth-base-url: https://hydra.faforever.xyz
       oauth-redirect-url: http://localhost
@@ -26,7 +26,7 @@ faforever:
       user-base-url: https://user.faforever.xyz
     "[localhost:8010]":
       base-url: http://127.0.0.1:8010
-      client-id: faf-moderator-client
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
       replay-download-url-format: https://replay.faforever.xyz/%s
       oauth-base-url: http://localhost:4444
       oauth-redirect-url: http://127.0.0.1
