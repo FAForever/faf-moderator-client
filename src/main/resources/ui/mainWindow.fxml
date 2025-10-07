@@ -2,10 +2,9 @@
 
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<TabPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" maxHeight="1.7976931348623157E308"
-         maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0"
-         prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.111"
-         fx:controller="com.faforever.moderatorclient.ui.MainController">
+<TabPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity"
+         minWidth="-Infinity" prefHeight="700.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1"
+         xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.faforever.moderatorclient.ui.MainController">
     <tabs>
         <Tab fx:id="userManagementTab" closable="false" text="User Management"/>
         <Tab fx:id="matchmakerMapPoolTab" closable="false" text="Matchmaker Map Pools"/>
@@ -20,5 +19,6 @@
         <Tab fx:id="messagesTab" closable="false" text="Messages"/>
         <Tab fx:id="reportTab" closable="false" text="Reports"/>
         <Tab fx:id="permissionTab" closable="false" text="User Groups"/>
+        <Tab fx:id="settingsTab" closable="false" text="Settings"/>
     </tabs>
 </TabPane>

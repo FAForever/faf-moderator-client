@@ -4,15 +4,22 @@ import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.api.domain.UserService;
-import com.faforever.moderatorclient.ui.*;
+import com.faforever.moderatorclient.ui.BanInfoController;
+import com.faforever.moderatorclient.ui.Controller;
+import com.faforever.moderatorclient.ui.LoadingStateManager;
+import com.faforever.moderatorclient.ui.PlatformService;
+import com.faforever.moderatorclient.ui.UiService;
+import com.faforever.moderatorclient.ui.ViewHelper;
 import com.faforever.moderatorclient.ui.domain.BanInfoFX;
 import com.faforever.moderatorclient.ui.domain.MapVersionFX;
 import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
@@ -33,6 +40,7 @@ public class RecentActivityController implements Controller<VBox> {
     private final FafApiCommunicationService communicationService;
     private final UiService uiService;
     private final PlatformService platformService;
+    private final LoadingStateManager loadingStateManager = new LoadingStateManager();
 
     public VBox root;
 
@@ -43,6 +51,8 @@ public class RecentActivityController implements Controller<VBox> {
     public TableView<PlayerFX> userRegistrationFeedTableView;
     public TableView<TeamkillFX> teamkillFeedTableView;
     public TableView<MapVersionFX> mapUploadFeedTableView;
+
+    public Button refreshButton;
 
     @Override
     public VBox getRoot() {
@@ -73,6 +83,12 @@ public class RecentActivityController implements Controller<VBox> {
         if (checkPermissionForTitledPane(GroupPermission.ROLE_ADMIN_MAP, mapUploadFeedPane)) {
             ViewHelper.buildMapFeedTableView(mapUploadFeedTableView, mapVersions, this::toggleHide);
         }
+
+        loadingStateManager
+                .add(userRegistrationFeedTableView)
+                .add(teamkillFeedTableView)
+                .add(mapUploadFeedTableView)
+                .add(refreshButton);
     }
 
     private void addBan(PlayerFX playerFX) {
@@ -94,13 +110,24 @@ public class RecentActivityController implements Controller<VBox> {
     }
 
     public void refresh() {
-        users.setAll(userService.findLatestRegistrations());
-        userRegistrationFeedTableView.getSortOrder().clear();
+        loadingStateManager.applyLoadingState();
 
-        teamkills.setAll(userService.findLatestTeamkills());
-        teamkillFeedTableView.getSortOrder().clear();
+        Thread.startVirtualThread(() -> {
+            var latestRegistrations = userService.findLatestRegistrations();
+            var latestTeamkills = userService.findLatestTeamkills();
+            var latestMapVersions = mapService.findLatestMapVersions();
 
-        mapVersions.setAll(mapService.findLatestMapVersions());
-        mapUploadFeedTableView.getSortOrder().clear();
+            Platform.runLater(() -> {
+                users.setAll(latestRegistrations);
+                teamkills.setAll(latestTeamkills);
+                mapVersions.setAll(latestMapVersions);
+
+                userRegistrationFeedTableView.getSortOrder().clear();
+                teamkillFeedTableView.getSortOrder().clear();
+                mapUploadFeedTableView.getSortOrder().clear();
+
+                loadingStateManager.revertLoadingState();
+            });
+        });
     }
 }

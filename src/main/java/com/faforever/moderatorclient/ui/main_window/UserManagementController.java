@@ -5,11 +5,13 @@ import com.faforever.commons.api.update.AvatarAssignmentUpdate;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.AvatarService;
 import com.faforever.moderatorclient.api.domain.PermissionService;
+import com.faforever.moderatorclient.api.domain.UserSearchProperty;
 import com.faforever.moderatorclient.api.domain.UserService;
 import com.faforever.moderatorclient.mapstruct.GamePlayerStatsMapper;
 import com.faforever.moderatorclient.ui.BanInfoController;
 import com.faforever.moderatorclient.ui.Controller;
 import com.faforever.moderatorclient.ui.GroupAddUserController;
+import com.faforever.moderatorclient.ui.LoadingStateManager;
 import com.faforever.moderatorclient.ui.PlatformService;
 import com.faforever.moderatorclient.ui.UiService;
 import com.faforever.moderatorclient.ui.UserNoteController;
@@ -29,6 +31,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,6 +42,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -55,17 +60,21 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserManagementController implements Controller<SplitPane> {
+    private static final String IPV4_PATTERN =
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+    private static final String IPV6_PATTERN =
+            "([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}";
+
+
     private final UiService uiService;
     private final PlatformService platformService;
     private final UserService userService;
@@ -83,7 +92,7 @@ public class UserManagementController implements Controller<SplitPane> {
     private final ObservableList<UserGroupFX> userGroups = FXCollections.observableArrayList();
     private final ObservableList<GroupPermissionFX> groupPermissions = FXCollections.observableArrayList();
 
-    private final Map<String, String> searchUserPropertyMapping = new LinkedHashMap<>();
+    private final LoadingStateManager loadingStateManager = new LoadingStateManager();
 
     @Value("${faforever.vault.replay-download-url-format}")
     private String replayDownLoadFormat;
@@ -99,9 +108,11 @@ public class UserManagementController implements Controller<SplitPane> {
     public Tab avatarsTab;
     public Tab userGroupsTab;
 
-    public ComboBox<String> searchUserProperties;
+    public ComboBox<Searchable> searchUserProperties;
     public TextField userSearchTextField;
+    public TableView<UserSearchProperty.WithValue> searchHistoryTableView;
     public TableView<UserNoteFX> userNoteTableView;
+    public Button userSearchButton;
     public Button addNoteButton;
     public Button editNoteButton;
     public Button newBanButton;
@@ -118,6 +129,7 @@ public class UserManagementController implements Controller<SplitPane> {
     public TextField expiresAtTextfield;
     public Button setExpiresAtButton;
     public Button removeGroupButton;
+    public TabPane userDetailsTabPane;
 
     public TableView<GamePlayerStatsFX> userLastGamesTable;
     public ChoiceBox<FeaturedModFX> featuredModFilterChoiceBox;
@@ -148,6 +160,19 @@ public class UserManagementController implements Controller<SplitPane> {
         ViewHelper.buildNameHistoryTableView(userNameHistoryTableView, nameRecords);
         ViewHelper.buildBanTableView(userBansTableView, bans, false);
         ViewHelper.buildPlayersGamesTable(userLastGamesTable, replayDownLoadFormat, platformService);
+        buildHistoryTable();
+
+        searchUserProperties.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Searchable searchable) {
+                return searchable.getCaption();
+            }
+
+            @Override
+            public Searchable fromString(String s) {
+                return null;
+            }
+        });
 
         addNoteButton.disableProperty().bind(userSearchTableView.getSelectionModel().selectedItemProperty().isNull());
         editNoteButton.disableProperty().bind(userNoteTableView.getSelectionModel().selectedItemProperty().isNull());
@@ -193,28 +218,38 @@ public class UserManagementController implements Controller<SplitPane> {
         editBanButton.disableProperty().bind(userBansTableView.getSelectionModel().selectedItemProperty().isNull());
 
         initializeSearchProperties();
+
+        loadingStateManager
+                .add(userSearchTableView)
+                .add(userSearchButton)
+                .add(userDetailsTabPane);
+    }
+
+    private void buildHistoryTable() {
+        TableColumn<UserSearchProperty.WithValue, String> valueColumn = new TableColumn<>("Value");
+        valueColumn.setCellValueFactory(o -> new SimpleStringProperty(o.getValue().value()));
+        valueColumn.setMinWidth(100);
+        searchHistoryTableView.getColumns().add(valueColumn);
+
+        TableColumn<UserSearchProperty.WithValue, String> typeColumn = new TableColumn<>("Type");
+        typeColumn.setCellValueFactory(o -> new SimpleStringProperty(o.getValue().property().getCaption()));
+        typeColumn.setMinWidth(100);
+        searchHistoryTableView.getColumns().add(typeColumn);
+
+        searchHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                int index = searchUserProperties.getItems().indexOf(new Searchable.NativeProperty(newValue.property()));
+                searchUserProperties.getSelectionModel().select(index);
+                userSearchTextField.setText(newValue.value());
+            }
+        });
     }
 
     private void initializeSearchProperties() {
-        searchUserPropertyMapping.put("Name", "login");
-        searchUserPropertyMapping.put("Id", "id");
-        searchUserPropertyMapping.put("Email", "email");
-        searchUserPropertyMapping.put("Steam Id", "accountLinks.serviceId");
-        searchUserPropertyMapping.put("Gog Id", "accountLinks.serviceId");
-        searchUserPropertyMapping.put("Ip Address", "recentIpAddress");
-        searchUserPropertyMapping.put("Previous Name", "names.name");
-        searchUserPropertyMapping.put("UID Hash", "uniqueIds.hash");
-        searchUserPropertyMapping.put("Device Id", "uniqueIds.deviceId");
-        searchUserPropertyMapping.put("CPU Name", "uniqueIds.name");
-        searchUserPropertyMapping.put("UUID", "uniqueIds.uuid");
-        searchUserPropertyMapping.put("Serial Number", "uniqueIds.serialNumber");
-        searchUserPropertyMapping.put("Processor Id", "uniqueIds.processorId");
-        searchUserPropertyMapping.put("Bios Version", "uniqueIds.SMBIOSBIOSVersion");
-        searchUserPropertyMapping.put("Volume Serial Number", "uniqueIds.volumeSerialNumber");
-        searchUserPropertyMapping.put("Memory Serial Number", "uniqueIds.memorySerialNumber");
-        searchUserPropertyMapping.put("Manfacturer", "uniqueIds.manufacturer");
+        searchUserProperties.getItems().add(new Searchable.AutoDetect());
+        Arrays.stream(UserSearchProperty.values()).forEach(searchable ->
+                searchUserProperties.getItems().add(new Searchable.NativeProperty(searchable)));
 
-        searchUserProperties.getItems().addAll(searchUserPropertyMapping.keySet());
         searchUserProperties.getSelectionModel().select(0);
     }
 
@@ -266,15 +301,64 @@ public class UserManagementController implements Controller<SplitPane> {
         newBanButton.setDisable(newValue == null);
     }
 
+    private sealed interface Searchable {
+        String getCaption();
+
+        UserSearchProperty.WithValue getSearchInput(String searchPattern);
+
+        record NativeProperty(UserSearchProperty property) implements Searchable {
+            @Override
+            public String getCaption() {
+                return property.getCaption();
+            }
+
+            @Override
+            public UserSearchProperty.WithValue getSearchInput(String input) {
+                return new UserSearchProperty.WithValue(property, input);
+            }
+        }
+
+        final class AutoDetect implements Searchable {
+            @Override
+            public String getCaption() {
+                return "Auto-Detect";
+            }
+
+            @Override
+            public UserSearchProperty.WithValue getSearchInput(String input) {
+                return UserSearchProperty.autoDetect(input);
+            }
+        }
+    }
+
     public void onUserSearch() {
+        Searchable searchable = searchUserProperties.getSelectionModel().getSelectedItem();
+        String searchPattern = userSearchTextField.getText().trim();
+
+        if (searchPattern.isEmpty()) {
+            log.info("No search pattern entered, nothing to search for.");
+            return;
+        }
+
+        final var searchInput = searchable.getSearchInput(searchPattern);
+
+        if (searchInput.property() == null) {
+            log.info("Could not derive search property");
+            return;
+        }
+
         users.clear();
         userSearchTableView.getSortOrder().clear();
+        loadingStateManager.applyLoadingState();
+        Thread.startVirtualThread(() -> {
+            List<PlayerFX> usersFound = userService.findUsersByAttribute(searchInput.property().getApiKey(), searchInput.value());
 
-        String property = searchUserPropertyMapping.get(searchUserProperties.getValue());
-        String searchPattern = userSearchTextField.getText();
-        List<PlayerFX> usersFound = userService.findUsersByAttribute(property, searchPattern);
-
-        users.addAll(usersFound);
+            Platform.runLater(() -> {
+                loadingStateManager.revertLoadingState();
+                users.addAll(usersFound);
+                searchHistoryTableView.getItems().addFirst(searchInput);
+            });
+        });
     }
 
     public void onNewBan() {

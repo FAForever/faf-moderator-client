@@ -80,8 +80,8 @@ public class AvatarService {
         return result;
     }
 
-    public void uploadAvatar(String name, File avatarImageFile) {
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
+    public void uploadAvatar(String name, String description, File avatarImageFile) {
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, description, avatarImageFile);
         final String route = "/avatars/upload";
         log.debug("Sending API request: {}", route);
         fafApi.getRestTemplate().exchange(
@@ -92,8 +92,8 @@ public class AvatarService {
         );
     }
 
-    public void reuploadAvatar(String avatarId, String name, File avatarImageFile) {
-        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, avatarImageFile);
+    public void reuploadAvatar(String avatarId, String name, String description, File avatarImageFile) {
+        HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = createAvatarMultipartRequest(name, description, avatarImageFile);
         final String route = "/avatars/{0}/upload";
         log.debug("Sending API request: {}", route);
         fafApi.getRestTemplate().exchange(
@@ -118,16 +118,19 @@ public class AvatarService {
                 .addInclude("assignments.player"));
     }
 
-    public void updateAvatarMetadata(String avatarId, String name) {
+    public void updateAvatarMetadata(String avatarId, String name, String description) {
         fafApi.patch(ElideNavigator.of(Avatar.class).id(avatarId),
-                (Avatar) new Avatar().setTooltip(name).setId(avatarId));
+                new Avatar()
+                        .setId(avatarId)
+                        .setTooltip(name)
+                        .setDescription(description));
     }
 
     @NotNull
-    private HttpEntity<LinkedMultiValueMap<String, Object>> createAvatarMultipartRequest(String name, File avatarImageFile) {
+    private HttpEntity<LinkedMultiValueMap<String, Object>> createAvatarMultipartRequest(String name, String description, File avatarImageFile) {
         LinkedMultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
         map.add("file", new FileSystemResource(avatarImageFile));
-        map.add("metadata", new AvatarMetadata().setName(name));
+        map.add("metadata", new AvatarMetadata().setName(name).setDescription(description));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         return new HttpEntity<>(map, headers);

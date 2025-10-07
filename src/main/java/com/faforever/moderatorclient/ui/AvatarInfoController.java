@@ -35,6 +35,7 @@ public class AvatarInfoController implements Controller<Pane> {
     public Runnable onSaveRunnable;
     public GridPane root;
     public TextField tooltipTextField;
+    public TextField descriptionTextField;
     public ImageView imageView;
     public Hyperlink hyperlink;
     private AvatarFX avatarFX;
@@ -48,7 +49,8 @@ public class AvatarInfoController implements Controller<Pane> {
     public void setAvatar(AvatarFX avatarFX) {
         this.avatarFX = avatarFX;
         tooltipTextField.setText(avatarFX.getTooltip());
-        if (avatarFX.getUrl() != null && avatarFX.getUrl().length() > 0) {
+        descriptionTextField.setText(avatarFX.getDescription());
+        if (avatarFX.getUrl() != null && !avatarFX.getUrl().isEmpty()) {
             imageView.setImage(new Image(avatarFX.getUrl()));
             hyperlink.setText(avatarFX.getUrl());
         } else {
@@ -68,7 +70,7 @@ public class AvatarInfoController implements Controller<Pane> {
             validationErrors.add("No image file selected");
         }
 
-        if (validationErrors.size() > 0) {
+        if (!validationErrors.isEmpty()) {
             ViewHelper.errorDialog("Validation failed",
                     String.join("\n", validationErrors)
             );
@@ -108,17 +110,18 @@ public class AvatarInfoController implements Controller<Pane> {
 
         if (avatarFX.getId() != null) {
             if (avatarImageFile == null) {
-                avatarService.updateAvatarMetadata(avatarFX.getId(), tooltipTextField.getText());
+                avatarService.updateAvatarMetadata(avatarFX.getId(), tooltipTextField.getText(), descriptionTextField.getText());
             } else {
                 final boolean avatarUpdateConfirmed = ViewHelper.confirmDialog("Update Avatar", "Do you really want to override the avatar?");
                 if (!avatarUpdateConfirmed) {
                     return;
                 }
-                avatarService.reuploadAvatar(avatarFX.getId(), tooltipTextField.getText(), avatarImageFile);
+                avatarService.reuploadAvatar(avatarFX.getId(), tooltipTextField.getText(), descriptionTextField.getText(), avatarImageFile);
             }
             avatarFX.setTooltip(tooltipTextField.getText());
+            avatarFX.setDescription(descriptionTextField.getText());
         } else {
-            avatarService.uploadAvatar(tooltipTextField.getText(), avatarImageFile);
+            avatarService.uploadAvatar(tooltipTextField.getText(), descriptionTextField.getText(), avatarImageFile);
         }
 
         close();

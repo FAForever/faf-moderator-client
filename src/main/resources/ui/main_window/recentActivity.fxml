@@ -6,10 +6,10 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:id="root" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/8.0.111"
+<VBox fx:id="root" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.faforever.moderatorclient.ui.main_window.RecentActivityController">
     <children>
-        <Button minWidth="200.0" mnemonicParsing="false" onAction="#refresh" text="refresh">
+        <Button fx:id="refreshButton" minWidth="200.0" mnemonicParsing="false" onAction="#refresh" text="refresh">
             <VBox.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
             </VBox.margin>

@@ -1,32 +1,33 @@
 faforever:
+  security:
+    hmac-key: vSNLQixWJXeFUe4FHCP1
   map-generator:
     repo-and-owner-name: FAForever/Neroxis-Map-Generator
     query-versions-url: https://api.github.com/repos/${faforever.map-generator.repo-and-owner-name}/releases
     min-supported-version: 1.4.3
   vault:
-    base-url: https://content.faforever.com
     replay-download-url-format: http://replay.faforever.com/%s
   environments:
     "[faforever.com]":
       base-url: https://api.faforever.com
-      client-id: faf-moderator-client
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
       replay-download-url-format: https://replay.faforever.com/%s
       oauth-base-url: https://hydra.faforever.com
       oauth-redirect-url: http://localhost
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault
       user-base-url: https://user.faforever.com
-    "[test.faforever.com]":
-      base-url: https://api.test.faforever.com
-      client-id: faf-moderator-client
-      replay-download-url-format: https://replay.test.faforever.com/%s
-      oauth-base-url: https://hydra.test.faforever.com
+    "[faforever.xyz]":
+      base-url: https://api.faforever.xyz
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
+      replay-download-url-format: https://replay.faforever.xyz/%s
+      oauth-base-url: https://hydra.faforever.xyz
       oauth-redirect-url: http://localhost
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault
-      user-base-url: https://user.test.faforever.com
+      user-base-url: https://user.faforever.xyz
     "[localhost:8010]":
       base-url: http://127.0.0.1:8010
-      client-id: faf-moderator-client
-      replay-download-url-format: https://replay.test.faforever.com/%s
+      client-id: 8ff5c14f-60e2-41b9-b594-a641dc5013be
+      replay-download-url-format: https://replay.faforever.xyz/%s
       oauth-base-url: http://localhost:4444
       oauth-redirect-url: http://127.0.0.1
       oauth-scopes: offline upload_avatar administrative_actions read_sensible_userdata manage_vault

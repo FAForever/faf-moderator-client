@@ -34,6 +34,7 @@ import com.faforever.moderatorclient.ui.domain.PlayerFX;
 import com.faforever.moderatorclient.ui.domain.TeamkillFX;
 import com.faforever.moderatorclient.ui.domain.TutorialCategoryFX;
 import com.faforever.moderatorclient.ui.domain.TutorialFx;
+import com.faforever.moderatorclient.ui.domain.UniqueIdAssignmentFx;
 import com.faforever.moderatorclient.ui.domain.UniqueIdFx;
 import com.faforever.moderatorclient.ui.domain.UserGroupFX;
 import com.faforever.moderatorclient.ui.domain.UserNoteFX;
@@ -176,7 +177,7 @@ public class ViewHelper {
         TableColumn<AvatarFX, String> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(o -> o.getValue().idProperty());
         idColumn.setComparator(Comparator.comparingInt(Integer::parseInt));
-        idColumn.setMinWidth(50);
+        idColumn.setMinWidth(25);
         tableView.getColumns().add(idColumn);
         extractors.put(idColumn, AvatarFX::getId);
 
@@ -188,9 +189,15 @@ public class ViewHelper {
 
         TableColumn<AvatarFX, String> tooltipColumn = new TableColumn<>("Tooltip");
         tooltipColumn.setCellValueFactory(o -> o.getValue().tooltipProperty());
-        tooltipColumn.setMinWidth(50);
+        tooltipColumn.setMinWidth(250);
         tableView.getColumns().add(tooltipColumn);
         extractors.put(tooltipColumn, AvatarFX::getTooltip);
+
+        TableColumn<AvatarFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().descriptionProperty());
+        descriptionColumn.setMinWidth(250);
+        tableView.getColumns().add(descriptionColumn);
+        extractors.put(descriptionColumn, AvatarFX::getDescription);
 
         TableColumn<AvatarFX, OffsetDateTime> changeTimeColumn = new TableColumn<>("Created");
         changeTimeColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
@@ -199,7 +206,7 @@ public class ViewHelper {
 
         TableColumn<AvatarFX, String> urlColumn = new TableColumn<>("URL");
         urlColumn.setCellValueFactory(o -> o.getValue().urlProperty());
-        urlColumn.setMinWidth(50);
+        urlColumn.setMinWidth(500);
         tableView.getColumns().add(urlColumn);
         extractors.put(urlColumn, AvatarFX::getUrl);
 
@@ -221,7 +228,7 @@ public class ViewHelper {
         });
     }
 
-    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data) {
+    public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data, @Nullable Consumer<AvatarAssignmentFX> onRemove) {
         tableView.setItems(data);
         HashMap<TableColumn<AvatarAssignmentFX, ?>, Function<AvatarAssignmentFX, ?>> extractors = new HashMap<>();
 
@@ -264,6 +271,28 @@ public class ViewHelper {
         assignedAtColumn.setCellValueFactory(o -> o.getValue().createTimeProperty());
         assignedAtColumn.setMinWidth(180);
         tableView.getColumns().add(assignedAtColumn);
+
+        if (onRemove != null) {
+            TableColumn<AvatarAssignmentFX, AvatarAssignmentFX> removeColumn = new TableColumn<>("Remove");
+            removeColumn.setMinWidth(90);
+            removeColumn.setCellValueFactory(param -> new SimpleObjectProperty<>(param.getValue()));
+            removeColumn.setCellFactory(param -> new TableCell<>() {
+                @Override
+                protected void updateItem(AvatarAssignmentFX item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        Button button = new Button("Remove");
+                        button.setOnMouseClicked(event -> onRemove.accept(item));
+                        button.setTextFill(Color.rgb(200, 10, 10));
+
+                        setGraphic(button);
+                        return;
+                    }
+                    setGraphic(null);
+                }
+            });
+            tableView.getColumns().add(removeColumn);
+        }
 
         applyCopyContextMenus(tableView, extractors);
     }
@@ -572,7 +601,7 @@ public class ViewHelper {
         accountLinkColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
                         o.getValue().getAccountLinks().stream().map(accountLink -> "%s - %s".formatted(accountLink.getServiceType(), accountLink.getServiceId()))
                                 .collect(Collectors.joining("\n")),
-                o.getValue().getUniqueIds()));
+                o.getValue().getUniqueIdAssignments()));
         accountLinkColumn.setMinWidth(150);
         tableView.getColumns().add(accountLinkColumn);
         extractors.put(accountLinkColumn, playerFX -> playerFX.getAccountLinks().stream().map(AccountLinkFx::getServiceId).collect(Collectors.toList()));
@@ -626,96 +655,164 @@ public class ViewHelper {
             tableView.getColumns().add(banOptionColumn);
         }
 
-        if(showUidData) {
+        if (showUidData) {
+            TableColumn<PlayerFX, String> uidCreatedAt = new TableColumn<>("UID created");
+            uidCreatedAt.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getCreateTime)
+                                    .map(DateTimeFormatter.ISO_LOCAL_DATE_TIME::format)
+                                    .collect(Collectors.joining("\n")),
+                    o.getValue().getUniqueIdAssignments()));
+            uidCreatedAt.setMinWidth(200);
+            tableView.getColumns().add(uidCreatedAt);
+            extractors.put(uidCreatedAt, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getCreateTime)
+                    .map(DateTimeFormatter.ISO_LOCAL_DATE_TIME::format)
+                    .collect(Collectors.toList()));
+
+            TableColumn<PlayerFX, String> uidLastUsedAt = new TableColumn<>("UID last used");
+            uidLastUsedAt.setCellValueFactory(o -> Bindings.createStringBinding(() ->
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUpdateTime)
+                                    .map(DateTimeFormatter.ISO_LOCAL_DATE_TIME::format)
+                                    .collect(Collectors.joining("\n")),
+                    o.getValue().getUniqueIdAssignments()));
+            uidLastUsedAt.setMinWidth(200);
+            tableView.getColumns().add(uidLastUsedAt);
+            extractors.put(uidLastUsedAt, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUpdateTime)
+                    .map(DateTimeFormatter.ISO_LOCAL_DATE_TIME::format)
+                    .collect(Collectors.toList()));
+
             TableColumn<PlayerFX, String> hashColumn = new TableColumn<>("Hash");
             hashColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getHash)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getHash)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             hashColumn.setMinWidth(200);
             tableView.getColumns().add(hashColumn);
-            extractors.put(hashColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getHash).collect(Collectors.toList()));
+            extractors.put(hashColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getHash).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> uuidColumn = new TableColumn<>("UUID");
             uuidColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getUuid)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getUuid)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             uuidColumn.setMinWidth(200);
             tableView.getColumns().add(uuidColumn);
-            extractors.put(uuidColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getUuid).collect(Collectors.toList()));
+            extractors.put(uuidColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getUuid).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> memorySerialColumn = new TableColumn<>("Memory S/N");
             memorySerialColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getMemorySerialNumber)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getMemorySerialNumber)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             memorySerialColumn.setMinWidth(200);
             tableView.getColumns().add(memorySerialColumn);
-            extractors.put(memorySerialColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getMemorySerialNumber).collect(Collectors.toList()));
+            extractors.put(memorySerialColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getMemorySerialNumber).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> deviceIdColumn = new TableColumn<>("Device ID");
             deviceIdColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getDeviceId)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getDeviceId)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             deviceIdColumn.setMinWidth(200);
             tableView.getColumns().add(deviceIdColumn);
-            extractors.put(deviceIdColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getDeviceId).collect(Collectors.toList()));
+            extractors.put(deviceIdColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getDeviceId).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> manufacturerColumn = new TableColumn<>("Manufacturer");
             manufacturerColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getManufacturer)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getManufacturer)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             manufacturerColumn.setMinWidth(200);
             tableView.getColumns().add(manufacturerColumn);
-            extractors.put(manufacturerColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getManufacturer).collect(Collectors.toList()));
+            extractors.put(manufacturerColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getManufacturer).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> cpuNameColumn = new TableColumn<>("Cpu Name");
             cpuNameColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getName)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getName)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             cpuNameColumn.setMinWidth(200);
             tableView.getColumns().add(cpuNameColumn);
-            extractors.put(cpuNameColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getName).collect(Collectors.toList()));
+            extractors.put(cpuNameColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getName).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> processorIdColumn = new TableColumn<>("Processor Id");
             processorIdColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getProcessorId)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getProcessorId)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             processorIdColumn.setMinWidth(200);
             tableView.getColumns().add(processorIdColumn);
-            extractors.put(processorIdColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getProcessorId).collect(Collectors.toList()));
+            extractors.put(processorIdColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getProcessorId).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> biosVersionColumn = new TableColumn<>("BIOS Version");
             biosVersionColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getSMBIOSBIOSVersion)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getSMBIOSBIOSVersion)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             biosVersionColumn.setMinWidth(200);
             tableView.getColumns().add(biosVersionColumn);
-            extractors.put(biosVersionColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getSMBIOSBIOSVersion).collect(Collectors.toList()));
+            extractors.put(biosVersionColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getSMBIOSBIOSVersion).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> serialColumn = new TableColumn<>("S/N");
             serialColumn.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getSerialNumber)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getSerialNumber)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             serialColumn.setMinWidth(200);
             tableView.getColumns().add(serialColumn);
-            extractors.put(serialColumn, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getSerialNumber).collect(Collectors.toList()));
+            extractors.put(serialColumn, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getSerialNumber).collect(Collectors.toList()));
 
             TableColumn<PlayerFX, String> volumeSerialNumber = new TableColumn<>("Volume S/N");
             volumeSerialNumber.setCellValueFactory(o -> Bindings.createStringBinding(() ->
-                            o.getValue().getUniqueIds().stream().map(UniqueIdFx::getVolumeSerialNumber)
+                            o.getValue().getUniqueIdAssignments().stream()
+                                    .map(UniqueIdAssignmentFx::getUniqueId)
+                                    .map(UniqueIdFx::getVolumeSerialNumber)
                                     .collect(Collectors.joining("\n")),
-                    o.getValue().getUniqueIds()));
+                    o.getValue().getUniqueIdAssignments()));
             volumeSerialNumber.setMinWidth(200);
             tableView.getColumns().add(volumeSerialNumber);
-            extractors.put(volumeSerialNumber, playerFX -> playerFX.getUniqueIds().stream().map(UniqueIdFx::getVolumeSerialNumber).collect(Collectors.toList()));
+            extractors.put(volumeSerialNumber, playerFX -> playerFX.getUniqueIdAssignments().stream()
+                    .map(UniqueIdAssignmentFx::getUniqueId)
+                    .map(UniqueIdFx::getVolumeSerialNumber).collect(Collectors.toList()));
         }
 
         ContextMenu contextMenu = applyCopyContextMenus(tableView, extractors);
@@ -786,6 +883,13 @@ public class ViewHelper {
         tooltipColumn.setMinWidth(100);
         tableView.getColumns().add(tooltipColumn);
         extractors.put(tooltipColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getTooltip());
+
+
+        TableColumn<AvatarAssignmentFX, String> descriptionColumn = new TableColumn<>("Description");
+        descriptionColumn.setCellValueFactory(o -> o.getValue().avatarProperty().get().descriptionProperty());
+        descriptionColumn.setMinWidth(100);
+        tableView.getColumns().add(descriptionColumn);
+        extractors.put(descriptionColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getDescription());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
         selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());

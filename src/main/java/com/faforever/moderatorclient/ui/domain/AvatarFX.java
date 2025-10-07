@@ -10,11 +10,13 @@ import java.util.List;
 public class AvatarFX extends AbstractEntityFX {
     private final StringProperty url;
     private final StringProperty tooltip;
+    private final StringProperty description;
     private final ObservableList<AvatarAssignmentFX> assignments;
 
     public AvatarFX() {
         url = new SimpleStringProperty();
         tooltip = new SimpleStringProperty();
+        description = new SimpleStringProperty();
         assignments = FXCollections.observableArrayList();
     }
 
@@ -40,6 +42,18 @@ public class AvatarFX extends AbstractEntityFX {
 
     public StringProperty tooltipProperty() {
         return tooltip;
+    }
+
+    public String getDescription() {
+        return description.get();
+    }
+
+    public StringProperty descriptionProperty() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description.set(description);
     }
 
     public List<AvatarAssignmentFX> getAssignments() {

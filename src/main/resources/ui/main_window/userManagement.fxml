@@ -13,26 +13,29 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<SplitPane xmlns:fx="http://javafx.com/fxml/1" fx:id="root" dividerPositions="0.3" orientation="VERTICAL"
-           prefHeight="200.0" prefWidth="160.0" xmlns="http://javafx.com/javafx/8.0.171"
+<?import javafx.scene.text.Text?>
+<SplitPane fx:id="root" dividerPositions="0.3" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0"
+           xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.faforever.moderatorclient.ui.main_window.UserManagementController">
     <items>
         <HBox>
             <children>
-                <VBox minWidth="220.0" spacing="5.0" alignment="CENTER">
+                <VBox alignment="CENTER" minHeight="220.0" minWidth="220.0" spacing="5.0">
                     <children>
                         <Label text="Search By"/>
                         <ComboBox fx:id="searchUserProperties"/>
-                        <TextField fx:id="userSearchTextField" onAction="#onUserSearch">
+                        <HBox>
                             <VBox.margin>
                                 <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
                             </VBox.margin>
-                        </TextField>
-                        <Button mnemonicParsing="false" onAction="#onUserSearch" text="Search">
-                            <VBox.margin>
-                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-                            </VBox.margin>
-                        </Button>
+                            <children>
+                                <TextField fx:id="userSearchTextField" onAction="#onUserSearch"/>
+                                <Button fx:id="userSearchButton" minWidth="60.0" mnemonicParsing="false"
+                                        onAction="#onUserSearch" text="Search"/>
+                            </children>
+                        </HBox>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search History"/>
+                        <TableView fx:id="searchHistoryTableView" prefHeight="200.0" prefWidth="200.0"/>
                     </children>
                     <HBox.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
@@ -42,7 +45,7 @@
                            maxWidth="1.7976931348623157E308" minWidth="550.0" prefHeight="200.0" HBox.hgrow="ALWAYS"/>
             </children>
         </HBox>
-        <TabPane minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="userDetailsTabPane" minHeight="200.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab fx:id="notesTab" text="Notes">
                     <content>
@@ -181,9 +184,10 @@
                                                maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0"
                                                HBox.hgrow="ALWAYS"/>
                                 </HBox>
-                                <HBox VBox.vgrow="NEVER" maxHeight="50" spacing="10.0" alignment="CENTER">
-                                    <Button text="Add User To Group" onAction="#openGroupDialog"/>
-                                    <Button fx:id="removeGroupButton" text="Remove User from Group" onAction="#onRemoveGroup"/>
+                                <HBox alignment="CENTER" maxHeight="50" spacing="10.0" VBox.vgrow="NEVER">
+                                    <Button onAction="#openGroupDialog" text="Add User To Group"/>
+                                    <Button fx:id="removeGroupButton" onAction="#onRemoveGroup"
+                                            text="Remove User from Group"/>
                                 </HBox>
                             </children>
                         </VBox>

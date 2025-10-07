@@ -2,16 +2,23 @@ package com.faforever.moderatorclient.ui;
 
 import com.faforever.commons.api.dto.GroupPermission;
 import com.faforever.moderatorclient.api.FafApiCommunicationService;
+import com.faforever.moderatorclient.api.FafUserCommunicationService;
+import com.faforever.moderatorclient.api.TokenService;
 import com.faforever.moderatorclient.api.event.FafApiFailGetEvent;
 import com.faforever.moderatorclient.api.event.FafApiFailModifyEvent;
 import com.faforever.moderatorclient.api.event.FafUserFailModifyEvent;
 import com.faforever.moderatorclient.api.event.TokenExpiredEvent;
+import com.faforever.moderatorclient.config.ApplicationProperties;
+import com.faforever.moderatorclient.config.EnvironmentProperties;
+import com.faforever.moderatorclient.config.local.LocalPreferences;
+import com.faforever.moderatorclient.config.local.LocalPreferencesReaderWriter;
 import com.faforever.moderatorclient.ui.main_window.AvatarsController;
 import com.faforever.moderatorclient.ui.main_window.DomainBlacklistController;
 import com.faforever.moderatorclient.ui.main_window.LadderMapPoolController;
 import com.faforever.moderatorclient.ui.main_window.MapVaultController;
 import com.faforever.moderatorclient.ui.main_window.ModVaultController;
 import com.faforever.moderatorclient.ui.main_window.RecentActivityController;
+import com.faforever.moderatorclient.ui.main_window.SettingsController;
 import com.faforever.moderatorclient.ui.main_window.TutorialController;
 import com.faforever.moderatorclient.ui.main_window.UserGroupsController;
 import com.faforever.moderatorclient.ui.main_window.UserManagementController;
@@ -25,18 +32,26 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class MainController implements Controller<TabPane> {
+public class MainController implements Controller<TabPane>, DisposableBean {
+    private final ApplicationProperties applicationProperties;
+    private final LocalPreferences localPreferences;
+    private final LocalPreferencesReaderWriter localPreferencesReaderWriter;
+    private final TokenService tokenService;
+    private final FafApiCommunicationService fafApiCommunicationService;
+    private final FafUserCommunicationService fafUserCommunicationService;
     private final UiService uiService;
 
     public TabPane root;
@@ -53,6 +68,7 @@ public class MainController implements Controller<TabPane> {
     public Tab messagesTab;
     public Tab reportTab;
     public Tab permissionTab;
+    public Tab settingsTab;
 
     private ModerationReportController moderationReportController;
     private UserManagementController userManagementController;
@@ -67,6 +83,7 @@ public class MainController implements Controller<TabPane> {
     private TutorialController tutorialController;
     private MessagesController messagesController;
     private UserGroupsController userGroupsController;
+    private SettingsController settingsController;
     private final Map<Tab, Boolean> dataLoadingState = new HashMap<>();
 
     private final FafApiCommunicationService communicationService;
@@ -100,6 +117,24 @@ public class MainController implements Controller<TabPane> {
         initTutorialTab();
         initReportTab();
         initPermissionTab();
+        initSettingsTab();
+
+        selectActiveTab();
+    }
+
+    private void selectActiveTab() {
+        var startUpTab = localPreferences.getUi().getStartUpTab();
+
+        if (startUpTab == null) return;
+
+        try {
+            root.getTabs()
+                    .stream().filter(tab -> Objects.equals(tab.getId(), startUpTab))
+                    .findFirst()
+                    .ifPresent(tab -> root.getSelectionModel().select(tab));
+        } catch (Exception e) {
+            log.error("Error selecting active tab", e);
+        }
     }
 
     private void initLoading(Tab tab, Runnable loadingFunction) {
@@ -206,26 +241,61 @@ public class MainController implements Controller<TabPane> {
 
     private void initPermissionTab() {
         if (checkPermissionForTab(permissionTab, GroupPermission.ROLE_READ_USER_GROUP)
-        && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
+                && checkPermissionForTab(permissionTab, GroupPermission.ROLE_WRITE_USER_GROUP)) {
             userGroupsController = uiService.loadFxml("ui/main_window/userGroups.fxml");
             permissionTab.setContent(userGroupsController.getRoot());
             initLoading(permissionTab, userGroupsController::onRefreshGroups);
         }
     }
 
-    public void display() {
-        LoginController loginController = uiService.loadFxml("ui/login.fxml");
+    private void initSettingsTab() {
+        settingsController = uiService.loadFxml("ui/main_window/settings.fxml");
+        settingsTab.setContent(settingsController.getRoot());
+    }
 
-        Stage loginDialog = new Stage();
-        loginDialog.setOnCloseRequest(event -> System.exit(0));
-        loginDialog.setTitle("FAF Moderator Client");
-        loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
-        Scene scene = new Scene(loginController.getRoot());
-        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
-        loginDialog.setScene(scene);
-        loginDialog.showAndWait();
+    public void display() {
+        if (localPreferences.getAutoLogin().isEnabled()) {
+            String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
+                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
+            String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
+                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
+
+            EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environment);
+            fafApiCommunicationService.initialize(environmentProperties);
+            fafUserCommunicationService.initialize(environmentProperties);
+            tokenService.prepare(environmentProperties);
+
+            try {
+                tokenService.loginWithRefreshToken(refreshToken, true);
+            } catch (Exception e) {
+                log.error("Auto login failed", e);
+                localPreferences.getAutoLogin().setEnabled(false);
+                display();
+            }
+        } else {
+            LoginController loginController = uiService.loadFxml("ui/login.fxml");
+
+            Stage loginDialog = new Stage();
+            loginDialog.setOnCloseRequest(event -> System.exit(0));
+            loginDialog.setTitle("FAF Moderator Client");
+            loginDialog.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
+            Scene scene = new Scene(loginController.getRoot());
+            String stylesheet = "/style/main-light.css";
+            if (localPreferences.getUi().isDarkMode()) {
+                stylesheet = "/style/main-dark.css";
+            }
+            scene.getStylesheets().add(getClass().getResource(stylesheet).toExternalForm());
+            loginDialog.setScene(scene);
+            loginDialog.showAndWait();
+        }
 
         initializeAfterLogin();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        log.info("Saving local preferences to disk");
+        localPreferencesReaderWriter.write(localPreferences);
     }
 
     @EventListener

@@ -21,8 +21,10 @@
     <children>
         <Label text="Name / Tooltip:"/>
         <TextField fx:id="tooltipTextField" promptText="Name / Tooltip" GridPane.columnIndex="1"/>
-        <Label text="Image:" GridPane.rowIndex="1"/>
-        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+        <Label text="Usage description:" GridPane.rowIndex="1"/>
+        <TextField fx:id="descriptionTextField" promptText="Usage description" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Image:" GridPane.rowIndex="2"/>
+        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2">
             <children>
                 <Pane HBox.hgrow="ALWAYS">
                     <HBox.margin>
@@ -36,7 +38,7 @@
                 <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#onChooseFile" text="choose file"/>
             </children>
         </HBox>
-        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="3"
+        <HBox alignment="BOTTOM_RIGHT" GridPane.columnIndex="2" GridPane.columnSpan="2147483647" GridPane.rowIndex="3"
               GridPane.vgrow="ALWAYS">
             <children>
                 <Button defaultButton="true" mnemonicParsing="false" onAction="#onSave" text="Save changes"/>
@@ -50,8 +52,8 @@
                 <Insets top="20.0"/>
             </GridPane.margin>
         </HBox>
-        <Label text="URL:" GridPane.rowIndex="2"/>
-        <Hyperlink fx:id="hyperlink" text="Hyperlink" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="URL:" GridPane.rowIndex="3"/>
+        <Hyperlink fx:id="hyperlink" text="Hyperlink" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
     </children>
     <padding>
         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>

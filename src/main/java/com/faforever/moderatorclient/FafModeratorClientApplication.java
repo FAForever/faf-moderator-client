@@ -1,6 +1,7 @@
 package com.faforever.moderatorclient;
 
 import com.faforever.moderatorclient.config.ApplicationProperties;
+import com.faforever.moderatorclient.config.local.LocalPreferences;
 import com.faforever.moderatorclient.ui.MainController;
 import com.faforever.moderatorclient.ui.PlatformService;
 import com.faforever.moderatorclient.ui.PlatformServiceImpl;
@@ -49,7 +50,14 @@ public class FafModeratorClientApplication extends Application {
         mainController.display();
         primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream("/media/favicon.png")));
         Scene scene = new Scene(mainController.getRoot());
-        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+
+        String stylesheet = "/style/main-light.css";
+        var localPreferences = applicationContext.getBean(LocalPreferences.class);
+        if (localPreferences.getUi().isDarkMode()) {
+            stylesheet = "/style/main-dark.css";
+        }
+
+        scene.getStylesheets().add(getClass().getResource(stylesheet).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
