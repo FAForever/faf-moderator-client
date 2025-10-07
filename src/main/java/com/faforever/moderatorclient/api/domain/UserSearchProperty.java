@@ -16,16 +16,16 @@ public enum UserSearchProperty {
     GOG_ID("Gog Id", "accountLinks.serviceId"),
     IP("Ip Address", "recentIpAddress"),
     PREVIOUS_NAME("Previous Name", "names.name"),
-    UID("UID Hash", "uniqueIds.hash"),
-    DEVICE_ID("Device Id", "uniqueIds.deviceId"),
-    CPU_NAME("CPU Name", "uniqueIds.name"),
-    UUID("UUID", "uniqueIds.uuid"),
-    SERIAL_NUMBER("Serial Number", "uniqueIds.serialNumber"),
-    PROCESSOR_ID("Processor Id", "uniqueIds.processorId"),
-    BIOS_VERSION("Bios Version", "uniqueIds.SMBIOSBIOSVersion"),
-    VOLUME_SERIAL_NUMBER("Volume Serial Number", "uniqueIds.volumeSerialNumber"),
-    MEMORY_SERIAL_NUMBER("Memory Serial Number", "uniqueIds.memorySerialNumber"),
-    MANUFACTURER("Manfacturer", "uniqueIds.manufacturer");
+    UID("UID Hash", "uniqueIdAssignments.uniqueId.hash"),
+    DEVICE_ID("Device Id", "uniqueIdAssignments.uniqueId.deviceId"),
+    CPU_NAME("CPU Name", "uniqueIdAssignments.uniqueId.name"),
+    UUID("UUID", "uniqueIdAssignments.uniqueId.uuid"),
+    SERIAL_NUMBER("Serial Number", "uniqueIdAssignments.uniqueId.serialNumber"),
+    PROCESSOR_ID("Processor Id", "uniqueIdAssignments.uniqueId.processorId"),
+    BIOS_VERSION("Bios Version", "uniqueIdAssignments.uniqueId.SMBIOSBIOSVersion"),
+    VOLUME_SERIAL_NUMBER("Volume Serial Number", "uniqueIdAssignments.uniqueId.volumeSerialNumber"),
+    MEMORY_SERIAL_NUMBER("Memory Serial Number", "uniqueIdAssignments.uniqueId.memorySerialNumber"),
+    MANUFACTURER("Manufacturer", "uniqueIdAssignments.uniqueId.manufacturer");
 
     final String caption;
     final String apiKey;
