@@ -114,7 +114,8 @@ public class MapService {
         log.debug("Searching for all brackets in queue {}", queue.getId());
         ElideNavigatorOnCollection<MatchmakerQueueMapPool> routeBuilder = ElideNavigator.of(MatchmakerQueueMapPool.class)
                 .collection()
-                .setFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()));
+                .setFilter(ElideNavigator.qBuilder().string("matchmakerQueue.id").eq(queue.getId()))
+                .addInclude("matchmakerQueue");
         List<MatchmakerQueueMapPool> brackets = fafApi.getAll(MatchmakerQueueMapPool.class, routeBuilder);
         for (MatchmakerQueueMapPool bracket : brackets) {
             log.info("{}", bracket);
@@ -171,6 +172,9 @@ public class MapService {
                         .setMapPool(bracket.getMapPool())
                         .setMaxRating(bracket.getMaxRating())
                         .setMinRating(bracket.getMinRating())
+                        .setVetoTokensPerPlayer(bracket.getVetoTokensPerPlayer())
+                        .setMaxTokensPerMap(bracket.getMaxTokensPerMap())
+                        .setMinimumMapsAfterVeto(bracket.getMinimumMapsAfterVeto())
                         .setId(bracket.getId()));
     }
 

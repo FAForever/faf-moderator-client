@@ -5,6 +5,9 @@ import com.faforever.commons.api.dto.MapVersion;
 import com.faforever.commons.api.dto.MatchmakerQueue;
 import com.faforever.commons.api.dto.MatchmakerQueueMapPool;
 import com.faforever.commons.api.dto.NeroxisGeneratorParams;
+import com.faforever.commons.api.elide.ElideNavigator;
+import com.faforever.commons.api.elide.ElideNavigatorOnId;
+import com.faforever.moderatorclient.api.FafApiCommunicationService;
 import com.faforever.moderatorclient.api.domain.MapService;
 import com.faforever.moderatorclient.mapstruct.MapPoolAssignmentMapper;
 import com.faforever.moderatorclient.mapstruct.MatchmakerQueueMapPoolMapper;
@@ -174,6 +177,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
 
             // create the bracket list views
             BracketListViewController listViewController = uiService.loadFxml("ui/main_window/bracketListView.fxml");
+            listViewController.bindVetoParams(bracketFX);
             listViewController.setMaps(bracketAssignments);
             listViewController.mapListView.prefWidthProperty().bind((bracketsScrollPane.widthProperty().divide(bracketsFX.size())).subtract(16 / bracketsFX.size()));
             bracketListContainer.getChildren().add(listViewController.getRoot());
@@ -203,6 +207,23 @@ public class LadderMapPoolController implements Controller<SplitPane> {
                             .anyMatch(assignmentFX -> Objects.equals(mapPoolAssignment, assignmentFX)
                                     && !mapPoolAssignment.getWeight().equals(assignmentFX.getWeight())))
                     .collect(Collectors.toList());
+
+            StringBuilder errorMessage = new StringBuilder();
+            for (MatchmakerQueueMapPoolFX bracketFX : bracketsFX) {
+                int mapCount = (int) bracketMapPoolAssignments.stream().filter(mapPoolAssignmentFX -> bracketFX.getMapPool().getId().equals(mapPoolAssignmentFX.getMapPool().getId())).count();
+                if (!isBracketVetoesSetCorrectly(bracketFX, mapCount)) {
+                    errorMessage.append("Wrong veto settings for bracket \"").append(getBracketRatingString(bracketFX)).append("\"\n");
+                }
+            }
+
+            if (!errorMessage.isEmpty()) {
+                ViewHelper.errorDialog("Operation is cancelled", errorMessage.toString());
+                return;
+            }
+
+            for (MatchmakerQueueMapPoolFX bracketFX : bracketsFX) {
+                mapService.patchBracket(bracketFX);
+            }
             mapService.postMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(newMapPoolAssignments));
             mapService.patchMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(changedMapPoolAssignments));
             mapService.deleteMapPoolAssignments(mapPoolAssignmentMapper.mapToDTO(removedMapPoolAssignments));
@@ -257,6 +278,21 @@ public class LadderMapPoolController implements Controller<SplitPane> {
                 selectionModel.clearSelection();
             }
         }));
+    }
+
+    private boolean isBracketVetoesSetCorrectly(MatchmakerQueueMapPoolFX bracket, int mapCount) {
+        double M = bracket.getMinimumMapsAfterVeto();
+        int tokensPerPlayer = bracket.getVetoTokensPerPlayer();
+        int teamSize = bracket.getMatchmakerQueue().getTeamSize();
+        int maxTokensPerMap = bracket.getMaxTokensPerMap();
+
+        if (maxTokensPerMap == 0) {
+            return mapCount > M;
+        } else {
+            int totalPlayers = teamSize * 2;
+            int totalVetoPower = totalPlayers * tokensPerPlayer / maxTokensPerMap;
+            return totalVetoPower <= mapCount - M;
+        }
     }
 
     private void bindSelectedMapPropertyToAddRemoveButtons(ObservableList<MapPoolAssignmentFX> mapList, AddBracketController controller, MapPoolFX bracketPool) {
