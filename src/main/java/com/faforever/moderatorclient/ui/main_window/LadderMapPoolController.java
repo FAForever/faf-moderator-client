@@ -328,11 +328,11 @@ public class LadderMapPoolController implements Controller<SplitPane> {
     }
 
     private String getBracketRatingString(MatchmakerQueueMapPoolFX bracket) {
-        int min = (int) bracket.getMinRating();
-        int max = (int) bracket.getMaxRating();
-        if (min == 0) return String.format("<%d", max);
-        if (max == 0) return String.format(">%d", min);
-        return String.format("%d - %d", min, max);
+        Double minRating = bracket.getMinRating();
+        Double maxRating = bracket.getMaxRating();
+        if (minRating == null) return String.format("<%d", maxRating.intValue());
+        if (maxRating == null) return String.format(">%d", minRating.intValue());
+        return String.format("%d - %d", minRating.intValue(), maxRating.intValue());
     }
 
     public void refresh() {

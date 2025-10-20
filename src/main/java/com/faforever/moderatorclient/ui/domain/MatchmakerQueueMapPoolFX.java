@@ -1,17 +1,15 @@
 package com.faforever.moderatorclient.ui.domain;
 
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
-    private final DoubleProperty minRating;
-    private final DoubleProperty maxRating;
+    private final ObjectProperty<Double> minRating;
+    private final ObjectProperty<Double> maxRating;
     private final IntegerProperty vetoTokensPerPlayer;
     private final IntegerProperty maxTokensPerMap;
     private final DoubleProperty minimumMapsAfterVeto;
@@ -19,8 +17,8 @@ public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
     private final ObjectProperty<MapPoolFX> mapPool;
 
     public MatchmakerQueueMapPoolFX() {
-        minRating = new SimpleDoubleProperty();
-        maxRating = new SimpleDoubleProperty();
+        minRating = new SimpleObjectProperty<>();
+        maxRating = new SimpleObjectProperty<>();
         vetoTokensPerPlayer = new SimpleIntegerProperty();
         maxTokensPerMap = new SimpleIntegerProperty();
         minimumMapsAfterVeto = new SimpleDoubleProperty();
@@ -28,27 +26,27 @@ public class MatchmakerQueueMapPoolFX extends AbstractEntityFX {
         mapPool = new SimpleObjectProperty<>();
     }
 
-    public double getMinRating() {
+    public Double getMinRating() {
         return minRating.get();
     }
 
-    public DoubleProperty minRatingProperty() {
+    public ObjectProperty<Double> minRatingProperty() {
         return minRating;
     }
 
-    public void setMinRating(double minRating) {
+    public void setMinRating(Double minRating) {
         this.minRating.set(minRating);
     }
 
-    public double getMaxRating() {
+    public Double getMaxRating() {
         return maxRating.get();
     }
 
-    public DoubleProperty maxRatingProperty() {
+    public ObjectProperty<Double> maxRatingProperty() {
         return maxRating;
     }
 
-    public void setMaxRating(double maxRating) {
+    public void setMaxRating(Double maxRating) {
         this.maxRating.set(maxRating);
     }
 
