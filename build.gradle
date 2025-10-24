@@ -51,7 +51,7 @@ dependencies {
     implementation("org.jetbrains:annotations:26.0.2")
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client:3.5.6")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client:3.5.7")
     implementation("javax.inject:javax.inject:1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
