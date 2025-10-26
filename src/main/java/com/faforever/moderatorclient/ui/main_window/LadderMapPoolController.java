@@ -287,7 +287,7 @@ public class LadderMapPoolController implements Controller<SplitPane> {
         int maxTokensPerMap = bracket.getMaxTokensPerMap();
 
         if (maxTokensPerMap == 0) {
-            return mapCount > M;
+            return mapCount > M || (mapCount == M && tokensPerPlayer == 0);
         } else {
             int totalPlayers = teamSize * 2;
             int totalVetoPower = totalPlayers * tokensPerPlayer / maxTokensPerMap;
