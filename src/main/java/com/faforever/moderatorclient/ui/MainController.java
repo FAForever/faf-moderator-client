@@ -255,17 +255,16 @@ public class MainController implements Controller<TabPane>, DisposableBean {
 
     public void display() {
         if (localPreferences.getAutoLogin().isEnabled()) {
-            String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
-                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
-            String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
-                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
-
-            EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environment);
-            fafApiCommunicationService.initialize(environmentProperties);
-            fafUserCommunicationService.initialize(environmentProperties);
-            tokenService.prepare(environmentProperties);
-
             try {
+                String environment = Optional.ofNullable(localPreferences.getAutoLogin().getEnvironment())
+                    .orElseThrow(() -> new IllegalStateException("Environment is not set"));
+                String refreshToken = Optional.ofNullable(localPreferences.getAutoLogin().getRefreshToken())
+                    .orElseThrow(() -> new IllegalStateException("Refresh token is not set"));
+
+                EnvironmentProperties environmentProperties = applicationProperties.getEnvironments().get(environment);
+                fafApiCommunicationService.initialize(environmentProperties);
+                fafUserCommunicationService.initialize(environmentProperties);
+                tokenService.prepare(environmentProperties);
                 tokenService.loginWithRefreshToken(refreshToken, true);
             } catch (Exception e) {
                 log.error("Auto login failed", e);
