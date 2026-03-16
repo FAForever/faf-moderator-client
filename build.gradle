@@ -55,7 +55,7 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
-    implementation("com.github.jasminb:jsonapi-converter:0.14")
+    implementation("com.github.jasminb:jsonapi-converter:0.15")
     implementation("com.faforever.commons:data:${commonsVersion}")
     implementation("com.faforever.commons:api:${commonsVersion}")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
