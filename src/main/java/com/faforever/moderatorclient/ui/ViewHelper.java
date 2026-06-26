@@ -228,6 +228,18 @@ public class ViewHelper {
         });
     }
 
+    /**
+     * Whether this assignment's avatar is the one the player currently has selected. The selected
+     * avatar is tracked via {@link PlayerFX#getCurrentAvatar()} (the {@code login.avatar_id} column).
+     */
+    private static boolean isCurrentAvatar(AvatarAssignmentFX assignment) {
+        PlayerFX player = assignment.getPlayer();
+        AvatarFX currentAvatar = player == null ? null : player.getCurrentAvatar();
+        AvatarFX avatar = assignment.getAvatar();
+        return currentAvatar != null && avatar != null
+                && currentAvatar.getId() != null && currentAvatar.getId().equals(avatar.getId());
+    }
+
     public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data, @Nullable Consumer<AvatarAssignmentFX> onRemove) {
         tableView.setItems(data);
         HashMap<TableColumn<AvatarAssignmentFX, ?>, Function<AvatarAssignmentFX, ?>> extractors = new HashMap<>();
@@ -257,7 +269,7 @@ public class ViewHelper {
         extractors.put(userNameColumn, avatarAssignmentFX -> avatarAssignmentFX.getPlayer().getLogin());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
+        selectedColumn.setCellValueFactory(o -> new SimpleObjectProperty<>(isCurrentAvatar(o.getValue())));
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);
 
@@ -892,7 +904,7 @@ public class ViewHelper {
         extractors.put(descriptionColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getDescription());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
+        selectedColumn.setCellValueFactory(o -> new SimpleObjectProperty<>(isCurrentAvatar(o.getValue())));
         selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);

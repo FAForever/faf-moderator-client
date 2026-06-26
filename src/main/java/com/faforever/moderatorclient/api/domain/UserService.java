@@ -58,6 +58,7 @@ public class UserService {
                 .addInclude(variablePrefix + "names")
                 .addInclude(variablePrefix + "avatarAssignments")
                 .addInclude(variablePrefix + "avatarAssignments.avatar")
+                .addInclude(variablePrefix + "currentAvatar")
                 .addInclude(variablePrefix + "uniqueIdAssignments")
                 .addInclude(variablePrefix + "uniqueIdAssignments.uniqueId")
                 .addInclude(variablePrefix + "accountLinks")

@@ -25,6 +25,7 @@ public class PlayerFX extends AbstractEntityFX {
     private final ObservableList<NameRecordFX> names;
     private final ObservableList<BanInfoFX> bans;
     private final ObservableList<AvatarAssignmentFX> avatarAssignments;
+    private final ObjectProperty<AvatarFX> currentAvatar;
 
     public PlayerFX() {
         login = new SimpleStringProperty();
@@ -41,6 +42,7 @@ public class PlayerFX extends AbstractEntityFX {
         avatarAssignments = FXCollections.observableArrayList();
         uniqueIdAssignments = FXCollections.observableSet();
         accountLinks = FXCollections.observableSet();
+        currentAvatar = new SimpleObjectProperty<>();
     }
 
 
@@ -156,6 +158,18 @@ public class PlayerFX extends AbstractEntityFX {
         if (avatarAssignmentFXObservableList != null) {
             avatarAssignments.addAll(avatarAssignmentFXObservableList);
         }
+    }
+
+    public AvatarFX getCurrentAvatar() {
+        return currentAvatar.get();
+    }
+
+    public void setCurrentAvatar(AvatarFX currentAvatar) {
+        this.currentAvatar.set(currentAvatar);
+    }
+
+    public ObjectProperty<AvatarFX> currentAvatarProperty() {
+        return currentAvatar;
     }
 
     public boolean isBannedGlobally() {

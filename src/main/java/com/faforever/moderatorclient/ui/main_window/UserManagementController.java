@@ -434,7 +434,6 @@ public class UserManagementController implements Controller<SplitPane> {
         AvatarAssignmentFX avatarAssignmentFX = new AvatarAssignmentFX();
         avatarAssignmentFX.setAvatar(currentSelectedAvatar.get());
         avatarAssignmentFX.setPlayer(selectedPlayer);
-        avatarAssignmentFX.setSelected(false);
 
         String id = avatarService.createAvatarAssignment(avatarAssignmentFX);
         avatarAssignmentFX.setId(id);
