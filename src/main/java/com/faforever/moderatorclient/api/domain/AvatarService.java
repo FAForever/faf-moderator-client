@@ -39,7 +39,8 @@ public class AvatarService {
         List<Avatar> result = fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
                 .collection()
                 .addInclude("assignments")
-                .addInclude("assignments.player"));
+                .addInclude("assignments.player")
+                .addInclude("assignments.player.currentAvatar"));
         log.trace("found {} avatars", result.size());
         return result;
     }
@@ -50,6 +51,7 @@ public class AvatarService {
                 .collection()
                 .addInclude("assignments")
                 .addInclude("assignments.player")
+                .addInclude("assignments.player.currentAvatar")
                 .setFilter(ElideNavigator.qBuilder().string(attribute).eq(pattern));
 
         List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
@@ -73,6 +75,7 @@ public class AvatarService {
                 .collection()
                 .addInclude("assignments")
                 .addInclude("assignments.player")
+                .addInclude("assignments.player.currentAvatar")
                 .setFilter(ElideNavigator.qBuilder().string(isNumeric ? "assignments.player.id" : "assignments.player.login").eq(pattern));
 
         List<Avatar> result = fafApi.getAll(Avatar.class, navigator);
@@ -115,7 +118,8 @@ public class AvatarService {
         return fafApi.getAll(Avatar.class, ElideNavigator.of(Avatar.class)
                 .collection()
                 .addInclude("assignments")
-                .addInclude("assignments.player"));
+                .addInclude("assignments.player")
+                .addInclude("assignments.player.currentAvatar"));
     }
 
     public void updateAvatarMetadata(String avatarId, String name, String description) {
