@@ -42,6 +42,7 @@ import com.faforever.moderatorclient.ui.domain.VotingChoiceFX;
 import com.faforever.moderatorclient.ui.domain.VotingQuestionFX;
 import com.faforever.moderatorclient.ui.domain.VotingSubjectFX;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -101,6 +102,7 @@ import java.time.format.FormatStyle;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -228,6 +230,21 @@ public class ViewHelper {
         });
     }
 
+    /**
+     * Whether this assignment's avatar is the player's currently worn avatar, i.e. the one referenced
+     * by {@code login.avatar_id} (exposed as {@link PlayerFX#getCurrentAvatar()}). Replaces the legacy
+     * {@code AvatarAssignment.selected} flag, which the API no longer maintains.
+     */
+    private static boolean isCurrentAvatar(AvatarAssignmentFX avatarAssignment) {
+        if (avatarAssignment == null) {
+            return false;
+        }
+        PlayerFX player = avatarAssignment.getPlayer();
+        AvatarFX avatar = avatarAssignment.getAvatar();
+        return player != null && avatar != null && player.getCurrentAvatar() != null
+                && Objects.equals(player.getCurrentAvatar().getId(), avatar.getId());
+    }
+
     public static void buildAvatarAssignmentTableView(TableView<AvatarAssignmentFX> tableView, ObservableList<AvatarAssignmentFX> data, @Nullable Consumer<AvatarAssignmentFX> onRemove) {
         tableView.setItems(data);
         HashMap<TableColumn<AvatarAssignmentFX, ?>, Function<AvatarAssignmentFX, ?>> extractors = new HashMap<>();
@@ -257,7 +274,7 @@ public class ViewHelper {
         extractors.put(userNameColumn, avatarAssignmentFX -> avatarAssignmentFX.getPlayer().getLogin());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
+        selectedColumn.setCellValueFactory(o -> new SimpleBooleanProperty(isCurrentAvatar(o.getValue())));
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);
 
@@ -892,7 +909,7 @@ public class ViewHelper {
         extractors.put(descriptionColumn, avatarAssignmentFX -> avatarAssignmentFX.getAvatar().getDescription());
 
         TableColumn<AvatarAssignmentFX, Boolean> selectedColumn = new TableColumn<>("Selected");
-        selectedColumn.setCellValueFactory(o -> o.getValue().selectedProperty());
+        selectedColumn.setCellValueFactory(o -> new SimpleBooleanProperty(isCurrentAvatar(o.getValue())));
         selectedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectedColumn));
         selectedColumn.setMinWidth(50);
         tableView.getColumns().add(selectedColumn);
